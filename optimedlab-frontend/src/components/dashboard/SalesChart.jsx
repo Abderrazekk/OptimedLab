@@ -10,7 +10,7 @@ const SalesChart = ({ data }) => {
         <YAxis />
         <Tooltip />
         <Legend />
-        <Line type="monotone" dataKey="total" stroke="#8884d8" name="Sales (€)" />
+        <Line type="monotone" dataKey="total" stroke="#8884d8" name="Sales (TND)" />
       </LineChart>
     </ResponsiveContainer>
   );

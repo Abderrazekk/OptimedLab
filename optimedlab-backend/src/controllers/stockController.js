@@ -1,4 +1,4 @@
-// controllers/stockController.js
+
 const Product = require("../models/Product");
 const StockMovement = require("../models/StockMovement");
 

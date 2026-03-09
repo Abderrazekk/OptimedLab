@@ -1,4 +1,4 @@
-// routes/supplierRoutes.js
+
 const express = require('express');
 const { 
   getSuppliers, 

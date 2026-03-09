@@ -1,4 +1,4 @@
-// utils/numberGenerator.js
+
 const generateQuoteNumber = async (Quote) => {
   try {
     const now = new Date();

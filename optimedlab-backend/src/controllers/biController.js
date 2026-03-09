@@ -1,4 +1,4 @@
-// controllers/biController.js
+
 const Invoice = require("../models/Invoice");
 const Product = require("../models/Product");
 const Client = require("../models/Client");

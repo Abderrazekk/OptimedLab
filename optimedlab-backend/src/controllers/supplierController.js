@@ -1,4 +1,4 @@
-// controllers/supplierController.js
+
 const Supplier = require('../models/Supplier');
 
 // @desc    Get all suppliers

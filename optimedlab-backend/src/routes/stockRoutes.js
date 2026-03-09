@@ -1,4 +1,4 @@
-// routes/stockRoutes.js
+
 const express = require('express');
 const {
   getStockList,

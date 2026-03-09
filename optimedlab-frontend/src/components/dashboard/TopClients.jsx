@@ -1,4 +1,4 @@
-// src/components/dashboard/TopClients.jsx
+
 const TopClients = ({ clients }) => {
   return (
     <div className="bg-white p-4 rounded shadow">
@@ -10,7 +10,7 @@ const TopClients = ({ clients }) => {
           {clients.map((c, i) => (
             <li key={i} className="flex justify-between text-sm">
               <span className="text-gray-600">{c.name}</span>
-              <span className="font-medium">{c.totalSpent?.toFixed(2)} €</span>
+              <span className="font-medium">{c.totalSpent?.toFixed(3)} TND</span>
             </li>
           ))}
         </ul>

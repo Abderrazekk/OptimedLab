@@ -1,4 +1,4 @@
-// routes/biRoutes.js
+
 const express = require('express');
 const { getDashboardStats, generateReport } = require('../controllers/biController');
 const { protect } = require('../middleware/authMiddleware');

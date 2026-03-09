@@ -1,8 +1,8 @@
-// routes/productRoutes.js
+
 const express = require('express');
 const { 
   getProducts,
-  getProductById,      // <-- new controller function
+  getProductById,    
   createProduct, 
   updateProduct, 
   deleteProduct 

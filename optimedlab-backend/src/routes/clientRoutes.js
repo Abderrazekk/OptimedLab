@@ -1,4 +1,4 @@
-// routes/clientRoutes.js
+
 const express = require('express');
 const { 
   getClients, 

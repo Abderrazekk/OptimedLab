@@ -1,4 +1,4 @@
-// models/StockMovement.js
+
 const mongoose = require('mongoose');
 
 const StockMovementSchema = new mongoose.Schema({

@@ -1,4 +1,4 @@
-// controllers/purchaseOrderController.js
+
 const PurchaseOrder = require("../models/PurchaseOrder");
 const Product = require("../models/Product");
 const StockMovement = require("../models/StockMovement");
