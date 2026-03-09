@@ -18,7 +18,7 @@ const Quotes = () => {
 
   const canEdit = user && user.role === "commercial";
   const canView =
-    user && (user.role === "commercial" || user.role === "director");
+    user && (user.role === "commercial" || user.role === "director" || user.role === "admin");
 
   useEffect(() => {
     fetchQuotes();

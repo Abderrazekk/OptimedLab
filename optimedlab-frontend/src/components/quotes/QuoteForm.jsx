@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import clientService from "../../services/clientService";
 import productService from "../../services/productService";
+import { formatPrice } from "../../utils/formatPrice";
 
 const QuoteForm = ({ quote, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
@@ -288,7 +289,7 @@ const QuoteForm = ({ quote, onSubmit, onClose }) => {
 
           <div className="mb-6 p-4 bg-gray-50 rounded-lg border text-right">
             <span className="text-xl font-bold text-gray-900">
-              Total Amount: {calculateTotal().toFixed(2)} €
+              Total Amount: {formatPrice(calculateTotal())}
             </span>
           </div>
 

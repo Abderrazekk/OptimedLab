@@ -31,15 +31,6 @@ const Layout = () => {
                     {user?.name}
                   </span>
                 </span>
-                <span className="px-3 py-1 text-[11px] font-semibold tracking-wide bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full uppercase">
-                  {user?.role === "commercial"
-                    ? "Commercial"
-                    : user?.role === "stock"
-                      ? "Stock"
-                      : user?.role === "director"
-                        ? "Director"
-                        : "Admin"}
-                </span>
               </div>
               <button
                 onClick={handleLogout}

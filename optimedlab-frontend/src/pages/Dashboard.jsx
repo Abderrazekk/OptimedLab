@@ -8,6 +8,7 @@ import TopClients from "../components/dashboard/TopClients";
 import StatsCard from "../components/dashboard/StatsCard";
 import AlertsWidget from "../components/stock/AlertsWidget";
 import StockMovementChart from "../components/dashboard/StockMovementChart";
+import { formatPrice } from "../utils/formatPrice";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -32,13 +33,6 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
-    }).format(value);
   };
 
   return (
@@ -73,7 +67,7 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <StatsCard
               title="Total Sales"
-              value={formatCurrency(stats.totalSales)}
+              value={formatPrice(stats.totalSales)}
               icon={
                 <svg
                   className="h-6 w-6"
@@ -184,13 +178,13 @@ const Dashboard = () => {
               <p className="text-sm text-gray-600">
                 Average Invoice Value:{" "}
                 <span className="font-semibold">
-                  {formatCurrency(stats.averageInvoiceValue)}
+                  {formatPrice(stats.averageInvoiceValue)}
                 </span>
               </p>
               <p className="text-sm text-gray-600">
                 Unpaid Invoices Total:{" "}
                 <span className="font-semibold text-red-600">
-                  {formatCurrency(stats.unpaidInvoices)}
+                  {formatPrice(stats.unpaidInvoices)}
                 </span>
               </p>
             </div>

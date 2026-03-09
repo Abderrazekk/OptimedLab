@@ -272,7 +272,7 @@ const Sidebar = () => {
             </Link>
           )}
 
-          {(user?.role === "commercial" || user?.role === "director") && (
+          {(user?.role === "commercial" || user?.role === "director" || user?.role === "admin") && (
             <Link
               to="/quotes"
               className={linkClasses("/quotes")}
@@ -296,7 +296,7 @@ const Sidebar = () => {
             </Link>
           )}
 
-          {(user?.role === "commercial" || user?.role === "director") && (
+          {(user?.role === "admin" || user?.role === "commercial" || user?.role === "director") && (
             <Link
               to="/invoices"
               className={linkClasses("/invoices")}

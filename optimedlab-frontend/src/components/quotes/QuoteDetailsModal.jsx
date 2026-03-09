@@ -1,5 +1,6 @@
 // src/components/quotes/QuoteDetailsModal.jsx
 import React from "react";
+import { formatPrice } from "../../utils/formatPrice";
 
 const QuoteDetailsModal = ({ quote, onClose }) => {
   if (!quote) return null;
@@ -121,10 +122,10 @@ const QuoteDetailsModal = ({ quote, onClose }) => {
                       {item.quantity}
                     </td>
                     <td className="px-4 py-3 text-right text-sm text-gray-500">
-                      {itemPrice.toFixed(2)} €
+                      {formatPrice(itemPrice)}
                     </td>
                     <td className="px-4 py-3 text-right text-sm font-medium text-gray-900">
-                      {itemTotal.toFixed(2)} €
+                      {formatPrice(itemTotal)}
                     </td>
                   </tr>
                 );
@@ -134,8 +135,7 @@ const QuoteDetailsModal = ({ quote, onClose }) => {
         </div>
 
         <div className="flex justify-end text-xl font-bold text-gray-900">
-          {/* 👇 USING THE DYNAMIC CALCULATOR 👇 */}
-          Total: {calculateTotal().toFixed(2)} €
+          Total: {formatPrice(calculateTotal())}
         </div>
       </div>
     </div>
