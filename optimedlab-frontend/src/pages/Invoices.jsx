@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import invoiceService from "../services/invoiceService";
-// 👇 Import the new Modal 👇
 import InvoiceDetailsModal from "../components/invoices/InvoiceDetailsModal";
+import { formatPrice } from "../utils/formatPrice";
 
 const Invoices = () => {
   const { user } = useAuth();
@@ -12,8 +12,6 @@ const Invoices = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("all"); // all, paid, unpaid
-
-  // 👇 State for the Details Modal 👇
   const [detailInvoice, setDetailInvoice] = useState(null);
 
   const canEdit = user && user.role === "commercial";
@@ -61,7 +59,7 @@ const Invoices = () => {
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
-    // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
     } catch (err) {
       alert("Failed to download PDF");
     }
@@ -69,11 +67,9 @@ const Invoices = () => {
 
   const formatDate = (date) => new Date(date).toLocaleDateString("fr-FR");
 
-  // 👇 Dynamic Total Calculator to prevent 0.00 issues 👇
   const calculateTotal = (inv) => {
     if (inv.total && inv.total > 0) return inv.total;
     if (!inv.items || inv.items.length === 0) return 0;
-
     return inv.items.reduce((sum, item) => {
       const price = item.price || item.product?.price || 0;
       return sum + item.quantity * price;
@@ -154,7 +150,6 @@ const Invoices = () => {
                 {filtered.map((inv) => (
                   <tr
                     key={inv._id}
-                    // 👇 Make the row clickable 👇
                     onClick={() => setDetailInvoice(inv)}
                     className="hover:bg-gray-50 cursor-pointer transition-colors"
                   >
@@ -173,8 +168,7 @@ const Invoices = () => {
                       {formatDate(inv.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                      {/* 👇 Use the dynamic total calculator 👇 */}
-                      {calculateTotal(inv).toFixed(2)} €
+                      {formatPrice(calculateTotal(inv))}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm">
                       <span
@@ -190,7 +184,6 @@ const Invoices = () => {
                       </span>
                     </td>
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                      {/* 👇 Added e.stopPropagation() so buttons don't open the modal 👇 */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -234,7 +227,6 @@ const Invoices = () => {
         </div>
       )}
 
-      {/* 👇 Render the Details Modal when an invoice row is clicked 👇 */}
       {detailInvoice && (
         <InvoiceDetailsModal
           invoice={detailInvoice}

@@ -5,6 +5,7 @@ import quoteService from "../services/quoteService";
 import invoiceService from "../services/invoiceService";
 import QuoteForm from "../components/quotes/QuoteForm";
 import QuoteDetailsModal from "../components/quotes/QuoteDetailsModal";
+import { formatPrice } from "../utils/formatPrice";
 
 const Quotes = () => {
   const { user } = useAuth();
@@ -92,7 +93,7 @@ const Quotes = () => {
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
-    // eslint-disable-next-line no-unused-vars
+      // eslint-disable-next-line no-unused-vars
     } catch (err) {
       alert("Failed to download PDF");
     }
@@ -100,16 +101,10 @@ const Quotes = () => {
 
   const formatDate = (date) => new Date(date).toLocaleDateString("fr-FR");
 
-  // 👇 BULLETPROOF TOTAL CALCULATOR 👇
   const calculateTotal = (quote) => {
-    // If the backend has a valid total > 0, use it
     if (quote.totalAmount && quote.totalAmount > 0) return quote.totalAmount;
-
-    // Otherwise, calculate it dynamically from the items!
     if (!quote.items || quote.items.length === 0) return 0;
-
     return quote.items.reduce((sum, item) => {
-      // Fallback to the product's price if the item's price is missing/0
       const price = item.price || item.product?.price || 0;
       return sum + item.quantity * price;
     }, 0);
@@ -194,8 +189,7 @@ const Quotes = () => {
                       {formatDate(q.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                      {/* 👇 USING THE DYNAMIC CALCULATOR 👇 */}
-                      {calculateTotal(q).toFixed(2)} €
+                      {formatPrice(calculateTotal(q))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span

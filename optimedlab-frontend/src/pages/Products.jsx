@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import productService from "../services/productService";
 import ProductForm from "../components/products/ProductForm";
 import ProductDetailModal from "../components/products/ProductDetailModal";
+import { formatPrice } from "../utils/formatPrice";
 
 const Products = () => {
   const { user } = useAuth();
@@ -178,7 +179,7 @@ const Products = () => {
                     <p className="text-sm text-gray-500">{p.category}</p>
                     <div className="mt-2 flex justify-between items-center">
                       <span className="text-xl font-bold text-gray-900">
-                        ${p.price?.toFixed(2)}
+                        {formatPrice(p.price)}
                       </span>
                       <span
                         className={`text-sm ${p.stockQuantity <= p.threshold ? "text-red-600 font-semibold" : "text-gray-600"}`}
