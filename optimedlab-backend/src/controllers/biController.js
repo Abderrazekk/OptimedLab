@@ -1,8 +1,32 @@
-
 const Invoice = require("../models/Invoice");
 const Product = require("../models/Product");
 const Client = require("../models/Client");
 const Quote = require("../models/Quote");
+const PDFDocument = require("pdfkit");
+
+// --- Helper Functions (matching pdfGenerator style) ---
+
+const formatCurrency = (amount) => {
+  return "TND " + amount.toFixed(3);
+};
+
+const generateHr = (doc, y) => {
+  doc.strokeColor("#e5e7eb").lineWidth(1).moveTo(50, y).lineTo(550, y).stroke();
+};
+
+// Generic table row drawer (columns defined per report type)
+const drawTableRow = (doc, y, columns, isHeader = false) => {
+  doc.fontSize(10);
+  doc.font(isHeader ? "Helvetica-Bold" : "Helvetica");
+  columns.forEach((col) => {
+    doc.text(col.text, col.x, y, {
+      width: col.width,
+      align: col.align || "left",
+    });
+  });
+};
+
+// --- BI Controller Functions ---
 
 // @desc    Get dashboard statistics
 // @route   GET /api/bi/dashboard
@@ -190,12 +214,14 @@ const generateReport = async (req, res) => {
       : new Date(new Date().setMonth(new Date().getMonth() - 1));
     const end = endDate ? new Date(endDate) : new Date();
 
-    let data = {};
+    let data = [];
     let title = "";
+    let columns = [];
 
+    // Fetch data based on type
     switch (type) {
       case "sales":
-        title = "Sales Report";
+        title = "RAPPORT DES VENTES";
         data = await Invoice.aggregate([
           {
             $match: {
@@ -218,15 +244,20 @@ const generateReport = async (req, res) => {
               date: "$createdAt",
               client: "$clientInfo.name",
               total: 1,
-              items: 1,
             },
           },
           { $sort: { date: -1 } },
         ]);
+        columns = [
+          { text: "N° Facture", x: 50, width: 100, align: "left" },
+          { text: "Date", x: 160, width: 80, align: "left" },
+          { text: "Client", x: 250, width: 150, align: "left" },
+          { text: "Montant", x: 450, width: 100, align: "right" },
+        ];
         break;
 
       case "products":
-        title = "Product Performance Report";
+        title = "RAPPORT PRODUITS";
         data = await Product.aggregate([
           {
             $lookup: {
@@ -248,24 +279,37 @@ const generateReport = async (req, res) => {
             },
           },
         ]);
+        columns = [
+          { text: "Produit", x: 50, width: 150, align: "left" },
+          { text: "Catégorie", x: 210, width: 100, align: "left" },
+          { text: "Prix", x: 320, width: 80, align: "right" },
+          { text: "Stock", x: 410, width: 60, align: "right" },
+          { text: "Fournisseur", x: 480, width: 120, align: "left" },
+        ];
         break;
 
       case "stock":
-        title = "Stock Status Report";
+        title = "RAPPORT DE STOCK (Alertes)";
         data = await Product.find({
           $expr: { $lte: ["$stockQuantity", "$threshold"] },
         }).populate("supplier", "name");
+        columns = [
+          { text: "Produit", x: 50, width: 200, align: "left" },
+          { text: "Stock", x: 260, width: 60, align: "right" },
+          { text: "Seuil", x: 330, width: 60, align: "right" },
+          { text: "Statut", x: 400, width: 100, align: "left" },
+          { text: "Fournisseur", x: 510, width: 100, align: "left" },
+        ];
         break;
 
       default:
-        title = "Comprehensive Report";
-        // Combine multiple data sources
+        title = "RAPPORT COMPLET";
+        // For a comprehensive report you might combine data; here we just return empty
         break;
     }
 
-    // Generate PDF using pdfkit (similar to previous PDF generation)
-    const PDFDocument = require("pdfkit");
-    const doc = new PDFDocument({ margin: 50 });
+    // --- PDF Generation (styled like invoice/quote) ---
+    const doc = new PDFDocument({ margin: 50, size: "A4" });
     const buffers = [];
     doc.on("data", buffers.push.bind(buffers));
     doc.on("end", () => {
@@ -273,80 +317,170 @@ const generateReport = async (req, res) => {
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename=report-${type}-${Date.now()}.pdf`,
+        `attachment; filename=rapport-${type}-${Date.now()}.pdf`,
       );
       res.send(pdfData);
     });
 
-    // Build PDF
-    doc.fontSize(20).text("OPTIMEDLAB", { align: "center" });
-    doc.fontSize(16).text(title, { align: "center" });
-    doc.moveDown();
+    // 1. Header Section
     doc
-      .fontSize(12)
+      .fillColor("#047857")
+      .fontSize(24)
+      .font("Helvetica-Bold")
+      .text("OPTIMEDLAB", 50, 50);
+
+    doc
+      .fillColor("#4b5563")
+      .fontSize(10)
+      .font("Helvetica")
+      .text("Adresse de l'entreprise", 50, 80)
+      .text("Tél: +216 77 456 789", 50, 95)
+      .text("contact@optimedlab.com", 50, 110);
+
+    // Document Title (right aligned)
+    doc
+      .fillColor("#111827")
+      .fontSize(20)
+      .font("Helvetica-Bold")
+      .text(title, 50, 50, { align: "right", width: 500 });
+
+    // Period and generation date (metadata)
+    doc
+      .fontSize(10)
+      .font("Helvetica-Bold")
+      .text("Période:", 350, 80)
+      .font("Helvetica")
       .text(
-        `Period: ${start.toLocaleDateString()} to ${end.toLocaleDateString()}`,
-      );
-    doc.moveDown();
+        `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`,
+        420,
+        80,
+        { width: 130, align: "right" },
+      )
 
-    // Add content based on type
-    if (Array.isArray(data) && data.length > 0) {
-      if (type === "sales") {
-        // Table headers
-        let y = doc.y;
-        doc.fontSize(10).font("Helvetica-Bold");
-        doc.text("Invoice", 50, y);
-        doc.text("Date", 150, y);
-        doc.text("Client", 250, y);
-        doc.text("Total", 450, y);
-        doc.font("Helvetica");
+      .font("Helvetica-Bold")
+      .text("Généré le:", 350, 95)
+      .font("Helvetica")
+      .text(new Date().toLocaleString(), 420, 95, {
+        width: 130,
+        align: "right",
+      });
 
-        data.forEach((item, i) => {
-          y = doc.y + 20;
-          doc.text(item.invoiceNumber || "-", 50, y);
-          doc.text(new Date(item.date).toLocaleDateString(), 150, y);
-          doc.text(item.client || "-", 250, y);
-          doc.text(`${item.total?.toFixed(2)} €`, 450, y);
-        });
-      } else if (type === "products") {
-        let y = doc.y;
-        doc.fontSize(10).font("Helvetica-Bold");
-        doc.text("Product", 50, y);
-        doc.text("Category", 200, y);
-        doc.text("Price", 300, y);
-        doc.text("Stock", 380, y);
-        doc.text("Supplier", 450, y);
-        doc.font("Helvetica");
+    generateHr(doc, 135);
 
-        data.forEach((item, i) => {
-          y = doc.y + 20;
-          doc.text(item.name, 50, y);
-          doc.text(item.category, 200, y);
-          doc.text(`${item.price?.toFixed(2)} €`, 300, y);
-          doc.text(item.stockQuantity?.toString(), 380, y);
-          doc.text(item.supplier || "-", 450, y);
-        });
-      } else if (type === "stock") {
-        let y = doc.y;
-        doc.fontSize(10).font("Helvetica-Bold");
-        doc.text("Product", 50, y);
-        doc.text("Stock", 200, y);
-        doc.text("Threshold", 280, y);
-        doc.text("Status", 350, y);
-        doc.font("Helvetica");
+    // 2. Table Section
+    const tableTop = 160;
+    const rowHeight = 20;
 
-        data.forEach((item, i) => {
-          y = doc.y + 20;
-          const status = item.stockQuantity <= 0 ? "Out of Stock" : "Low Stock";
-          doc.text(item.name, 50, y);
-          doc.text(item.stockQuantity?.toString(), 200, y);
-          doc.text(item.threshold?.toString(), 280, y);
-          doc.text(status, 350, y);
-        });
-      }
+    // Table Header with background
+    doc.rect(50, tableTop - 5, 500, 25).fill("#f3f4f6");
+    doc.fillColor("#111827");
+    drawTableRow(doc, tableTop, columns, true);
+    generateHr(doc, tableTop + 20);
+
+    let y = tableTop + 30;
+
+    // Table Rows with Zebra Striping
+    if (data.length === 0) {
+      doc
+        .fontSize(10)
+        .font("Helvetica")
+        .fillColor("#374151")
+        .text("Aucune donnée disponible pour la période sélectionnée.", 50, y);
+      y += rowHeight;
     } else {
-      doc.text("No data available for the selected period.");
+      data.forEach((item, i) => {
+        // Zebra striping
+        if (i % 2 !== 0) {
+          doc.rect(50, y - 5, 500, rowHeight).fill("#f9fafb");
+        }
+        doc.fillColor("#374151");
+
+        // Build row data based on report type
+        let rowColumns = [];
+        if (type === "sales") {
+          rowColumns = [
+            {
+              text: item.invoiceNumber || "-",
+              x: 50,
+              width: 100,
+              align: "left",
+            },
+            {
+              text: new Date(item.date).toLocaleDateString(),
+              x: 160,
+              width: 80,
+              align: "left",
+            },
+            { text: item.client || "-", x: 250, width: 150, align: "left" },
+            {
+              text: formatCurrency(item.total || 0),
+              x: 450,
+              width: 100,
+              align: "right",
+            },
+          ];
+        } else if (type === "products") {
+          rowColumns = [
+            { text: item.name || "-", x: 50, width: 150, align: "left" },
+            { text: item.category || "-", x: 210, width: 100, align: "left" },
+            {
+              text: formatCurrency(item.price || 0),
+              x: 320,
+              width: 80,
+              align: "right",
+            },
+            {
+              text: (item.stockQuantity || 0).toString(),
+              x: 410,
+              width: 60,
+              align: "right",
+            },
+            { text: item.supplier || "-", x: 480, width: 120, align: "left" },
+          ];
+        } else if (type === "stock") {
+          const status = item.stockQuantity <= 0 ? "Rupture" : "Stock faible";
+          rowColumns = [
+            { text: item.name || "-", x: 50, width: 200, align: "left" },
+            {
+              text: (item.stockQuantity || 0).toString(),
+              x: 260,
+              width: 60,
+              align: "right",
+            },
+            {
+              text: (item.threshold || 0).toString(),
+              x: 330,
+              width: 60,
+              align: "right",
+            },
+            { text: status, x: 400, width: 100, align: "left" },
+            {
+              text: item.supplier?.name || "-",
+              x: 510,
+              width: 100,
+              align: "left",
+            },
+          ];
+        }
+
+        drawTableRow(doc, y, rowColumns);
+        y += rowHeight;
+      });
     }
+
+    generateHr(doc, y + 5);
+
+    // 3. Footer with generation timestamp
+    const footerY = doc.page.height - 100;
+    doc
+      .fontSize(9)
+      .fillColor("#9ca3af")
+      .text(
+        `Document généré le ${new Date().toLocaleString()} - OPTIMEDLAB`,
+        50,
+        footerY,
+        { align: "center", width: 500 },
+      );
 
     doc.end();
   } catch (error) {
