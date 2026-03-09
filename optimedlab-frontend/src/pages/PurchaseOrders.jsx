@@ -1,19 +1,27 @@
 // src/pages/PurchaseOrders.jsx
-import { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import purchaseOrderService from '../services/purchaseOrderService';
-import PurchaseOrderForm from '../components/purchaseOrders/PurchaseOrderForm';
+import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import purchaseOrderService from "../services/purchaseOrderService";
+import PurchaseOrderForm from "../components/purchaseOrders/PurchaseOrderForm";
+import PurchaseOrderDetailsModal from "../components/purchaseOrders/PurchaseOrderDetailsModal";
 
 const PurchaseOrders = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
-  const canEdit = user && (user.role === 'admin' || user.role === 'stock');
-  const canView = user && (user.role === 'admin' || user.role === 'stock' || user.role === 'director');
+  // State for the Details Modal
+  const [detailOrder, setDetailOrder] = useState(null);
+
+  const canEdit = user && (user.role === "admin" || user.role === "stock");
+  const canView =
+    user &&
+    (user.role === "admin" ||
+      user.role === "stock" ||
+      user.role === "director");
 
   useEffect(() => {
     fetchOrders();
@@ -25,7 +33,7 @@ const PurchaseOrders = () => {
       const response = await purchaseOrderService.getPurchaseOrders();
       setOrders(response.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load orders');
+      setError(err.response?.data?.message || "Failed to load orders");
     } finally {
       setLoading(false);
     }
@@ -42,22 +50,28 @@ const PurchaseOrders = () => {
   };
 
   const handleDelete = async (id, poNumber) => {
-    if (!window.confirm(`Delete purchase order ${poNumber}?`)) return;
-    try {
-      await purchaseOrderService.deletePurchaseOrder(id);
-      fetchOrders();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete');
+    if (window.confirm(`Are you sure you want to delete PO #${poNumber}?`)) {
+      try {
+        await purchaseOrderService.deletePurchaseOrder(id);
+        fetchOrders();
+      } catch (err) {
+        alert(err.response?.data?.message || "Failed to delete PO");
+      }
     }
   };
 
   const handleReceive = async (id) => {
-    if (!window.confirm('Mark this order as received? This will update stock.')) return;
-    try {
-      await purchaseOrderService.receivePurchaseOrder(id);
-      fetchOrders();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to receive order');
+    if (
+      window.confirm(
+        "Mark this PO as received? This will update stock quantities.",
+      )
+    ) {
+      try {
+        await purchaseOrderService.receivePurchaseOrder(id);
+        fetchOrders();
+      } catch (err) {
+        alert(err.response?.data?.message || "Failed to receive PO");
+      }
     }
   };
 
@@ -71,40 +85,36 @@ const PurchaseOrders = () => {
       setShowForm(false);
       fetchOrders();
     } catch (err) {
-      alert(err.response?.data?.message || 'Operation failed');
+      alert(err.response?.data?.message || "Operation failed");
     }
   };
 
-  if (!canView) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          You do not have permission to view this page.
-        </div>
-      </div>
-    );
-  }
+  const formatDate = (date) => new Date(date).toLocaleDateString("fr-FR");
+
+  if (!canView) return null;
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="sm:flex sm:items-center sm:justify-between">
+      <div className="sm:flex sm:items-center sm:justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Purchase Orders</h1>
-          <p className="mt-2 text-sm text-gray-700">Manage supplier orders</p>
+          <h1 className="text-2xl font-bold text-gray-900">Purchase Orders</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Manage incoming stock from suppliers.
+          </p>
         </div>
         {canEdit && (
           <button
             onClick={handleAdd}
             className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
           >
-            New Purchase Order
+            Create PO
           </button>
         )}
       </div>
 
       {error && (
-        <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
+        <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
+          <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
 
@@ -113,59 +123,96 @@ const PurchaseOrders = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
       ) : (
-        <div className="mt-8 flex flex-col">
+        <div className="bg-white shadow overflow-hidden sm:rounded-md">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-300">
+            <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">PO Number</th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Supplier</th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Date</th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Items</th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Created By</th>
-                  <th className="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                    <span className="sr-only">Actions</span>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    PO Number
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Supplier
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
+              <tbody className="bg-white divide-y divide-gray-200">
                 {orders.map((order) => (
-                  <tr key={order._id}>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{order.poNumber}</td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{order.supplier?.name}</td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString()}
+                  <tr
+                    key={order._id}
+                    onClick={() => setDetailOrder(order)}
+                    className="hover:bg-gray-50 cursor-pointer transition-colors"
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {order.poNumber}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {order.items.length} item(s)
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-medium text-gray-900">
+                        {order.supplier?.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {order.supplier?.email}
+                      </div>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm">
-                      <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                        order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
-                      }`}>
-                        {order.status}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatDate(order.createdAt)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          order.status === "received"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {order.status.toUpperCase()}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{order.createdBy?.name}</td>
-                    <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                      {canEdit && order.status === 'pending' && (
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      {canEdit && order.status === "pending" && (
                         <>
-                          <button onClick={() => handleEdit(order)} className="text-blue-600 hover:text-blue-900 mr-3">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(order);
+                            }}
+                            className="text-blue-600 hover:text-blue-900 mr-3"
+                          >
                             Edit
                           </button>
-                          <button onClick={() => handleReceive(order._id)} className="text-green-600 hover:text-green-900 mr-3">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleReceive(order._id);
+                            }}
+                            className="text-green-600 hover:text-green-900 mr-3"
+                          >
                             Receive
                           </button>
-                          <button onClick={() => handleDelete(order._id, order.poNumber)} className="text-red-600 hover:text-red-900">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(order._id, order.poNumber);
+                            }}
+                            className="text-red-600 hover:text-red-900"
+                          >
                             Delete
                           </button>
                         </>
                       )}
-                      {!canEdit && order.status === 'pending' && (
+                      {!canEdit && order.status === "pending" && (
                         <span className="text-gray-400">View only</span>
                       )}
-                      {order.status === 'received' && (
+                      {order.status === "received" && (
                         <span className="text-gray-400">Received</span>
                       )}
                     </td>
@@ -173,7 +220,10 @@ const PurchaseOrders = () => {
                 ))}
                 {orders.length === 0 && (
                   <tr>
-                    <td colSpan="7" className="px-3 py-8 text-center text-gray-500">
+                    <td
+                      colSpan="5"
+                      className="px-6 py-8 text-center text-gray-500"
+                    >
                       No purchase orders found.
                     </td>
                   </tr>
@@ -189,6 +239,13 @@ const PurchaseOrders = () => {
           purchaseOrder={selectedOrder}
           onSubmit={handleFormSubmit}
           onClose={() => setShowForm(false)}
+        />
+      )}
+
+      {detailOrder && (
+        <PurchaseOrderDetailsModal
+          purchaseOrder={detailOrder}
+          onClose={() => setDetailOrder(null)}
         />
       )}
     </div>

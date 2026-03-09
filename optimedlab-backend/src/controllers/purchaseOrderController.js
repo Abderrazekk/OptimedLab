@@ -11,7 +11,8 @@ const getPurchaseOrders = async (req, res) => {
   try {
     const orders = await PurchaseOrder.find()
       .populate("supplier", "name email")
-      .populate("items.product", "name sku")
+      // 👇 ADDED 'images price' HERE 👇
+      .populate("items.product", "name sku images price")
       .populate("createdBy", "name")
       .sort("-createdAt");
     res.json({ success: true, data: orders });
@@ -19,7 +20,6 @@ const getPurchaseOrders = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 // @desc    Get single purchase order
 // @route   GET /api/purchase-orders/:id
 // @access  Private (Admin, Stock, Director)
@@ -27,7 +27,8 @@ const getPurchaseOrderById = async (req, res) => {
   try {
     const order = await PurchaseOrder.findById(req.params.id)
       .populate("supplier")
-      .populate("items.product")
+      // 👇 ADDED 'images price' HERE 👇
+      .populate("items.product", "name sku images price")
       .populate("createdBy", "name");
     if (!order) {
       return res
@@ -56,21 +57,17 @@ const createPurchaseOrder = async (req, res) => {
     // Validate items
     for (const item of items) {
       if (!item.product || !item.quantity || item.quantity <= 0) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "Each item must have a product and valid quantity",
-          });
+        return res.status(400).json({
+          success: false,
+          message: "Each item must have a product and valid quantity",
+        });
       }
       const product = await Product.findById(item.product);
       if (!product) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: `Product with ID ${item.product} not found`,
-          });
+        return res.status(400).json({
+          success: false,
+          message: `Product with ID ${item.product} not found`,
+        });
       }
     }
 
@@ -108,12 +105,10 @@ const updatePurchaseOrder = async (req, res) => {
         .json({ success: false, message: "Purchase order not found" });
     }
     if (order.status !== "pending") {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Only pending orders can be updated",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Only pending orders can be updated",
+      });
     }
 
     const { supplier, items } = req.body;
@@ -122,21 +117,17 @@ const updatePurchaseOrder = async (req, res) => {
       // Validate items
       for (const item of items) {
         if (!item.product || !item.quantity || item.quantity <= 0) {
-          return res
-            .status(400)
-            .json({
-              success: false,
-              message: "Each item must have a product and valid quantity",
-            });
+          return res.status(400).json({
+            success: false,
+            message: "Each item must have a product and valid quantity",
+          });
         }
         const product = await Product.findById(item.product);
         if (!product) {
-          return res
-            .status(400)
-            .json({
-              success: false,
-              message: `Product with ID ${item.product} not found`,
-            });
+          return res.status(400).json({
+            success: false,
+            message: `Product with ID ${item.product} not found`,
+          });
         }
       }
       order.items = items;
@@ -167,12 +158,10 @@ const deletePurchaseOrder = async (req, res) => {
         .json({ success: false, message: "Purchase order not found" });
     }
     if (order.status !== "pending") {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Only pending orders can be deleted",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Only pending orders can be deleted",
+      });
     }
     await order.deleteOne();
     res.json({ success: true, message: "Purchase order deleted" });
@@ -204,12 +193,10 @@ const receivePurchaseOrder = async (req, res) => {
     for (const item of order.items) {
       const product = await Product.findById(item.product._id);
       if (!product) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: `Product ${item.product.name} not found`,
-          });
+        return res.status(400).json({
+          success: false,
+          message: `Product ${item.product.name} not found`,
+        });
       }
       product.stockQuantity += item.quantity;
       await product.save();
