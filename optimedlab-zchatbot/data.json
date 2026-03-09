@@ -1,0 +1,1006 @@
+[
+  {
+    "question": "Network Status 'Unknown' / more details / [ooredoom1@crssos02g-hslave ~]$ hostnamectl    Static hostname: crssos02g    Icon name: computer-server    Chassis: server    Operating System: Red Hat Enterprise Linux Server 7.4 (Maipo)    CPE OS Name: cpe:/o:redhat:enterprise_linux:7.4:GA:server    Kernel: Linux 3.10.0-693.81.1.el7.x86_64    Architecture: x86-64",
+    "answer": "."
+  },
+  {
+    "question": "Hadoop platform  | H-C / more details / ci-dessous un état des serveurs HPE DL360.         En priorité démarrer les serveurs down impactant les services bigdata suivants :         10.184.29.3         hdpmstr3prd.intra.local  10.184.29.4         hdpwrkr1prd.intra.local",
+    "answer": "Nous avons confirmé que le contrôleur de stockage installé est le P420i, qui est un contrôleur intégré.  Nous avons donc procédé au remplacement de la carte mère.    2\tPOST Error: 226 - Power Fault Detected - Embedded Storage Controller Action: Re-seat storage controller if removable. Otherwise, contact HP service."
+  },
+  {
+    "question": "Cache Module Failed sur serveur HDPmstr1Prd proliant DL360 Gen8 / more details / Bonjour    nous avons des problèmes sur serveur: HDPwrkr10Prd Proliant DL360 Gen 8 , N° série: CZJ4280076    - PS1 / Input Voltage Lost    - DIMM 11 et 12 present unused    merci d'intervenir    cdt.",
+    "answer": "Remplacement cache module + 2 barrettes mémoires sur DL360 Gen8   Status : OK"
+  },
+  {
+    "question": "Cache Module Status failed sur serveur HDPedge4Prd Proliant DL360p Gne8 / more details / Bonjour    Cache Module Status failed sur serveur HDPedge4Prd Proliant DL360p Gne8 N° série: CZJ428007P    cash module serial number: PBKUC0BRH6UIHL    Merci d'intervenir",
+    "answer": "changement cache module effectué"
+  },
+  {
+    "question": "Problème Crash serveur HPE (Contôleur de domaine) Modèle: HP PROLIANT / more details / Problème Crash serveur HPE (Contôleur de domaine)    Modèle: HP PROLIANT DL380 G6 E5520 1P 6GB-R P410I/256 8 SFF    Serial Number: CZ201131FW    Part Number: 491325-421          Avec problème de disque (image ci-joint)",
+    "answer": "pas de problème hardware"
+  },
+  {
+    "question": "OA chassis Vmware-Enclosure-02 HS / more details / Bonjour,    L'OA du chassis C7000 Vmware-Enclosure-02 est HS.    Merci d'intervenir.    Serial Number chassis : CZ3228NY4B",
+    "answer": "-Retirez l’OA défectueux. -Insérez le nouvel OA,  -Attendez quelques minutes que l’OA se synchronise avec l’OA actif. -Vérifiez que tous les composants sont bien détectés (serveurs blades, modules d’alimentation, interconnexions). -Testez l'accès via l’interface web et SSH. -Si le nouveau module OA est vierge, appliquez les paramètres réseau et restaurez la configuration sauvegardée."
+  },
+  {
+    "question": "Physical Drive in Port 1I Box 1 Bay 8 Degraded in serveur HDPw / more details / Bonjour    Physical Drive in Port 1I Box 1 Bay 8 Degraded in serveur HDPwrkr9Prd    modele Prolian DL360p Gen8, N° serie: HDPwrkr9Prd    Modele drive: EG1200FDNJT    N° serie du drive: KZH98Z6F    merci d'intervenir",
+    "answer": ""
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire / more details / Ticket generated for preventive visit",
+    "answer": "-vérification des jobs Veeam , état : ok -vérification desVMs , état : ok -Vérification de l'antivirus , état : ok -Vérification des équipements du salle serveur (disques , serveur , cablage ,état port , switch ) : ok -Vérification des imprimantes , état : ok -Vérification état PCs : ok -Onduleur : en cours"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire / more details / Ticket generated for preventive visit",
+    "answer": "Health check physique: Ok  check Ad-p AD-s: Ok  check Veeam: Ok  check Buffalo Nas: Ok   check VMware ESXI: Ok  Nas saturé, licence expirée, Job failed"
+  },
+  {
+    "question": "Visite préventive 04-02-2025 / more details / Ticket generated for preventive visit",
+    "answer": "GED: RAS /WEB: RAS/ DA4700 :RAS / SVF : RAS  S2200T : RAS / Brocade : RAS / DEll R820 : RAS  R430 : RAS  Pas de problem Hardware  Une visite pour vérifier le câblage et la configuration du mangement : à planifier avec sofien"
+  },
+  {
+    "question": "Visite préventive 06-02-2025 / more details / Ticket generated for preventive visit",
+    "answer": "R630 DELL : RAS  768 GO DDR4 : RAS  SAS 600 GB : RAS  Linux redhat 7.3 : RAS  Vmware ESXI 6.7 : RAS  Vmware ESXI 6.7 : RAS"
+  },
+  {
+    "question": "Visite Préventive 04-02-2025 / more details / Ticket generated for preventive visit",
+    "answer": "Dell power Edge R830 : RAS  RAM 128: RAS  Disque : RAS  OS : RAS"
+  },
+  {
+    "question": "Visite Préventive / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "Visite préventive / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "Visite préventive / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "Problème au niveau débit / more details / Le fournisseur annonce une connexion à 50 /Mbps, le débit que notre client obtenez est de seulement 4 Mbps.  Effectuation de plusieurs test afin de résoudre le problème de débit pour les utilisateurs :  - Test sur le routeur de l'opérateur : Vous trouverez ci-joint les résultats obtenus. Résultat du test sur le routeur  - Vérification de la consommation de bande par l'interface de firewall (LAN 1 users) et isolation de l'interface DMZ, qui fait partie du système.  - Tests directement sur le switch : J'ai utilisé deux méthodes de test, Speedtest et Nperf, dont vous trouverez les résultats ci-joints. Résultat Speedtest Résultat Nperf  Conclusion : Le problème semble provenir de la partie système, qui consomme presque toute la bande passante.",
+    "answer": "\"Remplacement du FW défectueux par un autre fonctionnel de la part de Fortinet, car d'après le diagnostic du support Fortinet, il a été prouvé que le FW est affecté par un défaut interne lié à l'intégrité matérielle du FW ! \""
+  },
+  {
+    "question": "Renouvellement de licence Fortinet / more details / Devis envoyé le 10/02/2025  Devis confirmé par le client le 10/02/2025    FortiGate-30E Unified Threat Protection (UTP) - 1 year  Fortigate 30E SN : FGT30E5618038772  Expiration date : 16/01/2026",
+    "answer": "- licence FW renouvelée avec succès"
+  },
+  {
+    "question": "Problème Disque MSA 1050 SAN Warning : Drive Down / more details / Problème Disque MSA 1050 SAN Warning : Drive Down",
+    "answer": "Changement disque 2.4 TB sur le HPE MSA 1050 SAN  Test de bon fonctionnement de disque ."
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 12-02-2025 / more details / Visite Préventive Hebdomadaire 12-02-2025",
+    "answer": "vérification des Vms et des équipements salle serveur  Mise à jour symantec  installer adobe reader et le tester:ok  état job veeam:ok"
+  },
+  {
+    "question": "Planification de Mise à jour de Serveur après 17 h / more details / Planification de Mise à jour de Serveur après 17 h",
+    "answer": "Mise à jour  des serveurs sont effectuées avec succès"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 13-02-2025 / more details / Visite Préventive Hebdomadaire 13-02-2025",
+    "answer": "libérer stockage et lancer backup veeam   démonstration au client  de l'infrastructure actuelle et lui expliquer la situation critique de la saturation du NAS   client ok pour une offre technique"
+  },
+  {
+    "question": "Crash serveur BSCSDEV / more details / Bonjour,    Nous avons un serveur BSCSDEV IA64 hors service suite problème PS/FAN    S/N : USE0108985    Server Model : bscsdev ia64 hp server rx6600    Merci d'intervenir en urgence    # Location|Alert| Encoded Field | Data Field | Keyword / Timestamp  -------------------------------------------------------------------------------  1533681 BMC 2 0x2067AED8E3025AA5 FFFF000943090300 POWER_UNIT_DISABLED  14 Feb 2025 05:47:15  1533680 BMC 2 0x2067AED8E2025AA5 4100A37041120300 CHASSIS_CONTROL_REQUEST  14 Feb 2025 05:47:14  1533679 BMC *7 0x2067AED8E2025AA5 4100A87041120300 SHUTDOWN_OR_RESET_ON_SENSOR  14 Feb 2025 05:47:14  1533678 BMC *3 0x2067AED8E2025AA5 FFFF016F41080300 POWER_SUPPLY_FAIL_OR_DISCONNECT  14 Feb 2025 05:47:14  1533677 BMC *5 0x2067AED8CE025AA5 FFFF0207F20A0300 COOLING_UNIT_FAILURE  14 Feb 2025 05:46:54  1533676 BMC *5 0x2067AED8CE025AA5 FFFF0207F10A0300 COOLING_UNIT_FAILURE  14 Feb 2025 05:46:54  1533675 BMC *5 0x2067AED8CE025AA5 FFFF0207F00A0300 COOLING_UNIT_FAILURE  14 Feb 2025 05:46:54  1533674 BMC 2 0x2067AED8B1025AA5 FFFF0007F20A0300 COOLING_UNIT_OK  14 Feb 2025 05:46:25# Location|Alert| Encoded Field | Data Field |",
+    "answer": "Changement du module I/O effectué avec succès  Démarrage du serveur effectué  Le serveur fonctionne correctement sans aucun problème"
+  },
+  {
+    "question": "Problème de format d’impression avec l’application BL Gestion Smart / more details / Problème de format d’impression avec l’application BL Gestion Smart  (Faten Allala)",
+    "answer": "le problème n'est pas avec uniflow le support applicative doit intégrer uniflow dans le code"
+  },
+  {
+    "question": "Installation d’imprimante uniflow PC saida hechmi / more details / Installation d’imprimante uniflow PC saida hechmi",
+    "answer": "installation uniflow"
+  },
+  {
+    "question": "Storage failed sur CRSSOS02A / more details / Bonjour,         On a détecté une défaillance de lecteur logique et physique 2 sur l’un de nos serveurs CRS :    Serveur : CRSSOS02A    Num Série : CZ20390LC8    iLO Firmware Version : 2.30 Aug 24 2020    IP : 10.204.43.17    Etat sur ILO :",
+    "answer": "Smart Array - Predictive drive is failed: Port 1I Box 1 Bay 1  Slot 0 Smart Array - Logical drive status changed to failed    Data backup is desired.  reenable LD1 and replace the disk in slot Port 1I Box 1 Bay 1 (see detail below)"
+  },
+  {
+    "question": "Disque SR-BL-HYV-03 / more details / Bonjour,  Problème disque SR-BL-HYV-03",
+    "answer": "Changement disque 300 Gb sur le serveur BLADE HPE 460c g8"
+  },
+  {
+    "question": "Network Status sur Serveur : CRSSOS02A Num Série : CZ20390LC8 iLO Firmware Version : 2.30 Aug 24 2020 / more details / Serveur nécessite une mise à jour SPP",
+    "answer": "."
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 19-02-2025 / more details / Visite Préventive Hebdomadaire 19-02-2025",
+    "answer": "-vérification desVMs , état : ok -Vérification de l'antivirus , état : ok -Vérification des équipements du salle serveur (disques , serveur , cablage ,état port , switch ) : ok -Vérification des imprimantes , état : ok -Vérification état PCs : ok  installation de nouveau PC :ok (il reste office 365 a la charge de client car le mot de passe oublier)"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 20-02-2025 / more details / Visite Préventive Hebdomadaire 20-02-2025",
+    "answer": "vérification équipement salle serveur  vérification état des Vms: OK  état job veeam success  mise à jour health check"
+  },
+  {
+    "question": "Problème Hyperviseur injoignable / more details / Problème Hyperviseur Injoignable  Aucun log puisque Hyperviseur niveau Châssis dont OA DOWN",
+    "answer": "Changement cache module https://support.hpe.com/hpesc/public/docDisplay?docId=psg000118aen_us&page=GUID-F9A63158-1525-46AE-BD66-3B6E5D52941E.html&docLocale=en_US"
+  },
+  {
+    "question": "Pb Alimentation PS2 + Pb Disque Dur serveur IBM X3550 Old Infra / more details / Pb Alimentation PS2 + Pb Disque Dur serveur IBM X3550 Old Infra",
+    "answer": ""
+  },
+  {
+    "question": "Intervention UNIFLOW AZUR / more details / Intervention UNIFLOW AZUR",
+    "answer": "suite à notre intervention tout est déja installé par khalil chiniti"
+  },
+  {
+    "question": "Configuration service SMPT et  deuxième imprimante, Installation application UNIFLOW / more details / Direction et service logistique    Déploiement uniflow, configuration, formation des utilisateurs",
+    "answer": "Configuration service SMPT et deuxième imprimante, Installation application UNIFLOW : Direction et service logistique Déploiement uniflow, configuration, formation des utilisateurs"
+  },
+  {
+    "question": "Configuration réseau de la 2ème imprimante ainsi que configuration UNIFLOW / more details / Service logistique",
+    "answer": "Configuration réseau de la 2ème imprimante ainsi que configuration UNIFLOW : Service logistique"
+  },
+  {
+    "question": "Désinstallation des imprimantes supplémentaires et mettre par défaut sécure print / more details / SMART (3 étages)",
+    "answer": "Désinstallation des imprimantes supplémentaires et mettre par défaut sécure print  : SMART (3 étages)"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 26-02-2025 / more details / Ticket generated for preventive visit",
+    "answer": "vérificatiob des équipements informatiques du salle serveur'état : OK)  vérification de l'état des job Veeam  vérification des vm (hyper-v , symantec , veeam, ad)  mise à jour du symantec"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 27-02-2025 / more details / Ticket generated for preventive visit",
+    "answer": "Vérification de l'état des équipements du salle serveur  Vérification des job Veeam  Vérification de l'état des VMs  Vérification de l'activation du windows sur les PCs des utilisateurs  Vérification de l'activation d'un antivirus sur les PCs des utilisateurs"
+  },
+  {
+    "question": "HPE StoreOnce 6600 Drive Failed / more details / HPE StoreOnce 6600 Drive Failed",
+    "answer": "Changement de disque effectué avec succès.   le disque est  fonctionne  après le Rebuild"
+  },
+  {
+    "question": "Controller degraded / firmware version mismatch / more details / Controller degraded / firmware version mismatch  Equipement : HPE MSA 2062  S/N : ACM130S27C",
+    "answer": "redémarrage contrôleur A  redémarrage contrôleur B   mise a jour firmware"
+  },
+  {
+    "question": "HPE 3PAR StoreServ 8000 Storage - Faulty drive in 3PAR / more details / HPE 3PAR StoreServ 8000 Storage - Faulty drive in 3PAR",
+    "answer": "devis a partager par le commercial"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 05-03-2025 / more details / Ticket generated for preventive visit",
+    "answer": "-Vérification des équipements --informatiques(serveur,disques,switch,cablage réseau ....)  -Vérification de l'état des VMs  -Vérification état job Veeam SUCCESS  -Résolution problème 3 imprimantes  -La session d’Atef Kammoun a été renommée en Kais Bouhachem et le mot de passe a été modifié."
+  },
+  {
+    "question": "Mise à jour SPP / more details / Mise à jour SPP  crssos02a",
+    "answer": "."
+  },
+  {
+    "question": "Mise à jour SPP / more details / Mise à jour SPP  crssos02e",
+    "answer": "1. Télécharger le SPP : Rendez-vous sur le site HPE (HPE Support Center) pour télécharger  la dernière version du SPP correspondant à vos équipements HPE.  2. Préparer un support de démarrage : Créez une clé USB bootable avec l’ISO du SPP.  3. Vérifier la compatibilité matérielle et logicielle : Assurez-vous que votre matériel et  système d'exploitation sont pris en charge par la version du SPP.  4. Sauvegarde : Effectuez une sauvegarde complète des configurations et des données  des serveurs.  Mise à jour en mode interactif  1. Démarrage avec le support SPP :   Insérez la clé USB contenant le SPP dans le serveur cible.   Configurez le BIOS pour démarrer à partir du support.   Démarrez le serveur et laissez l’environnement SPP se charger.  2. Lancer le mode interactif :   Une fois l’interface SPP chargée, sélectionnez l'option Interactive Mode dans le  menu principal.   Le mode interactif permet de choisir précisément quels composants ou firmwares  seront mis à jour.  3. Sélection des mises à jour :   Parcourez les résultats du scan.   Cochez les composants à mettre à jour ou sélectionnez All pour tout mettre à jour.  4. Exécution de la mise à jour :   Cliquez sur Start pour démarrer le processus de mise à jour.  5. Redémarrage :   Une fois les mises à jour appliquées, un message indiquera que le processus est  terminé.   Redémarrez le serveur pour appliquer les modifications."
+  },
+  {
+    "question": "Mise à jour SPP / more details / Mise à jour SPP",
+    "answer": "1. Télécharger le SPP : Rendez-vous sur le site HPE (HPE Support Center) pour télécharger  la dernière version du SPP correspondant à vos équipements HPE.  2. Préparer un support de démarrage : Créez une clé USB bootable avec l’ISO du SPP.  3. Vérifier la compatibilité matérielle et logicielle : Assurez-vous que votre matériel et  système d'exploitation sont pris en charge par la version du SPP.  4. Sauvegarde : Effectuez une sauvegarde complète des configurations et des données  des serveurs.  Mise à jour en mode interactif  1. Démarrage avec le support SPP :   Insérez la clé USB contenant le SPP dans le serveur cible.   Configurez le BIOS pour démarrer à partir du support.   Démarrez le serveur et laissez l’environnement SPP se charger.  2. Lancer le mode interactif :   Une fois l’interface SPP chargée, sélectionnez l'option Interactive Mode dans le  menu principal.   Le mode interactif permet de choisir précisément quels composants ou firmwares  seront mis à jour.  3. Sélection des mises à jour :   Parcourez les résultats du scan.   Cochez les composants à mettre à jour ou sélectionnez All pour tout mettre à jour.  4. Exécution de la mise à jour :   Cliquez sur Start pour démarrer le processus de mise à jour.  5. Redémarrage :   Une fois les mises à jour appliquées, un message indiquera que le processus est  terminé.   Redémarrez le serveur pour appliquer les modifications."
+  },
+  {
+    "question": "Installer un disque HPE dans un serveur Dell / more details / Installer un disque HPE dans un serveur Dell",
+    "answer": "Après avoir réalisé des tests sur le disque HPE et le serveur Dell 750xs, nous confirmons que le disque HPE est compatible avec le serveur Dell sans aucun problème de fonctionnement.   Cependant, un souci au niveau du support empêche une fixation correcte du disque dans le châssis"
+  },
+  {
+    "question": "Diagnostic SERVEUR HPE / more details / Diagnostic SERVEUR HPE",
+    "answer": "configuration ILO Server hp dl380 Gen9  diagnostic effectué sur ILO  cache module doit étre remplacé   en attente livraison pièce pour planifier l intervention"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 06-03-2025 / more details / Ticket generated for preventive visit",
+    "answer": "Health-check physique (salle serveur)   Health-check Système: Active Directory P/S   Serveur Veeam backup, VMware ESXI"
+  },
+  {
+    "question": "Installation d'une nouvelle imprimante / more details / Chez ACT service commerciale  Client : M.Slim bouden",
+    "answer": "Installation d'une nouvelle imprimante : Chez ACT service commerciale  Client : M.Slim bouden"
+  },
+  {
+    "question": "HPE StoreOnce 6600 Drive Failed / more details / HPE StoreOnce 6600 IO module A and B degraded but no error in advanced logs",
+    "answer": "L'état de la baie de stockage est stable"
+  },
+  {
+    "question": "Problème de l’icone sécure print / more details / problème de l’icone sécure print ne s’affiche pas au niveau du menu de l’imprimante  Une fois que l’utilisateur et connecte avec son code",
+    "answer": "Mise a jour système uniflow"
+  },
+  {
+    "question": "ERREUR VEEAM / more details / les étapes de troubleshooting effectuées :  Test de connectivité de Veeam vers les serveurs du site DR : succès pour deux serveurs, échec pour les deux autres.  Test Telnet des ports : échec sur le port 2500, bien que celui-ci soit confirmé comme ouvert au niveau du firewall.  Test Tracert depuis la VM proxy : le tracé s’arrête au niveau d’un équipement télécom.  Redémarrage du vCenter du site DR.  Vérification des configurations réseau sur le firewall avec Monsieur Dali.  Création d’une nouvelle VM proxy de test avec la même configuration réseau : échec du test de connectivité dans Veeam.",
+    "answer": "Lundi 17 mars, la réplication a repris sa production avec succès, après une intervention de l'équipe réseau 3S."
+  },
+  {
+    "question": "Vulnérabilités win2019 / more details / Vulnérabilités win2019",
+    "answer": "Les correctifs de vulnérabilités \"win2019\" ont été effectuées"
+  },
+  {
+    "question": "Upgrade serveur ERP Ebusiness12 / more details / Upgrade serveur ERP Ebusiness12",
+    "answer": "upgrade os redhat vers 8.10 avec succès.   ajout de disque.   extension des partitions oracle."
+  },
+  {
+    "question": "creation d'un rapport jounalier et hebdomdaire a  travers Zabbix / more details / Health check automatisé",
+    "answer": "Rapport Zabbix le 18/03/2025"
+  },
+  {
+    "question": "\tInstallation du serveur DELL PowerEdge R750xs (configuration, installation des disques et installation de la carte réseau). / more details / \tInstallation du serveur DELL PowerEdge R750xs (configuration, installation des disques et installation de la carte réseau).",
+    "answer": "Tous les disques sont correctement installés dans le support et dans le serveur   la carte réseau est également installée, et un test a été effectué sur tous les disques."
+  },
+  {
+    "question": "Diagnostic du serveur DL360 Gen8 / more details / Diagnostic du serveur DL360 Gen8",
+    "answer": "Problèmes détectés :    \tDéfaillance des ventilateurs (FAN) : FAN 5 Degraded   \tProblème du cache module  \tProcesseur : Une nouvelle application de pâte thermique est nécessaire pour garantir un refroidissement optimal.  \tVersion du firmware : Le firmware du serveur est très ancien et nécessite une mise à jour."
+  },
+  {
+    "question": "Imprimante IR-ADV- 4945   service logistic / more details / Besoin un toner consommable noir  pour l’imprimante IR-ADV- 4945    Problème message d’erreur au niveau de l’imprimante 2930 i l’utilisateur n’arrive pas à imprimer  Numéro de série 4NK01228  Adresse IP 172.19.20.220",
+    "answer": "réinstallation et réconfiguration imprimante sur l interface uniflow  ping adresse IP printer: ok  test impression avec users: ok"
+  },
+  {
+    "question": "NAB_B086 - YOUR TEAM IN TUNISIA Site ADVENSES HAMMAMET / more details / NAB_B086    YOUR TEAM IN TUNISIA Site ADVENSES HAMMAMET    YOUR TEAM IN TUNISIA    FO-RTN    AR617    dpm    Internet    50 Mbps    36,402913    10,612836    25/02/2025    Mounir",
+    "answer": "- Intervention terminée avec succès. Veuillez trouver ci-joint le PV d'intervention.   • Responsable de l'intervention (Ooredoo) : Mounir"
+  },
+  {
+    "question": "SFX_B567 - STE IAPS / more details / SFX_B567    STE IAPS    FH    AR617    · Internet    50 Mbps    34.764896    10.713719    15/01/2025    Fatma",
+    "answer": "Intervention terminée"
+  },
+  {
+    "question": "TUN_D101 - Sté PRINTZI siège Printzi / more details / TUN_D101    Sté PRINTZI siège Printzi    PRINTZI    FO    Internet    100 Mbps    36,842289    10,174118    05/03/2025    Ikram",
+    "answer": "L’intervention a été réalisée avec succès.  Responsable de l’intervention : Ikram  - Voici le PV d'intervention"
+  },
+  {
+    "question": "TUN_D056 - ATB site Rt AG la goulette / more details / TUN_D056    ATB site Rt AG la goulette    ATB    FO-RTN    AR617    dpm    VPN MPLS L3    10 Mbps    36,825044    10,310707    27/02/2025    Mounir",
+    "answer": "TUN_D056 ATB site Rt AG la goulette : TUN_D056  ATB site Rt AG la goulette  ATB  FO-RTN  AR617  dpm  VPN MPLS L3  10 Mbps  36,825044  10,310707  11/04/2025  Mounir"
+  },
+  {
+    "question": "NAB_B095 - LA PAIX SA Hôtel Regency Tunis Site Hôtel Solaria / more details / NAB_B095    LA PAIX SA Hôtel Regency Tunis Site Hôtel Solaria    LA PAIX SA    FO    VPN MPLS L3    30 Mbps    36,366428    10,532905    06/03/2025    Ikram",
+    "answer": "Configuration et installation d'un routeur AR617  Test et validation"
+  },
+  {
+    "question": "TUN_B427_1 -  TAEF THD / more details / TUN_B427_1    TAEF THD    TAEF THD    FH    AR617    DPM    Changement de débit internet    60Mbps    36.846954    10.274971    11/03/2025    Mehrez",
+    "answer": "L’intervention a été réalisée avec succès sous la responsabilité de Mahrez. Vous trouverez ci-joint le PV d’intervention. Cependant, nous constatons que le débit n’a pas été amélioré"
+  },
+  {
+    "question": "Installation du câble SAS sur deux serveur HPE DL380 Gen 10 / more details / Installation du câble SAS",
+    "answer": "Installation des câbles    Test de bon fonctionnement des disques et du câble"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 12-03-2025 / more details / Ticket generated for preventive visit",
+    "answer": "-Vérification des équipements --informatiques(serveur,disques,switch,cablage réseau ....)  -Vérification de l'état des VMs  -Vérification état job Veeam SUCCESS  -Mise à jour Symantec"
+  },
+  {
+    "question": "Disque dur SDP MNB01A endommagé / more details / Disque dur SDP MNB01A endommagé  Serial number : CZ204004QF  Product Name :  HPE Proliant DL360 Gen10",
+    "answer": "Identify the failed disk via iLO or HPE SSA.  Check RAID status and ensure compatibility of the replacement disk.  Remove the failed drive (if hot-swappable).  Insert the new drive and ensure it’s detected.  Verify RAID rebuild in HPE SSA or iLO.  Monitor the rebuild process until completion."
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 13-03-2025 / more details / Ticket generated for preventive visit",
+    "answer": "vérification état des VMs et équipements salle serveur  vérification état job veeam : success  vérification d'activation windows pour tout les postes"
+  },
+  {
+    "question": "Message D erreur au niveau de l imprimante du service logistic / more details / adresse ip 172.18.20.241",
+    "answer": "réinstallé uniflow sur imprimante"
+  },
+  {
+    "question": "Intervention imprimante service comptabilité smart / more details / Intervention imprimante service comptabilité smart",
+    "answer": "réinstallé uniflow sur l'imprimante"
+  },
+  {
+    "question": "Correction de backups jobs et réplication / more details / Correction de backups jobs et réplication",
+    "answer": "Les jobs sont corrigés"
+  },
+  {
+    "question": "problème de backup sur tape / more details / problème de backup sur tape",
+    "answer": "-Coller les codes-barres sur les bandes  -Ajouter les nouvelles bandes dans  MSL2024  -Inventorier les bandes dans Veeam  -Associer les bandes aux Pools de Médias  -effectuer un test de sauvegarde pour vérifier que tout fonctionne correctement."
+  },
+  {
+    "question": "TAT_8357  Nutrichem Fertilizer / more details / TAT_8357    Nutrichem Fertilizer    Ntrichem Groupe    FH    AR617    DPM    internet    30 Mbps    33,134945    10,49386    12/03/2025    Fatma",
+    "answer": ".."
+  },
+  {
+    "question": "esp32 vulnerability check / more details / esp32 vulnerability check",
+    "answer": "Ce rapport explique  la faille Bluetooth récente  de la puce ESP32 , les détails techniques  , correctifs et recommandations"
+  },
+  {
+    "question": "vérification état Vm PTE Prologic / more details / vérification état Vm PTE Prologic",
+    "answer": "Voici un résumé du problème lié au démarrage automatique de la machine virtuelle (PTE) Windows Server 2022 : Problèmes identifiés : 1/Démarrage sécurisé UEFI activé 2/Ressources CPU de la VM Solutions potentielles : Désactiver le démarrage sécurisé : Essayez de désactiver le démarrage sécurisé dans les paramètres UEFI de la VM pour déterminer si cela résout le problème. Ajuster les ressources CPU : Augmentez les ressources CPU allouées à la VM pour assurer un démarrage fluide.   on mode test .."
+  },
+  {
+    "question": "Disk Faulty \\2288H V6 support service / more details / Disk Faulty \\2288H V6 support service",
+    "answer": "The disk 5 replaced in DC1_A13_06U_2288HV6 is in normal state now."
+  },
+  {
+    "question": "TUN_D068  UNHCR Bhar Lazreg / more details / TUN_D068    UNHCR Bhar Lazreg    UNHCR    FH    AR617    DPM    Internet    30Mbps    36,880895    10,3029    20/02/2025    Mehrez",
+    "answer": "Configuration et installation d'un routeur AR617   Test et validation"
+  },
+  {
+    "question": "BIZ_8987  KABLEM Site USINE / more details / BIZ_8987    KABLEM Site USINE    KABLEM    FO    NA    NA    Internet    50 Mbps    37,217725    9,938298    12/03/2025    Mehrez",
+    "answer": "Configuration et installation d'un routeur AR617  Test et validation"
+  },
+  {
+    "question": "MON_8968  Paris 716 / more details / MON_8968    Paris 716    Paris 716    FO    AR617    DPM    Internet    40 Mbps    35.656522    10.957492    11/03/2025    Mounir",
+    "answer": "Configuration et installation d'un routeur AR617  Test et validation"
+  },
+  {
+    "question": "Déploiement du  Nouveau NAS --> SISA / more details / Déploiement du  Nouveau NAS --> SISA",
+    "answer": "Architecture de la nouvelle solution"
+  },
+  {
+    "question": "ZBX-26173 : Template StoreOnce - Client Sergaz. / more details / ZBX-26173 : Template StoreOnce - Client Sergaz.",
+    "answer": "Selon le support de Zabbix, il n’existe pas de template officiel pour StoreOnce."
+  },
+  {
+    "question": "Mise à jour Serveurs/ VMs Windows-Mars 2025 / more details / Mise à jour Serveurs/ VMs Windows-Mars 2025",
+    "answer": "Les mises à jour mensuelles pour les serveurs et VMs Windows ont été effectués pour ce mois-ci"
+  },
+  {
+    "question": "appliquer plan d'action esp32 vulnerability check / more details / @Aziz ; pour application des recommandations   @Nadine et Firas: pour validation et test post application",
+    "answer": "Ce plan d'action comprend les tâches à suivre, les recommandations nécessaires pour cette faille."
+  },
+  {
+    "question": "Vxrail Template pour Zabbix / more details / Vxrail Template pour Zabbix",
+    "answer": "il n’y a pas de modèle officiel, sorti de la boîte spécifiquement pour DELL VxRail.    nous avons besoin de créer un modèle"
+  },
+  {
+    "question": "Troubleshooting Veeam Backup to a disk Error Messages (StoreOnce) / more details / Troubleshooting Veeam Backup to a disk Error Messages (StoreOnce)",
+    "answer": "-Résoudre les problèmes relatives au backup to disque  ( storeonce)   -Test de bon fonctionnement ---> Test OK"
+  },
+  {
+    "question": "Déploiement de nouveau NAS / more details / Déploiement de nouveau NAS",
+    "answer": "Les tâches suivantes ont été effectuées avec succès :    Initialisation du NAS ASUSTOR DriveStore 4Pro Gen2.    Configuration de l’IPv4 (IP : 192.168.1.211).    Création des utilisateurs sur le système.    Création des LUNs avec deux volumes :    Volume 1 : Partage de 2 To.    Volume 2 : Backup de 3 To.    Connexion des volumes aux hôtes via iSCSI.    Configuration des jobs Veeam avec le nouveau repository.    Lancement de la copie de l'ancien partage vers le nouveau partage.    Toutes les actions prévues ont été réalisées."
+  },
+  {
+    "question": "SOS_B197  Atelier Mécanique Peinture AMP Annexe AMP Sousse Site / more details / Atelier Mécanique Peinture    FH    AR617    NA    Internet    50 Mb/s    35.809117    10.648677    14/03/2025    Mounir",
+    "answer": "les tests de connectivité n’ont pas été concluants."
+  },
+  {
+    "question": "Diagnostic et test des serveurs BL 465c Gen 8 / more details / Diagnostic et test des serveurs BL 465c Gen 8",
+    "answer": "- Reset matériel : Réinitialisation des composants principaux (RAM, carte mère, processeur,   contrôleur…).  - Diagnostic électrique : Vérification des circuits de la carte mère.  - Optimisation thermique : Application d’une nouvelle pâte thermique sur le processeur.  - Swap de composants : Interversion de la RAM et des processeurs pour diagnostic.  - Validation : Tests via POST et iLO, serveur stable et fonctionnel   SN : CZ3336MVA6"
+  },
+  {
+    "question": "MED_8442  ELYADATA / more details / MED_8442    ELYADATA    ELYADATA    FH    AR617    DPM    Changement de débit MPLS    70Mbps    33.34598    10.49627    12/03/2025    Mehrez",
+    "answer": "Remplacement routeur cisco par routeur huawei ,   Insertion nouvelle configuration ,  Test : le débit ne s'améliore pas, il reste constant"
+  },
+  {
+    "question": "Problem in HPE 3par Disk Error / more details / Problem in HPE 3par Disk Error   Product Name : HPE 3par STORESERV 8400-NODE STORAGE BASE  Product Number : H6Y95A",
+    "answer": "Disque remplacé avec succès."
+  },
+  {
+    "question": "Activation de SNMPv3 et surveillance des serveurs physiques avec Zabbix / more details / Activation de SNMPv3 via ILO et surveillance des serveurs physiques, y compris la température avec Zabbix.. Configuration et personnalisation des alertes avec envoi de notifications en cas de dépassement des seuils de température définis.",
+    "answer": "1.\tActivation de SNMP via ILO et surveillance de serveurs physique BCK-Tunis  2.\tCréation des déclencheurs personnalisés pour pouvoir être alerté si la température devient trop élevée  3.\tEnvoi des alertes lorsque la température dépasse les seuils définis dans les déclencheurs"
+  },
+  {
+    "question": "Visite préventive 26-03-25 / more details / Ticket generated for preventive visit",
+    "answer": "-check de l'état de l'infrastructure Software   -check de la capacité des datastores Nimble,3par,Storeonce  -check de la configuration des job de backup et de replication"
+  },
+  {
+    "question": "Visite préventive 27-03-25 / more details / visite réalisée dans la même journée",
+    "answer": ""
+  },
+  {
+    "question": "Problème niveau FAN de Châssis C7000 / more details / Problème niveau FAN de Châssis C7000",
+    "answer": "FAN C7000 remplacée avec succès"
+  },
+  {
+    "question": "Problème ILO du serveur BCK-Tunis / more details / Problème ILO du serveur BCK-Tunis",
+    "answer": "L’ILO du serveur bck-tunis est accessible, mais une configuration supplémentaire est requise au niveau du switch."
+  },
+  {
+    "question": "TEST / more details / ticket de test",
+    "answer": "test"
+  },
+  {
+    "question": "backup failed Prologic infra / more details / backup failed Prologic infra",
+    "answer": "Nous avons ajouté l’hôte dans Veeam via le vCenter plutôt qu’en mode standalone. De plus, nous prévoyons une mise à niveau d’ESXi afin de corriger l’instabilité des services."
+  },
+  {
+    "question": "Exchange replication job failed / more details / Exchange replication job failed",
+    "answer": "\"La réplication est terminée avec succès"
+  },
+  {
+    "question": "Visite préventive 19-03-25 / more details / Ticket generated for preventive visit",
+    "answer": "-Vérification des équipements --informatiques(serveur,disques,switch,cablage réseau ....)  -Vérification de l'état des VMs  -Vérification état job Veeam SUCCESS  -Mise à jour Symantec"
+  },
+  {
+    "question": "Avant-vente de la BTS extension synergy + storage / more details / Avant-vente de la BTS extension synergy + storage",
+    "answer": "Préparer un document détaillé qui résume l’ensemble des éléments discutés avec le client, comprenant :  Description des solutions proposées : Explication des choix techniques et des technologies retenues."
+  },
+  {
+    "question": "installation des agents Wazuh / more details / installation des agents Wazuh",
+    "answer": "Tous les agents ont été installés, configurés et enregistrés avec succès sur le gestionnaire Wazuh. Les logs sont bien reçus et les vérifications de bon fonctionnement ont été effectuées."
+  },
+  {
+    "question": "TUN_D109_1  Valéo Embrayage Jdeida / more details / TUN_D109_1    Valéo Embrayage Jdeida    Valéo    FH    AR617    Internet    200 Mbps    36,867034    9,937125    19/03/2025    Mehrez",
+    "answer": "l'intervention reporté -Veuillez trouver ci-joint le PV de réception du matériel.  Remplacement CPE :   - Date d'intervention : 19/03/2025  - Code site prévu : TUN_D109_1 → Code site remplaçant : NAB_B095  - Responsable de l'intervention : Mehrez"
+  },
+  {
+    "question": "TUN_D076  SEABOT KRAM / more details / TUN_D076    SEABOT KRAM    SEABOT    FO    AR617    Internet    50 Mbps    36,831027    10,306837    19/03/2025    Mehrez",
+    "answer": "- Intervention terminée avec succés. Veuillez trouver ci-joint le pv de l'intervention. Date de l'intervention 19/03/2025 - Code site TUN-D076 - Responsable de l'intervention (Ooredoo) : Mehrez Fersi"
+  },
+  {
+    "question": "TUN_D110  AMICALE EDUCATION / more details / TUN_D110    AMICALE EDUCATION    Amicale agent ministère de l'éducation    FTTH    AR617    Internet    50 Mbps    36,820339    10,191846    19/03/2025    Mounir",
+    "answer": "- Intervention terminée avec succès. Veuillez trouver ci-joint le PV d'intervention.  -       Remplacement CPE  :  •\t la date de l'intervention : 19/03/2025  •\tCode site  prévu : TUN_D110 -> Code site remplaçant :TUN_D085  •\tResponsable de l'intervention (Ooredoo) : Mounir"
+  },
+  {
+    "question": "Absence de la configuration du FW / more details / Absence de la configuration du FW",
+    "answer": "-Troubleshooting pour identifier la cause du problème   -Configuration firewall :   *configuration des interfaces physiques du firewall   *configuration policies   *configuration routage entre l'adresse du firewall et la passerelle du routeur   *Création d'un nouvel utilisateur   *Configuration SSL VPN  *Test connectivité internet : OK   *Test des VMs : OK"
+  },
+  {
+    "question": "Crash SVR BL460c Gen 7 / more details / Product Name: BL460c gen7   Crash SVR BL460c Gen 7",
+    "answer": "-Échangez CPU1 et CPU2, puis vérifiez leur état  -Appliquez de la pâte thermique sur les deux processeurs après avoir terminé l'échange."
+  },
+  {
+    "question": "SFX_B576  Ste E G B Site Siege CCP / more details / SFX_B576    Ste E G B Site Siege CCP    CCP    FH    AR617    DPM    Internet    20 Mbps    34,83411    10,821816    21/03/2025    Naceur",
+    "answer": "- Intervention terminée avec succès. Veuillez trouver ci-joint le PV d'intervention. - Remplacement CPE : • la date de l'intervention : 21/03/2025 • Code site prévu : SFX_b576 -> Code site remplaçant :TUN_C903 • Responsable de l'intervention (Ooredoo) : Naceur"
+  },
+  {
+    "question": "Blade dégradé suite à un problème de mémoire (slot 3 proc 2 ) / more details / Product Name : BL460c gen9  Blade dégradé suite à un problème de mémoire (slot 3 proc 2 )",
+    "answer": "Changement barrette mémoire effectuer"
+  },
+  {
+    "question": "Problème ILO sur le serveur Zabbix / more details / Problème ILO sur le serveur Zabbix",
+    "answer": "-Réinitialisation du mot de passe ILO via System Utilities -Vérification de l’accès à l’interface ILO via VPN et réseau local : succès."
+  },
+  {
+    "question": "Problème ILO sur le serveur Proxy / more details / Problème ILO sur le serveur Proxy",
+    "answer": "-Réinitialisation du mot de passe ILO via System Utilities  -Vérification de l’accès à l’interface ILO via VPN et réseau local : succès."
+  },
+  {
+    "question": "Dell PowerEdge R750xs insert RAM / more details / Dell PowerEdge R750xs insert RAM",
+    "answer": "Installation barrette mémoire   Check le bon fonctionnement de barrette"
+  },
+  {
+    "question": "TUN_D109_1  Valéo Embrayage Jdeida / more details / TUN_D109_1    Valéo Embrayage Jdeida    FH    AR617    DPM    Internet    200 Mbps    36,867034    9,937125    24/03/2025    Ikram",
+    "answer": "l’intervention initialement prévue le 19/03/2025 a été reportée au 24/03/2025 et a été réalisée avec succès. vous trouverez le PV d'intervention en pièce jointe , -Remplacement du routeur : Code site prévu : TUN_D109_1 → Code site remplaçant : NAB_B095. Responsable de l’intervention : Ikram"
+  },
+  {
+    "question": "Mise à jour des dashboards et des rapports Zabbix / more details / Mise à jour des dashboards et des rapports Zabbix",
+    "answer": "Mise à jour dashboard VMware Mise à jour Dashbord Rapport Ajout du dashboard Sergaz-Tunis Ajout du dashboard Sergaz-CapBon"
+  },
+  {
+    "question": "Décommissionnement ancien serveur WSUS TUNIS et test / more details / Décommissionnement ancien serveur WSUS TUNIS et test",
+    "answer": "Reconfiguration des mises à jour des contrôleurs de domaine sur le nouveau serveur WSUS Tunis et la synchronisation est effectuée avec succès"
+  },
+  {
+    "question": "sanibains / more details / Extension RAM et Carte Réseaux sur serveur HPE DL38 Gen10",
+    "answer": "Installation de barrettes de RAM dans un serveur Gen 10+ avec une carte réseau à 4 ports 1G."
+  },
+  {
+    "question": "Upgrade Veeam 12.1-->12.3 / more details / Upgarde Veeam 12.1-->12.3",
+    "answer": "L'upgrade de Veeam a été effectué avec succès. Nous attendons maintenant les captures d'écran nécessaires pour clôturer ce ticket."
+  },
+  {
+    "question": "Documentation Backup, Backup Copy, Réplica et sauvegarde sur tape pour VBR Tunis et Cap Bon / more details / Documentation Backup, Backup Copy, Réplica et sauvegarde sur tape pour VBR Tunis et Cap Bon",
+    "answer": "Vous trouverez en pièce jointe les documents détaillant :    La stratégie de backup to tape pour les sites Cap Bon et Tunis    Un récapitulatif des backup jobs, des jobs de réplication et des copy backup jobs pour le mois de mars 2025  NB: Les deux documents sont insérés en un seul PDF"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 26-03-2025 / more details / Ticket generated for preventive visit",
+    "answer": "-Installation écran  -Ajout d'un compte utilisateur (Kais) VPN  Vérification des équipements informatiques(serveur,disques,switch,cablage réseau ....)  -Vérification de l'état des VMs  -Vérification état job Veeam SUCCESS  -Configuration et résolution problème 2 imprimantes"
+  },
+  {
+    "question": "TUN_D022  H3M INGENIERIE / more details / TUN_D022    H3M INGENIERIE    FO    AR617    DPM    Internet    50 Mbps    36,821861    10,19527    26/03/2025    Ikram",
+    "answer": "- Intervention terminée avec succés. Veuillez trouver ci-joint le pv de l'intervention. Date de l'intervention 26/03/2025 - Code site TUN_D022 - Responsable de l'intervention (Ooredoo) : Ikram Slimani"
+  },
+  {
+    "question": "NAB_B096  LA PAIX SA Hôtel Regency Tunis Site BELISAIRE / more details / NAB_B096    LA PAIX SA Hôtel Regency Tunis Site BELISAIRE    LA PAIX SA    FO    VPN MPLS L3    30 Mbps    36,359847    10,52739    06/03/2025    Ikram",
+    "answer": "-L’intervention n’étant pas encore terminée.  -Veuillez trouver ci-joint le PV de réception du matériel.  - Date d'intervention : 13/03/2025  -Code site : NAB-B096  - Responsable de l'intervention (ooredoo): Naceur Agile"
+  },
+  {
+    "question": "TUN_D114  STE E2A INTERNATIONAL Site THD STE E2A MENZEH / more details / TUN_D114    STE E2A INTERNATIONAL Site THD STE E2A MENZEH    STE E2A INTERNATIONAL    FO    AR617    Mssp    50 Mbps    36,842486    10,164928    25/03/2025    Naceur",
+    "answer": "L’intervention n’étant pas encore finalisée -Veuillez trouver ci-joint le PV de réception du matériel. Remplacement CPE : - Date d'intervention : 25/03/2025 - Code site prévu : TUN_D114→ Code site remplaçant : (Routeur:TUN_D012)(Module SFP:TUN_B163) - Responsable de l'intervention (ooredoo): Naceur"
+  },
+  {
+    "question": "Extension Disque Vm REDHAT / more details / Extension Disque Vm REDHAT",
+    "answer": "1-Connectez-vous à la machine virtuelle Red Hat  via SSH  2-Exécutez la commande : lsblk  3-sudo fdisk /dev/sdb  4-sudo mkfs.ext4 /dev/sdb1   5-sudo mkdir /mnt/data ( pour monter la partition)  6-sudo mount /dev/sdb1 /mnt/data  7- df -h ( Vérification de montage)"
+  },
+  {
+    "question": "Check renouvellement Licences VEAAM (03 Ans) / more details / Check renouvellement Licences VEAAM (03 Ans)",
+    "answer": "la license veeam  a été renouvelée avec succès"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 28-03-2025 / more details / Ticket generated for preventive visit",
+    "answer": "mettre à jour le health check   vérification des Vms, équipement, serveurs..."
+  },
+  {
+    "question": "Déplacement des imprimantes Uniflow de Prologic vers Azurclors / more details / Déplacement des imprimantes Uniflow : 172.16.3.228 de Prologic vers Azurclors",
+    "answer": "Déplacement de l’imprimante uniFLOW (IP : 172.16.3.228) de Prologic vers Azurclors effectué.  Installation terminée et ticket clôturé avec succès."
+  },
+  {
+    "question": "Intégration des imprimantes Canon dans ZABBIX. / more details / Intégration des imprimantes Canon dans ZABBIX.  172.18.42.232, 172.18.42.251, 172.18.42.250 et 172.17.1.228 .",
+    "answer": "Les imprimantes ont été ajoutées avec succès."
+  },
+  {
+    "question": "Intervention 2 : TUN_D114  STE E2A INTERNATIONAL Site THD STE E2A MENZEH / more details / TUN_D114    STE E2A INTERNATIONAL Site THD STE E2A MENZEH    STE E2A INTERNATIONAL    FO    AR617    Mssp    50 Mbps    36,842486    10,164928    25/03/2025    Naceur",
+    "answer": "L'intervention a été finalisée avec succès. -Veuillez trouver ci-joint le PV . Remplacement CPE : - Date d'intervention : 27/03/2025 - Code site prévu : TUN_D114→ Code site remplaçant : (Routeur:TUN_D012)(Module SFP:TUN_B163) - Responsable de l'intervention (ooredoo): Naceur"
+  },
+  {
+    "question": "Assistance de  l’equipe SIMOP pour Diagnostic de l’onduleur / more details / Assistance de  l’equipe SIMOP pour Diagnostic de l’onduleur  Product Name: EATON 9SX 3000I Rack",
+    "answer": "diagnostic effectué, devis envoyé au client en attente de confirmation pour la réparation"
+  },
+  {
+    "question": "Demande de rapports d'impression par société et imprimante / more details / Demande de rapports d'impression par société et imprimante",
+    "answer": "exporter les rapports de uniflow et changer l'extension en xsl"
+  },
+  {
+    "question": "Problème pilote lors de l’installation de l’OS windows 2019 / more details / Problème pilote lors de l’installation de l’OS windows 2019",
+    "answer": "1- Download the Latest SPP (Service Pack for ProLiant) for Gen11  2- Deploy SPP on the Synergy 480 Gen 11 manually.  3- Install Windows 2025  4- Post-Installation : all firmware and drivers are up-to-date for Windows 2025"
+  },
+  {
+    "question": "VMNIC host ESXI down / more details / VMNIC host ESXI down  Product Number : 813198-B21",
+    "answer": "When a pause flood condition is detected on a Flex-10 physical port, all Flex-10 logical ports associated with physical ports are disabled.  When the pause flood protection feature is enabled, this feature detects pause flood conditions on server downlink ports and disables the port.    Solution:  1- Shut down the server.  2- Log in to Onboard Administrator with Administrator privileges using the OA CLI.  3- Enter the command reset server  4- Reset port statistics using the following:reset statistics  5- Re-enable the disabled ports on the VC interconnect modules using \"reset port-protect\" CLI command.  6- Use the command show port to check the status of downlink  ports."
+  },
+  {
+    "question": "Nature des travaux : Etude et choix techniques / more details / Nature des travaux : Etude et choix techniques",
+    "answer": "L'étude a été réalisée avec succès. La prochaine étape consiste à rédiger, préparer l'offre technique et l'architecture cible à réaliser."
+  },
+  {
+    "question": "Problème disque serveur / more details / bonjour,  on a un problème de disque failed  10.205.50.35     physicaldrive 1I:1:1 (port 1I:box 1:bay 1, 300 GB): Failed     physicaldrive 1I:1:2 (port 1I:box 1:bay 2, 300 GB): OK    AHS Data is unavailable due to a file system issue",
+    "answer": "le disque n'est pas dans un état stable. une fois qu'il sera complètement défectueux, nous procéderons à son remplacement."
+  },
+  {
+    "question": "Problème de réception des alertes OPM par email / more details / Nous rencontrons un problème de réception des alertes par email lors (lors de la création ou assignement de tickets et autres )",
+    "answer": "Concurrent email sending was changed to processing emails one by one."
+  },
+  {
+    "question": "Vérification disponibilité prise réseau imprimante / more details / RDC SIMOP",
+    "answer": "La porte réseau doit être testée avec l'équipe Smart."
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 03/04/2025 / more details / Ticket generated for preventive visit",
+    "answer": "Suite à notre visite préventive, nous confirmons que l’intervention s’est déroulée avec succès. Le client s’est déclaré satisfait de nos services et de l’état actuel du site. Il reste néanmoins en attente de modifications supplémentaires ainsi que de réformes afin d’optimiser davantage l’infrastructure en place."
+  },
+  {
+    "question": "NAB_B088  KEMA / more details / NAB_B088    KEMA    KEMA    FH    AR617    DPM    Internet    50 Mbps    36,518982    10,830235    02/04/2025    Mounir",
+    "answer": "L'intervention a été finalisée avec succès. -Veuillez trouver ci-joint le PV . -- Date d'intervention : 02/04/2025, Remplacement CPE :  - Code site prévu : NAB_B088 → Code site remplaçant : TUN_C825 - Responsable de l'intervention (ooredoo): Mounir"
+  },
+  {
+    "question": "TUN_D029  Sté EO DATACENTRE SITE EODC Tunis / more details / TUN_D029    Sté EO DATACENTRE SITE EODC Tunis     EO DATACENTRE    FO    AR617    DPM    Internet    120 Mbps    36,796892    10,181688    03/04/2025    Fatma",
+    "answer": "-L’intervention n’étant pas encore terminée à cause d’un problème au niveau du boîtier PTO -Veuillez trouver ci-joint le PV de reception materiel .   - Date d'intervention : 03/04/2025   - Code site: TUN_D029 → Code site remplaçant : (Routeur:TUN_D065)(Module SFP:TUN_D065)  - Responsable de l'intervention (ooredoo): Fatma Afli"
+  },
+  {
+    "question": "Backup to tape Error / more details / Backup to tape Error",
+    "answer": "When adding new LTO-9 tapes to the HPE MSL 2024 tape library, Veeam is unable to perform backup-to-tape operations until the tapes are initialized directly from the MSL robot interface. This initialization process is required for the system to recognize and prepare the tapes for use. It is important to note that the initialization of each tape can take between 1 to 2 hours, depending on the tape's condition and the library's workload."
+  },
+  {
+    "question": "Problème Drives SR-BL-HYV-12 / more details / Product Name: HP ProLiant BL460c G7",
+    "answer": "Le changement a été effectué.   Rebuild  terminer ,  l'état du disque et du firmware OK"
+  },
+  {
+    "question": "Diagnostic Serveur Lenovo Thinksystem sr650 v2 / more details / Diagnostic Serveur Lenovo Thinksystem sr650 v2",
+    "answer": "Problème FAN 80 %  Problème processeur et carte mère 50 %  RAM Mauvais population   DISK et Alimentation OK   AP : Démarrage de serveur / Configuration Mg / Extraction de log pour Diagnostic plus approfondie"
+  },
+  {
+    "question": "Installation de l'onduleur / more details / Eaton 5PX 2200i RT USBS",
+    "answer": "Lors de notre intervention, nous avons récupéré l'onduleur de SIMOP pour l’installer chez SISA. Après une pause rapide, nous avons procédé à la mise en place de l’infrastructure, suivi d’une vérification complète du réseau, des serveurs et des deux NAS. Toutes les opérations ont été réalisées avec succès et validées."
+  },
+  {
+    "question": "Installation d'un nouveau PDU pour les nouveaux serveurs / more details / Installation d'un nouveau PDU pour les nouveaux serveurs",
+    "answer": "*Installation du nouveau PDU   *Câblage des serveurs avec double alimentation   *Test de la reprise d'activités et du bon focntionnement de l'infrastructure   *Changement des mot de passe des serveurs Hyper-V"
+  },
+  {
+    "question": "TUN_C882  MAGHREB CORPORATE / more details / TUN_C882    MAGHREB CORPORATE    MAGHREB CORPORATE    FO    AR617    NA    Ajout service Trunk SIP    4 SDA    36,832821    10,238003    04/04/2025    Mounir",
+    "answer": "-L’intervention n’étant pas encore terminée à cause d’un problème au niveau du VRF_management VOIP -Veuillez trouver ci-joint le PV de l'intervention .   - Date d'intervention : 04/04/2025   - Code site: TUN_C882 ( routeur existant chez le client)  - Responsable de l'intervention (ooredoo): Mrabtini Mounir"
+  },
+  {
+    "question": "TUN_D118  EDUCA CONSEIL Site EDUCA CONSEIL SIEGE / more details / TUN_D118    EDUCA CONSEIL Site EDUCA CONSEIL SIEGE    EDUCA CONSEIL    FTTH    AR617    DPM    Internet    20 Mbps    36,847108    10,267289    04/04/2025    Ikram",
+    "answer": "- Intervention terminée avec succès. Veuillez trouver ci-joint le PV d'intervention.  - l'intervention traitée par leur DPM TUN_D118"
+  },
+  {
+    "question": "La Presse  audit infra Systèmes et réseaux / more details / audit infra systèmes et réseaux la presse",
+    "answer": "audit terminée"
+  },
+  {
+    "question": "Tests de restauration / more details / Tests de restauration",
+    "answer": "Comme demandé par Madame Hela, le fichier du partage intitulé \"CCITF 2025\" a été restauré avec succès sur un disque dur externe.  Par ailleurs, la restauration du poste utilisateur Eya (laptop) a également été effectuée avec succès (Suppression fichier Excel et restauration de ce fichier)  NB :  Il nous reste la vérification avec les autres PCs"
+  },
+  {
+    "question": "Configuration Veeam – Backup Copy vers Cloud Orange (VMs existantes) / more details / Configuration Veeam – Backup Copy vers Cloud Orange (VMs existantes",
+    "answer": "Les deux VMs de l’ancien Business Cloud n'ont pas assez de capacité disque pour accueillir votre VM de partage :  Votre VM utilise 300 Go de stockage,  Alors que les deux VMs Orange ont seulement 68 Go combinés (8 + 60 Go) → ce n’est pas suffisant.  Même si on envisageait de fusionner ou remplacer une des VMs du cloud, l’espace disque est bien trop limité pour la VM de partage.    En conclusion, il n’est pas possible de l'héberger dans l’ancien environnement Orange tel qu’il est.  Les limitations de stockage et potentiellement de RAM/CPU rendent cette migration non faisable sans upgrade."
+  },
+  {
+    "question": "Alert from QNB-Group-Nimble / more details / Unable to reach specified storage system with host name '10.206.3.38'",
+    "answer": "Le message d'erreur \"Unable to reach specified storage system with host name '10.206.3.38'. QNB-Group-Nimble \" a été résolu après un rafraîchissement de l'état."
+  },
+  {
+    "question": "TUN_D029  Sté EO DATACENTRE SITE EODC Tunis - / more details / TUN_D029    Sté EO DATACENTRE SITE EODC Tunis -    EO DATACENTRE    FO    AR617    DPM    Internet    120 Mbps    36,796892    10,181688    07/04/2025    Fatma",
+    "answer": "- Intervention terminée avec succès. Veuillez trouver ci-joint le PV d'intervention.  -       Remplacement CPE  :  •\t la date de l'intervention : 07/04/2025 :  •\tCode site  prévu : TUN_D029 -> Code site remplaçant :TUN_D065  •\tResponsable de l'intervention (Ooredoo) : Fatma"
+  },
+  {
+    "question": "KAS_8494  QUADRAN Tunisie Site Centre Solaire Feriana / more details / KAS_8494    QUADRAN Tunisie Site Centre Solaire Feriana    QUADRAN Tunisie    FH    AR617    DPM    Internet    30 Mbps    34,890219    8,555882    07/04/2025    Ikram",
+    "answer": "KAS_8494 QUADRAN Tunisie Site Centre Solaire Feriana : KAS_8494 QUADRAN Tunisie Site Centre Solaire Feriana QUADRAN Tunisie FH AR617 DPM Internet 30 Mbps 34,890219 8,555882 07/04/2025 Ikram"
+  },
+  {
+    "question": "TUN_C882  MAGHREB CORPORATE / more details / TUN_C882    MAGHREB CORPORATE    MAGHREB CORPORATE    FO    AR617    NA    Ajout service Trunk SIP    4 SDA    36,832821    10,238003    07/04/2025    Mounir",
+    "answer": "- Intervention Trunk SIP terminée avec succès. Veuillez trouver ci-joint le PV d'intervention. • la date de l'intervention : 07/04/2025 : - Code site: TUN_C882 ( routeur existant chez le client) - Responsable de l'intervention (ooredoo): Mrabtini Mounir"
+  },
+  {
+    "question": "Interview d'audit avec la société Defensy lab / more details / interview d'audit avec la société Defensy lab",
+    "answer": "Nous avons  réalisé un entretien d’audit en présentiel avec la société Defensy Lab, au cours duquel nous avons répondu sur la partie système uniquement."
+  },
+  {
+    "question": "DEMANDE D'INSTATLATION IMPRIMANTE CANON / more details / SERVICE LOGISTIQUE (Hajer Medini)",
+    "answer": "Nous vous confirmons que l’intervention pour l’installation de l’imprimante Canon au niveau du service Logistique est clôturée."
+  },
+  {
+    "question": "Update VMs Linux / more details / Update VMs Linux",
+    "answer": "update de toutes les VMs Linux"
+  },
+  {
+    "question": "TUN_D073  STE SGIA SHOWROOM Ariana / more details / TUN_D073    STE SGIA SHOWROOM Ariana    Ste SGIA    FH    AR617    DPM    Mpls    10Mbps    36.869361    10.186556    08/04/2025    Fatma",
+    "answer": "- Intervention terminée avec succès. Veuillez trouver ci-joint le PV d'intervention. • la date de l'intervention : 08/04/2025 : - Code site: TUN_D073  - Responsable de l'intervention (ooredoo): Afli Fatma"
+  },
+  {
+    "question": "KAI_8406  STE SGIA site Sbikha SGIA / more details / KAI_8406    STE SGIA site Sbikha SGIA    Ste SGIA    FH    AR617    DPM    VPN MPLS L3    10Mbps    35,812333    10,147194    08/04/2025    Mehrez",
+    "answer": "L'intervention a été réalisée avec succès. KAI_8406 STE SGIA site Sbikha SGIA Ste SGIA FH AR617 DPM VPN MPLS L3 10Mbps 35,812333 10,147194 , Datte de l'intervention  08/04/2025  -responsable (ooredoo) : Mehrez"
+  },
+  {
+    "question": "BAR_B084  DIRECT AUTO SUPPLY GROS / more details / BAR_B084    DIRECT AUTO SUPPLY GROS    FO-RTN    AR617    DPM    MSSP    20 Mb/s    36.771879    10.21901    08/04/2025    Mounir",
+    "answer": "- Intervention terminée avec succès. Veuillez trouver ci-joint le PV d'intervention.  -       Remplacement CPE  :  •\t la date de l'intervention : 08/04/2025  •\tCode site  prévu : BAR_B084 : l'intervention effectue  avec leur DPM mais le module SFP traite avec module code site :BAR_8393 \" car mounir déclaré le DPM sans module   •\tResponsable de l'intervention (Ooredoo) : Mounir"
+  },
+  {
+    "question": "Intervention de migration vers le FW Fortinet 40F / more details / Intervention de migration vers le FW Fortinet 40F",
+    "answer": "1.\tEnregistrement du nouveau FW 40F sur le compte FortiCloud avec la licence de l'ancien FW défectueux 40E.  2.\tConfiguration du FW 40F (interfaces, routes statiques, politiques, VPN, etc.) et mise en réseau.  3.\tTests et validation : le débit est désormais de 46 Mbps en téléchargement et 44 Mbps en upload pour l'utilisateur final. Le trafic s'est stabilisé et le problème de lenteur du partage de fichiers est résolu, sans perturbation des requêtes."
+  },
+  {
+    "question": "Création d'un clone à la VM Ebusiness14 sur infrastructure de DR / more details / A la station d'El Haouaria (en remplacement de l'actuelle devenu obsolète)",
+    "answer": "Réplication de la VM EBUSINESS14 vers le site DR de Haouaria    Configuration du réseau et attribution d’une @ip    Changement du hostname    Modification du fichier hosts    Backup de la VM EBUSINESS-CB"
+  },
+  {
+    "question": "NAB_B096  LA PAIX SA ? Hôtel Regency Tunis Site BELISAIRE / more details / NAB_B096    LA PAIX SA ? Hôtel Regency Tunis Site BELISAIRE    LA PAIX SA    FO    VPN MPLS L3    30 Mbps    36,359847    10,52739     10/04/2025    Ikram",
+    "answer": "-L’intervention n’étant pas encore terminée.  -Veuillez trouver ci-joint le PV de réception du matériel.  - Date d'intervention : 10/04/2025  -Code site : NAB-B096  - Responsable de l'intervention (ooredoo): Ikram Slimani"
+  },
+  {
+    "question": "Problème PTE / more details / la machine virtuelle redémarre spontanément  adresse: 172.16.99.5",
+    "answer": "L'application fonctionne correctement, cependant le problème persiste au niveau du serveur : la machine virtuelle hébergeant l'application redémarre de manière inopinée."
+  },
+  {
+    "question": "Vérification et mise à jour des imprimantes dans Zabbix / more details / Vérification et mise à jour des imprimantes dans Zabbix",
+    "answer": "Vérification et résolution des problemes des imprimantes et mise à jour map"
+  },
+  {
+    "question": "Serveur ESXi présente une anomalie HW (Voyant rouge allumé) / more details / •\tServer : ProLiant DL360 Gen10 Plus  •\tServer Serial Number : CZJD1P006V",
+    "answer": "Nous confirmons le bon fonctionnement du serveur, conformément au retour de notre client."
+  },
+  {
+    "question": "Installation de 4 disques HPE 960GB SATA 6G Read Intensive SFF P18424-b21 dans un serveur DL380 Gen9 / more details / installation de 4 disques HPE 960GB SATA 6G Read Intensive SFF P18424-b21 dans un serveur DL380 Gen9",
+    "answer": "Tâches réalisées :  Installation des nouveaux disques sur le serveur  Configuration de l’ILO  Configuration du RAID  Ajout du nouveau volume sur Windows Server  Toutes les opérations ont été effectuées avec succès"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 10/04/2025 / more details / Ticket generated for preventive visit",
+    "answer": "Après l’intervention de M. Alaa Hriz, concernant le remplacement du pare-feu (firewall), tous les services réseau sont opérationnels. La connectivité interne et externe est stable, et les débits sont satisfaisants sur l’ensemble de l’infrastructure (serveurs, VMs, NAS, etc.).    Le problème majeur de l’entreprise a été résolu, et l’incident est désormais clôturé avec succès."
+  },
+  {
+    "question": "Problem : Problem Memory HS / more details / Problem : Problem Memory HS  Product Name : ProLiant BL460c G6",
+    "answer": "intervention effectuée avec succès . DIMMS remplacés par ahmed"
+  },
+  {
+    "question": "Installation uniflow +config scan to mail +activation snmp pour zabbix / more details / Demande de : Nawel Ghathgathi  Imprimante canon 1440 i  Numéro de série 4JN05245  Adresse ip  http://172.16.3.225/",
+    "answer": "Installation d’uniFLOW réalisée avec configuration du scan to mail.  SNMP activé  sur l’imprimante Canon 1440i."
+  },
+  {
+    "question": "PC dell optiplex pour l’installation de windows 11 / more details / PC dell optiplex pour l’installation de windows 11",
+    "answer": "windows 11 installé avec succès"
+  },
+  {
+    "question": "Résolution problème crash NAS et crash de 4 VMs suite à une coupure de courant / more details / Résolution problème crash NAS et crash de 4 VMs suite à une coupure de courant",
+    "answer": "Suite à une coupure de courant, nous avons résolu les incidents suivants liés au crash du NAS et de quatre machines virtuelles :    Restauration de la VM \"Partage\" à partir de son réplica existant.    Récupération des trois autres VMs en procédant à l’importation des dossiers contenant les fichiers des machines virtuelles.    Création de nouveaux jobs de sauvegarde et de réplication pour l’ensemble des VMs concernées afin de garantir la continuité de service et la protection des données."
+  },
+  {
+    "question": "La relation d'approbation entre cette station de travail et le domaine principal a échoué / more details / La relation d'approbation entre cette station de travail et le domaine principal a échoué",
+    "answer": "-Connexion locale à la machine affectée avec un compte administrateur local (non domaine).  -Réintégration au domaine  -L’intégrer à nouveau au domaine  -Effectuer les mise a jours  -Vérification post-réintégration"
+  },
+  {
+    "question": "TUN_D036  MENINX HOLDING SITE Meninx Holding Mehdi Tamarziste / more details / TUN_D036    MENINX HOLDING SITE Meninx Holding Mehdi Tamarziste    MENINX HOLDING    FO    AR617    DPM    Internet    120 Mb/s    36,796892    10,181688    10/04/2025    Mehrez",
+    "answer": "Intervention terminée avec succés : Veuillez trouver ci-joint  le PV  .  * La date de l'intervention :  11/04/2025.  *  Le code site prévu TUN_D036  : L'intervention à été éffectuée par le DPM  TUN_D022.  * Responsable de l'intervention ( Ooredoo ) : Mehrez Fersi."
+  },
+  {
+    "question": "TUN_8400  UBCI Agence Tunis Lafayette / more details / TUN_8400    UBCI Agence Tunis Lafayette    UBCI    FTTH    AR617    DPM    SWAP CPE    MPLS 50Mbps    36.812325    10.179992    11/04/2025    Mounir",
+    "answer": "- Intervention terminée avec succès(swap cpe ). Veuillez trouver ci-joint le PV d'intervention. • la date de l'intervention : 11/04/2025 : - Le routeur initialement prévu (TUN_8348) a été remplacé par le routeur TUN_B427. - Responsable de l'intervention (ooredoo): Mrabtini Mounir"
+  },
+  {
+    "question": "TUN_D056  ATB site Rt AG la goulette / more details / TUN_D056    ATB site Rt AG la goulette    ATB    FO-RTN    AR617    dpm    VPN MPLS L3    10 Mbps    36,825044    10,310707    11/04/2025    Mounir",
+    "answer": "- Intervention terminée avec succès. Veuillez trouver ci-joint le PV d'intervention. • la date de l'intervention : 11/04/2025 : - Code site: TUN_D056  - Responsable de l'intervention (ooredoo): Mrabtini mounir"
+  },
+  {
+    "question": "Visite Préventive : Réalisation de l'audit technique de l'infrastructure / more details / Ticket generated for preventive visit",
+    "answer": "Check général d’infrastructure :  1-HPE Synergy :   -Accès à HPE OneView (l'interface de gestion)  -Vérifier l'état général des frames et modules (compute, interconnect, mgmt)  -Vérifier les alertes matérielles (alimentation, ventilo, etc.)  -Vérifier la connectivité des modules interconnect (uplinks réseau et FC)  -Vérifier l'état hardware (RAM, CPU, disques locaux)  2-HPE 3PAR Storage  -Vérifier l'état général du système (showalert -n)  -Vérifier l’état des cages de disques (showpd, shownode)  -Contrôler les performances : IOPS, latence, bande passante (statvlun)  -Vérifier les ports Fibre Channel / iSCSI (connectivité aux hosts/vSAN)  -Vérifier les alertes et journaux  -Licences  OK   3-Ready Nodes pour vSAN (VMware)  -Vérifier la santé du cluster vSAN : vSAN Health  -Check de la latence de disque, capacités, compliance des objets  -Vérifier la résilience des composants (FTT = Failure To Tolerate)  - Vérifier les disques vSAN (cache vs capacity)  -Vérifier l’état matériel via iDRAC / iLO selon constructeur  3-HPE MSL 3040 (robot de sauvegarde)  - Vérifier les erreurs physiques : bras, portes, alimentation  -État des lecteurs LTO (cleaning, état)  - Vérifier l’inventaire des cartouches (slots, bandes pleines)  4-EMC NetWorker   Accès à la console d’admin (NMC - NetWorker Management Console)  -Vérifier les sessions de backup et leur état  -Vérifier les logs d’échec (job failures)"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 11-04-2025 / more details / Ticket generated for preventive visit",
+    "answer": "vérification des équipements informatiques du salle serveur  vérification de l'état des job Veeam  vérification des vm (hyper-v , symantec , veeam, ad)  installation teams pour Mme Monjia"
+  },
+  {
+    "question": "l’intervention de 3 serveur chez CREDIF / more details / l’intervention de 3 serveur chez CREDIF   Contact : Oussema  93 815 224",
+    "answer": "L’intervention est terminée et j’ai configuré l’interface iLO afin de permettre l’accès et la gestion à distance du serveur."
+  },
+  {
+    "question": "TUN_8348  UBCI - Agence EL Menzah VI / more details / TUN_8348    UBCI - Agence EL Menzah VI    UBCI    FO    AR617    DPM    SWAP CPE ‘ MPLS’    10 Mbps    36.8471444444444    10.1657527777778    11/04/2025    Mounir",
+    "answer": "L'intervention a été finalisée avec succès. -Veuillez trouver ci-joint le PV . Remplacement CPE : - Date d'intervention : 11/04/2025 - Code site prévu : TUN_8348→ Code site remplaçant : TUN_B427 - Responsable de l'intervention (ooredoo): Mounir"
+  },
+  {
+    "question": "Scan et impression non aboutis / more details / Produit : iR-ADV C3926 azur  Serial number 4MM04094  Client : Azur Colors",
+    "answer": "L’intervention est terminée. Tous les services, y compris le scan et l’impression, ont été réactivés et fonctionnent correctement."
+  },
+  {
+    "question": "problem \"SimpliVity is unable to reach expected ports on the storage network\" / more details / problem \"SimpliVity is unable to reach expected ports on the storage network\"",
+    "answer": "Suite à nos échanges avec le support HPE, plusieurs vérifications et ajustements ont été effectués pour résoudre le problème de connexion du système SimpliVity.    Recommandations  Vérification des connexions réseau :    Assurez-vous que les réseaux de stockage et de fédération sont correctement connectés entre les deux nœuds du datacenter.  Configuration de l'Ethernet NIC :    Vérifiez que la configuration de l'agrégation NIC dans Hosts -> Configuration -> Network -> vSwitch est définie sur Active/Standby.  Si la configuration est actuellement en Active/Active, il est nécessaire de la modifier pour les deux hôtes afin de fonctionner en mode actif/de secours.  Pour les configurations 10 GbE en connexion directe uniquement, un adaptateur doit être actif et l'autre doit être en mode de secours.  Résultat  L’erreur de connexion a disparu après l’application de la modification de la configuration de l’Ethernet NIC (point 2)."
+  },
+  {
+    "question": "Création code nip uliflow / more details / Pour Ahmed Chaouachi  & Belhassen Riahi",
+    "answer": "Nous vous confirmons la création des codes NIP pour les utilisateurs suivants :    Ahmed Chaouachi    Belhassen Riahi"
+  },
+  {
+    "question": "ASSISTANCE / more details / ASSISTANCE UNIFLOW SMART",
+    "answer": "Intervention réalisée"
+  },
+  {
+    "question": "DIMM issue / more details / DIMM issue  Product Name : PROLIANT DL 380 G10",
+    "answer": "Changement de la barrette mémoire effectué  Vérification du statut général du serveur  Test de bon fonctionnement  Assistance jusqu’au démarrage complet du système d’exploitation et des services"
+  },
+  {
+    "question": "Installation et configuration / more details / Installation et configuration de 15 points d’accès Huawei AP5761-12 (en attente de mise à la consommation).  Installation et configuration de 2 switchs Huawei S220 (disponibles).",
+    "answer": "Au cours de cette intervention, nous avons procédé à la configuration de deux switchs S220. Des VLAN ont été créés pour la gestion des points d’accès ainsi que pour l’administration, suivis de la configuration des interfaces physiques.    Nous avons ensuite réalisé une configuration sur le contrôleur, incluant l’ajout des VLANs et la mise en place de la partie WLAN. Cela comprenait la création de deux SSID (P-admin et R-admin), ainsi que la définition des profils VAP et des profils de sécurité associés. Le SSID R-admin a été configuré en mode masqué"
+  },
+  {
+    "question": "NAB_B096  LA PAIX SA ? Hôtel Regency Tunis Site BELISAIRE / more details / NAB_B096    LA PAIX SA ? Hôtel Regency Tunis Site BELISAIRE    LA PAIX SA    FO    VPN MPLS L3    30 Mbps    36,359847    10,52739    14/04/2025    Ikram",
+    "answer": "L'intervention n'est pas encore finalisée. NAB_B096 LA PAIX SA ? Hôtel Regency Tunis Site BELISAIRE LA PAIX SA FO VPN MPLS L3 30 Mbps 36,359847 10,52739 , Le module SFP NAB_B086 a été remplacé par TUN_D053 ,   datte:14/04/2025 responsable ooredoo: Ikram"
+  },
+  {
+    "question": "Installation uniflow imprimante / more details / Smart service généraux adresse   ip 172.18.20.55",
+    "answer": "Configuration du serveur SMTP et vérification de la connectivité : OK    Installation de la solution UniFlow avec test des fonctionnalités Secure Print et Scan to Mail    Vérification finale et validation de l'ensemble du système"
+  },
+  {
+    "question": "Reset Password IDRAC du serveur PowerEdge R450 et Association nouvelle Licence / more details / Reset Password IDRAC du serveur PowerEdge R450 et Association nouvelle Licence",
+    "answer": "Le problème a été résolu et l'importation de la licence s'est effectuée avec succès"
+  },
+  {
+    "question": "TUN_D117  PREMIUM TRAVEL / more details / TUN_D117    PREMIUM TRAVEL    PREMIUM TRAVEL    FTTH    Internet    20Mbps    36.8651    10.167791    14/04/2025    Mehrez",
+    "answer": "- L'intervention n'est pas terminée en raison de l'indisponibilité du service Internet. Veuillez trouver ci-joint le PV de réception du matériel :  •  Date de l'intervention : 15/04/2025.  •  Code site prévu : TUN_D117 ; l'intervention a été effectuée avec le DPM : TUN_D065  Responsable de l'intervention (Ooredoo) : Mehrez."
+  },
+  {
+    "question": "Mise à jour des datastores Nimble / more details / Mise à jour des datastores Nimble",
+    "answer": "Les fichiers des machines virtuelles suivants ont été supprimés :  Nimbledatastore1 :  w2019STDTemplate  new sitosergaz  sitosergaz  SRV_SEPM_1  w2K12r2STD_Template  windows 2012 R2 datacenter    Nimbledatastore3 :  w10 template  sitosergaz    Nimbledatastore6 :  DatabaseTN old  Template Windows Server 2019  zabbix install file (Old appliance)    Nimbledatastore7 :  DataBaseTN 2023  DataBaseTN 2023.09.20.19.50.23_2023920_22363_825  DataBaseTN 2023.09.20.19.50.23_2023921_104124_120    Nimbledatastore8 :  SRV_Windows 2022  sitosergaz.local"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 16-04-25 / more details / Ticket generated for preventive visit",
+    "answer": "-Résolution problème imprimante:activation pour 2 utilisateurs  -vérification des équipements informatiques du salle serveur  -vérification de l'état des job Veeam  -vérification des vm (hyper-v , symantec , veeam, ad)  -Résolution problème imprimante:activation pour 2 utilisateurs (RH)"
+  },
+  {
+    "question": "BAR_B084  DIRECT AUTO SUPPLY GROS / more details / BAR_B084    DIRECT AUTO SUPPLY GROS    DIRECT AUTO SUPPLY GROS    FO-RTN    Ajout trunk SIP    4 SDA    36.771879    10.21901    16/04/2025    Mounir",
+    "answer": "Vous trouverez ci-joint le PV  D'intervention du 16/04/2025."
+  },
+  {
+    "question": "Activation de l'accès au switch FW / more details / Activation de l'accès au switch FW",
+    "answer": "Nous avons assuré l'activation de l'accès web pour le switch fD ainsi que l'activation du SSH sur tous les switches des premier et quatrième étages."
+  },
+  {
+    "question": "Problème NAS Asustor / more details / Problème NAS Asustor",
+    "answer": "-Vérification et diagnostic de l'état physique de la NAS asustor   -Redémarrage de la NAS   -Vérification de l'état des LUN   -Reconnexion de la NAS via ISCSI vers Veeam  -Rescan de Repositories   -Test de job de sauvegardes et de réplication => success  -Installation de SEP agent manuellement sur le poste de Yosra   -Test de déploiement de l'agent convenablement =>OK"
+  },
+  {
+    "question": "Reconfiguration des seuils d’alerte de température ambiante du datacenter via Zabbix / more details / Reconfiguration des seuils d’alerte de température ambiante du datacenter via Zabbix",
+    "answer": "Modification des seuils de température.  Ajustement des déclencheurs d’alerte.  Création d’un déclencheur pour générer un rapport de température toutes les 3 heures.  Envoi automatique d’un e-mail toutes les 3 heures indiquant la température ambiante actuelle."
+  },
+  {
+    "question": "TUN_D102  Groupement Centrale Des Vents / more details / TUN_D102    Groupement Centrale Des Vents    Groupe Khalfallah    FH    AR617    DPM    Mpls    10Mbps    36,773527    10,201192    17/04/2025    Fatma",
+    "answer": "- Intervention non terminée en raison des points suivants :  (L'armoire n'est pas installée/Le RTN Huawei n'est pas dans la position correcte (sur terre).)   -    Remplacement CPE :  •    Date de l'intervention : 17/04/2025  •    Code site prévu : TUN_D102 -> Code site remplaçant : BIZ_8997  •    Responsable de l'intervention (Ooredoo) : Fatma"
+  },
+  {
+    "question": "TUN_C030  MAZARS BPO Site Siege / more details / TUN_C030    MAZARS BPO Site Siege    MAZARS BPO    FTTH    SWAP CPE + UPGRADE DEBIT    100Mbps    36.848193    10.196304    16/04/2025    Naceur",
+    "answer": "L'intervention a été finalisée avec succès.   TUN_C030 MAZARS BPO Site Siege : TUN_C030 MAZARS BPO Site Siege MAZARS BPO FTTH SWAP CPE + UPGRADE DEBIT 100Mbps 36.848193 10.196304 Remplacement du routeur TUNC030 par le routeur TUN_C973  datte de l'intervention :17/04/2025   responsable (ooredoo): Naceur"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 17-04-2025 / more details / Ticket generated for preventive visit",
+    "answer": "La visite sur site a été réalisée avec succès. Aucune anomalie n’a été détectée et l’échange avec le client s’est déroulé dans de bonnes conditions."
+  },
+  {
+    "question": "Remplacement de la carte mère d’un HPE Synergy 480 Gen 10 / more details / remplacement de la carte mère d’un HPE Synergy 480 Gen 10",
+    "answer": "Remplacement de la carte mère du serveur HPE Synergy 480 Gen10.  vérifications matérielles, firmware, réseau et OS pour s'assurer que tout est bien en place et fonctionne."
+  },
+  {
+    "question": "Visite Préventive T3 / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "Visite Préventive T4 / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "Visite Préventive T5 / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "Visite Préventive T6 / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "Visite Préventive T7 / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "Visite Préventive T8 / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "Visite Préventive T9 / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "Visite Préventive T10 / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "Visite Préventive T11 / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "Visite Préventive T12 / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "Visite Préventive PCT 07-05-2025 / more details / Ticket generated for preventive visit",
+    "answer": ""
+  },
+  {
+    "question": "BIZ_8997  Groupement Centrale Des Vents Site ain gassa / more details / BIZ_8997    Groupement Centrale Des Vents Site ain gassa    Groupe Khalfallah    FH    VPN MPLS L3    10 Mbps    36,833977    9,534194    18/04/2025    Ikram",
+    "answer": "l'intervention a été finalisée avec succès .  BIZ_8997 Groupement Centrale Des Vents Site ain gassa : BIZ_8997 Groupement Centrale Des Vents Site ain gassa Groupe Khalfallah FH VPN MPLS L3 10 Mbps 36,833977 9,534194 Remplacement du routeur BIZ_8997 par le routeur SN:2S2410018022  Datte de l'intervention: 18/04/2025   Responsable (ooredoo): Ikram Slimeni"
+  },
+  {
+    "question": "TUN_C973  AIR FRANCE / more details / TUN_C973    AIR FRANCE    AIR FRANCE    FO    Internet    10Mbps    36.847633    10.217551    à confirmer    Mounir",
+    "answer": "l'intervention a été finalisée avec succès. TUN_C973 AIR FRANCE AIR FRANCE FO Internet 10Mbps 36.847633 10.217551   Datte d'intervention : 18/04/2025  Responsable (ooredoo): Mounir Mrabtini"
+  },
+  {
+    "question": "Installation et configuration : Installation et configuration de 15 points d’accès Huawei AP5761-12 (en attente de mise à la consommation) / more details / Installation et configuration de 2 switchs Huawei S220 (disponibles).",
+    "answer": "- installer et mise rack de deux switch huawei .  - Vérifiez la connectivité entre le switch fédérateur et les deux switches installés.  - Ajout des Points d'Accès (AP) :          * Connectez les 7 nouveaux AP au contrôleur Wi-Fi.          * Assurez-vous que chaque AP est correctement alimenté et connecté au réseau.  - Note ! : Les 7 AP ne sont pas en mode \"NORMAL\" car des fichiers de licence pour les nouveaux AP doivent être uploadés dans le contrôleur.  - solution :Ouvrir un ticket support Huawei pour obtenir la nouvelle licence."
+  },
+  {
+    "question": "Récupération du mot de passe (Windows server) / more details / Récupération du mot de passe (Windows server)  03 serveurs HPE Gen 10 plus DL360",
+    "answer": "L’intervention a été réalisée avec succès en date du 22/04/2025. Les mots de passe des comptes concernés ont été modifiés conformément aux bonnes pratiques de sécurité."
+  },
+  {
+    "question": "Mise è jour OS Serveurs / VM Windows- Avril 2025 / more details / Mise è jour OS Serveurs / VM Windows- Avril 2025",
+    "answer": "Les mises à jour des serveurs et des machines virtuelles Windows ont été effectuées avec succès pour ce mois."
+  },
+  {
+    "question": "TUN_D117  PREMIUM TRAVEL / more details / TUN_D117    PREMIUM TRAVEL    PREMIUM TRAVEL    FTTH    Internet    20Mbps    36.8651    10.167791    18/04/2025    Mehrez",
+    "answer": "Intervention terminée avec succés : Veuillez trouver ci-joint  le PV  .  * La date de l'intervention :  18/04/2025.  * Code site prévu : TUN_D117 ; l'intervention a été effectuée avec le DPM : TUN_D065.  * Responsable de l'intervention ( Ooredoo ) : Mehrez Fersi."
+  },
+  {
+    "question": "Alerte de sécurité / more details / Activité suspecte détectée sur le QNAP 2",
+    "answer": "Résumé de l’intervention  • Une activité anormale a été signalée par notre système de détection.  • Le QNAP a été immédiatement isolé du réseau et ses services critiques désactivés.  • Une solution antivirus dédiée a été installée sur l’équipement.  • Lors du premier scan, un cheval de Troie a été détecté et supprimé automatiquement."
+  },
+  {
+    "question": "TUN_D099  LA PAIX SA Hôtel Regency Tunis / more details / TUN_D099    LA PAIX SA Hôtel Regency Tunis    LA PAIX SA    FO    AR617    DPM    VPN MPLS L3    30    36,939655    10,252602    21/04/2025    Naceur",
+    "answer": "L’intervention n’est pas encore finalisée.   TUN_D099 LA PAIX SA Hôtel Regency Tunis LA PAIX SA FO AR617 DPM VPN MPLS L3 30 36,939655 10,252602   Datte de l'intervention: 21/04/2025   Responsable ooredoo: Naceur Agil"
+  },
+  {
+    "question": "Installation 5 office CLIENT TGM / more details / installation 5 office TGM",
+    "answer": "microsoft office installé sur 5 Pcs"
+  },
+  {
+    "question": "TUN_B142_1  STE AMARIS / more details / UN_B142_1    STE AMARIS    AMARIS    FO    AR6121F    DPM    Internet    500    36,896851    10,19222    25/04/2025    Fatma",
+    "answer": "TUN_B142_1 STE AMARIS : UN_B142_1  STE AMARIS  AMARIS  FO  AR6121F  DPM  Internet  500  36,896851  10,19222  25/04/2025  Fatma"
+  },
+  {
+    "question": "NAB_B096  LA PAIX SA  Hôtel Regency Tunis Site BELISAIRE / more details / NAB_B096    LA PAIX SA  Hôtel Regency Tunis Site BELISAIRE    LA PAIX SA    FO    AR617    DPM    VPN MPLS L3    30    36,359847    10,52739    23/04/2025    Ikram",
+    "answer": "L'intervention a été finalisée avec succès. -Veuillez trouver ci-joint le PV . Remplacement CPE : - Date d'intervention : 23/04/2025 - Code site : NAB-096 - Responsable de l'intervention (ooredoo): IKRAM"
+  },
+  {
+    "question": "TUN_C076  LGE NAF Service Company Site Lac 2 / more details / TUN_C076    LGE NAF Service Company Site Lac 2    LGE NAF Service Company    FTTH    AR617    DPM    Changement de debit    100    36.846008,    10.269747    24/04/2025    Fatma",
+    "answer": "TUN_C076 LGE NAF Service Company Site Lac 2 : TUN_C076  LGE NAF Service Company Site Lac 2  LGE NAF Service Company  FTTH  AR617  DPM  Changement de debit  100  36.846008,  10.269747  24/04/2025  Fatma"
+  },
+  {
+    "question": "TUN_8400  UBCI Agence Tunis Lafayette / more details / TUN_8400    UBCI Agence Tunis Lafayette    UBCI    FTTH    AR617    DPM    SWAP CPE    MPLS 50Mbps    36.812325    10.179992    25/04/2025    Mounir",
+    "answer": "l'intervention n'est pas encore finalisée .   TUN_8400 UBCI Agence Tunis Lafayette UBCI FTTH AR617 DPM SWAP CPE MPLS 50Mbps 36.812325 10.179992   datte de l'intervention : 25/04/2025  responsable (ooredoo) : Mounir Mrabtini ."
+  },
+  {
+    "question": "KEB_8345  Holiday Travel Tunisia site Holiday camp / more details / KEB_8345  Holiday Travel Tunisia site Holiday camp",
+    "answer": "KEB_8345 Holiday Travel Tunisia site Holiday camp : KEB_8345 Holiday Travel Tunisia site Holiday camp   FH  AR617  DPM  SWAP CPE  Internet 30Mbps  22/04/2025"
+  },
+  {
+    "question": "Blade EZR in bay 4: Degraded / more details / Site : EZR  Problème : Uncorrectable Machine Check Exception (Board 0, Processor 1, APIC ID 0x00000000, Bank 0x00000011, Status 0xFE200000'000C110A, Address 0x00000000'00001200, Misc 0x04FFE016'00180086)",
+    "answer": "Shutdown the server,  interswapp the CPUs (CPU1 to slot 2& CPU2 to slot 1)  Replace the DIMM Proc 1 DIMM3; then poweron the server,  if the problem persist, upgrade BIOS and ILO Firmware using the latest SPP, and then Mark the caution events as repaired"
+  },
+  {
+    "question": "Configuration et intégration d'un nouveau poste end user / more details / Configuration et intégration d'un nouveau poste end user",
+    "answer": "clonage des données de l'ancien disque vers le nouveau : OK  installation de nouveau dique : OK  vérifier que les données clonées sont exactement les mêmes : OK  Installation de PC: OK  état : OK"
+  },
+  {
+    "question": "Mise à jour document de référence Infrastructure locale Prologic / more details / Mise à jour document de référence Infrastructure locale Prologic   Avril 2025",
+    "answer": "La version mise à jour du document relatif à l'infrastructure locale pour Avril-2025"
+  },
+  {
+    "question": "Réunion speech événement zabbix / more details / Réunion speech événement zabbix",
+    "answer": ".."
+  },
+  {
+    "question": "TUN_D099  LA PAIX SA Hôtel Regency Tunis / more details / TUN_D099    LA PAIX SA Hôtel Regency Tunis    LA PAIX SA    FO    AR617    DPM    VPN MPLS L3    30    36,939655    10,252602    22/04/2025    Naceur",
+    "answer": "TUN_D099 LA PAIX SA Hôtel Regency Tunis : TUN_D099  LA PAIX SA Hôtel Regency Tunis  LA PAIX SA  FO  AR617  DPM  VPN MPLS L3  30  36,939655  10,252602  22/04/2025  Naceur"
+  },
+  {
+    "question": "SUPPORT AND MAINTENANCE SOFT : Contrat SOFTWARE SMART TUNISIE 2025 / more details / SERVICE LOGISTIQUE (AHMED TALBI)",
+    "answer": "installation uniflow sur nouvelle session (ahmed talbi service logistique smart ) + test impression effectué avec succès"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 23-04-25 / more details / Ticket generated for preventive visit",
+    "answer": "mise à jour health check   vérification des équipements data center et des serveurs: état OK"
+  },
+  {
+    "question": "Installation et configuration de 15 points d’accès Huawei AP5761-12 (en attente de mise à la consommation) : Installation et configuration de 2 switchs Huawei S220 (disponibles / more details / Installation et configuration de 15 points d’accès Huawei AP5761-12 (en attente de mise à la consommation) : Installation et configuration de 2 switchs Huawei S220 (disponibles",
+    "answer": "1- Intégration des 7 APS Huawei : Les 7 points d'accès (APS) Huawei de modèle AirEngine 5761-12 ont été intégrés avec succès.  2- Ajout de la licence : Une licence pour 15 APS a été ajoutée au contrôleur Wi-Fi.  3- Support Huawei : Un ticket a été ouvert auprès du support Huawei pour résoudre le problème de compatibilité entre le contrôleur (AC) et les nouveaux APS.  4- Liaison physique : Une liaison physique a été ajoutée entre le switch fédérateur et le contrôleur AC pour assurer la connectivité au VLAN 90 (gestion des APS).  5-Configuration des APS : Les configurations nécessaires ont été réalisées, notamment :  AP Group  VAP Profile  SSID  Security Profile  6- Tests et validation : Les tests et la validation ont été effectués avec succès sur les 7 APS, chacun fonctionnant conformément à sa configuration."
+  },
+  {
+    "question": "Evénement Zabbix / more details / Préparation événement Zabbix",
+    "answer": "Nous vous informons que l’événement s’est clôturé avec succès et que toutes les étapes prévues ont été réalisées comme convenu."
+  },
+  {
+    "question": "Session de formation de deux jours le 23 et 24 avril 2025 / more details / Session de formation de deux jours le 23 et 24 avril 2025",
+    "answer": "Une session de formation de deux jours a été réalisée avec l’équipe du Ministère de l’Industrie et des Petites et Moyennes Entreprises. Ci-dessous le déroulé de la session :    Jour 1 & Jour 2 :  Étude du Build Book de ce  projet, afin de consolider la compréhension de l’architecture et des configurations appliquées.    Présentation des principales fonctionnalités du commutateur Huawei eKitEngine S310, avec un focus sur les capacités clés du matériel.    Mise en avant de la fonctionnalité ACL (Access Control List), particulièrement lors de la deuxième journée.    Démonstration pratique de la création et de la configuration d'une ACL, réalisée à la demande du client, afin d’illustrer concrètement les principes abordés.    Veuillez trouver en pièce jointe la configuration utilisée durant cette démonstration."
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 24-04-2025 / more details / Ticket generated for preventive visit",
+    "answer": "health check mis à jour"
+  },
+  {
+    "question": "Diagnostique et maintenance uniflow / more details / Diagnostique et maintenance uniflow",
+    "answer": "Un diagnostic complet ainsi qu’une opération de maintenance ont été réalisés sur le système uniFLOW."
+  },
+  {
+    "question": "Installation de l’imprimante 1440i au service comptabilité / more details / Installation de l’imprimante 1440i au service comptabilité",
+    "answer": "L’imprimante 1440i a été installée au sein du service comptabilité. L’installation s’est déroulée correctement.    Serveur SMTP  Uniflow online"
+  },
+  {
+    "question": "Récuperation des donnes d'un disque dure HDD / more details / Récuperation des donnes d'un disque dure HDD",
+    "answer": "Data recovery from old HDD : OK  Copy the data to the new Nvme disk : OK  état : OK"
+  },
+  {
+    "question": "Installation du disque et de barrette mémoire sur le serveur Lenovo / more details / Installation du disque et de barrette mémoire sur le serveur Lenovo",
+    "answer": "Installation du disque  Installation de l’alimentation (Power Supply)  Installation de la barrette mémoire  Installation de la carte réseau  Toutes les interventions ont été effectuées avec succès sur le serveur Lenovo"
+  },
+  {
+    "question": "Problème Réseaux / more details / Caméra de Surveillance",
+    "answer": "Suite à notre intervention sur site, nous n’avons constaté aucun problème au niveau du réseau local (LAN). Le dysfonctionnement de certaines caméras de surveillance semble être en dehors du périmètre de nos interventions.. Nous attendons toujours l’intervenant en charge de l’intégration des caméras, qui ne s’est pas encore présenté. Nous restons disponibles à tout moment pour toute assistance complémentaire."
+  },
+  {
+    "question": "INSTALLTION office CHEZ LE CLIENT SERI / more details / INSTALLTION office  type de matériel :  03 x écran Dell P2725h  03 X Unité centrale MSI MAT40/H610/14600KF/DC4S/32GB/M",
+    "answer": "Nous vous informons que l'installation du matériel au sein de vos locaux a été effectuée avec succès.    Détail du matériel installé :    03 x Écrans Dell P2725H    03 x Unités centrales MSI MAT40/H610/14600KF/DC4S/32GB/M    L’ensemble des équipements a été correctement raccordé, testé et mis en service. Toutes les stations de travail sont pleinement opérationnelles et prêtes à l’usage."
+  },
+  {
+    "question": "Installation et configuration de 15 points d’accès Huawei AP5761-12 / more details / Test final",
+    "answer": "•\tInstallation et configuration de 15 APs Huawei de modèle 5761-12 avec leurs configurations (profil VAP, SSID, profil de sécurité, mot de passe).  •\tInstallation et configuration de deux switches Huawei de modèles S220-24P4X et S220-48P4X avec leurs configurations (VLAN, PVID, etc.).  •\tTest final : validation que les 15 APs Huawei sont bien configurés, ajoutés, fonctionnent et affichent un statut \"normal\", ainsi que les deux switches d'accès."
+  },
+  {
+    "question": "Configuration des enregistrements SRV téléphonie / more details / Configuration des enregistrements SRV téléphonie  INRAP - Institut National de Recherche et d'Analyse Physico-Chimique",
+    "answer": "Configuration d’un switch Huawei afin d’assurer la communication entre les équipements et le serveur de téléphonie, accompagnée de l’implémentation d’un fichier CSV pour la configuration de la liste des utilisateurs et l’attribution des numéros de téléphone à chaque adresse MAC."
+  },
+  {
+    "question": "Ajout des onduleurs / more details / Ajout des onduleurs",
+    "answer": "-Configuration du template pour les Onduleurs  -Création des 2 dashboard pour les 2 Onduleurs"
+  },
+  {
+    "question": "problème au niveau uniflow Comptoir smart / more details / problème au niveau uniflow  Comptoir smart",
+    "answer": "Suite à nos vérifications, nous avons constaté une instabilité intermittente sur le réseau, comme le montre le test de connectivité ci-joint (pertes de paquets lors d’un ping vers l’adresse 172.18.42.217).  Ces coupures expliquent le blocage de l’imprimante au niveau de l’authentification : lorsqu’elle tente de communiquer avec le serveur ou le service d’annuaire, la connexion échoue temporairement, ce qui empêche l’accès.  Nous recommandons de vérifier l’infrastructure réseau (câblage, switch, port, etc.) entre l’imprimante et le serveur afin d’identifier la source de ces pertes."
+  },
+  {
+    "question": "Erreur de relation d’approbation entre la station de travail et domaine / more details / Erreur de relation d’approbation entre la station de travail et domaine",
+    "answer": "-Connexion locale à la machine affectée avec un compte administrateur local (non domaine). -Réintégration au domaine -L'intégrer à nouveau au domaine -Effectuer les mise à jours -Vérification post-réintégration"
+  },
+  {
+    "question": "Visite Préventive Hebdomadaire 30-04-2025 / more details / Ticket generated for preventive visit",
+    "answer": "vérification des équipements informatiques du salle serveur  vérification de l'état des job Veeam  vérification des vm (hyper-v , symantec , veeam, ad)  Résolution pblm Outlook pour mme. Monjia"
+  },
+  {
+    "question": "4 Serveurs physiques down / more details / 4 Serveurs physiques down",
+    "answer": "Lors du health check journalier effectué pour le compte de Sergaz, nous avons constaté que quatre serveurs situés sur les sites de Cap Bon et Fériana étaient hors service (down).    Après analyse via l’interface iLO de chaque serveur, aucun problème matériel (hardware) n’a été détecté.  L'origine de l’incident semble liée à des manipulations effectuées sur les GPO par l’équipe de sécurité de Sergaz.    Afin de résoudre le problème, un redémarrage à froid (cold boot) a été effectué sur les serveurs concernés.  Les serveurs sont désormais opérationnels."
+  },
+  {
+    "question": "SFX_B488  STAYBED Sfax / more details / SFX_B488    STAYBED Sfax    STAYBED    FO    AR617    DPM    Internet + Trunk    80    34,721355    10,734134    02/05/2025    Naceur",
+    "answer": "-Lors de notre récente intervention sur SFX_B488, nous avons identifié un problème lié à l'installation du lien fibre optique. Il a été observé qu'il n'y a pas de Armoire pour héberger le routeur et qu'il manque également d'alimentation aussi."
+  },
+  {
+    "question": "TUN_C314_1  Jems Tunisie les Berges du Lac / more details / TUN_C314_1    Jems Tunisie les Berges du Lac    Jems Tunisie    FO    AR617    DPM    Internet    250    36,848443    10,27594    02/05/2025    Ikram",
+    "answer": "-L’intervention n’étant pas encore terminée à cause d’un problème au niveau du boîtier PTO -Veuillez trouver ci-joint le PV de reception materiel .   - Date d'intervention : 02/05/2025   - Code site: TUN_C314-1  : Le routeur est déjà installé chez le client  - Responsable de l'intervention (ooredoo): Naceur Agil"
+  },
+  {
+    "question": "TUN_C650_1  Sté 3GS MEDIA/OMD lac 2 tunis / more details / TUN_C650_1    Sté 3GS MEDIA/OMD lac 2 tunis    3GS MEDIA/OMD    FO    AR651    DPM    MSSP    500    36,836539    10,232189    02/05/2025    Mehrez",
+    "answer": "L'intervention MSSP s'est déroulée avec succès.  Veuillez trouver ci-joint le procès-verbal (PV) d'intervention.    Détails de l’intervention :    Date : 02/05/2025    Code site : TUN_C650_1 (récupération du retour existant R617)    Responsable de l’intervention (Ooredoo) : Mrabtini Mounir"
+  },
+  {
+    "question": "Déposer les collègues / more details / Nadine (CPE CHARGUIA) 9H  (Voiture Zarkouna)",
+    "answer": "mission terminée !"
+  },
+    {
+    "question": "who created you ?",
+    "answer": "its a pleasure from Abderazek Benhadjmbarek and Kaabi ALi to made me , so i can help you today"
+  }
+]

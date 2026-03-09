@@ -1,0 +1,57 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Environment Variables (CRITICAL)
+.env
+.env.local
+.env.shared
+*.env
+# Also ignore the directory if it exists
+.env/
+ENV/
+
+# FAISS Index & Processed Data
+faiss_index_store/
+*.faiss
+*.pkl
+
+# Virtual Environments
+venv/
+env/
+env.bak/
+venv.bak/
+bin/
+include/
+share/
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# IDEs and Tools
+.vscode/
+.idea/
+.ipynb_checkpoints
+.pytest_cache/
+.coverage
+htmlcov/

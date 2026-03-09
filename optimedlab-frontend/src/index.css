@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+/* You can define custom theme variables here in v4 */
+@theme {
+  --color-primary: #0ea5e9; /* OptimedLab Sky Blue */
+  --color-secondary: #0f172a; /* Slate dark */
+  --color-accent: #f59e0b; /* Amber */
+}
+
+/* Global resets */
+body {
+  background-color: var(--color-gray-50);
+  color: var(--color-gray-800);
+}
