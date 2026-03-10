@@ -24,8 +24,9 @@ app.use(express.json());
 app.use(
   cors({
     origin: [
-      "http://localhost:5173", // Keeps local development working
-      "https://optimedlab.vercel.app", // Allows your Vercel frontend
+      "http://localhost:5173",
+      "https://optimedlab.vercel.app",
+      "https://optimedlab-9uwsgugqm-abderazek.vercel.app", // Added your preview URL!
     ],
     credentials: true,
   }),
@@ -62,4 +63,4 @@ const server = app.listen(PORT, () => {
 process.on("unhandledRejection", (err) => {
   console.log(`Error: ${err.message}`);
   server.close(() => process.exit(1));
-});   
+});
