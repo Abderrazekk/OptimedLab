@@ -64,6 +64,15 @@ const loginUser = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
 
+    // ADD THIS CHECK: Prevent banned users from logging in
+    if (user.isBanned) {
+      return res.status(403).json({
+        success: false,
+        message:
+          "Votre compte a été suspendu. Veuillez contacter l'administrateur.", // French to match your login UI
+      });
+    }
+
     // Check if password matches
     const isPasswordMatch = await user.matchPassword(password);
 

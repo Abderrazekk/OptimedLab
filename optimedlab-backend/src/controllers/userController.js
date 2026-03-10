@@ -1,5 +1,5 @@
-
 const User = require("../models/User");
+const bcrypt = require("bcryptjs"); // <-- ADDED THIS IMPORT
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -33,7 +33,7 @@ const createUser = async (req, res) => {
       });
     }
 
-    // Create user (password will be hashed by pre-save hook)
+    // Create user (hash the password)
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     const user = await User.create({
@@ -89,13 +89,12 @@ const updateUser = async (req, res) => {
     user.email = email || user.email;
     user.role = role || user.role;
 
-    // If password is provided, it will be hashed by pre-save hook
+    // If password is provided, hash it
     if (password) {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(password, salt);
     }
     await user.save();
-
 
     // Return updated user without password
     const userResponse = user.toObject();
@@ -144,9 +143,47 @@ const deleteUser = async (req, res) => {
   }
 };
 
+// @desc    Toggle user ban status
+// @route   PUT /api/users/:id/ban
+// @access  Private/Admin
+const toggleBanUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Prevent admin from banning themselves
+    if (userId === req.user.id) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot ban your own account",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Toggle the boolean value
+    user.isBanned = !user.isBanned;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: `User ${user.isBanned ? "banned" : "unbanned"} successfully`,
+      isBanned: user.isBanned,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   getUsers,
   createUser,
   updateUser,
   deleteUser,
+  toggleBanUser, // Ensure this is exported!
 };

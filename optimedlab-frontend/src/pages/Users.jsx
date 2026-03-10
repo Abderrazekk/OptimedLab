@@ -64,6 +64,20 @@ const Users = () => {
     }
   };
 
+  const handleToggleBan = async (userId, userName, isCurrentlyBanned) => {
+    const action = isCurrentlyBanned ? "unban" : "ban";
+    if (!window.confirm(`Are you sure you want to ${action} ${userName}?`)) {
+      return;
+    }
+
+    try {
+      await userService.toggleBanUser(userId);
+      fetchUsers(); // Refresh the list to show new status
+    } catch (err) {
+      alert(err.response?.data?.message || `Failed to ${action} user`);
+    }
+  };
+
   const handleFormSubmit = async (formData) => {
     try {
       setFormLoading(true);
@@ -92,7 +106,8 @@ const Users = () => {
   }
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto pb-10">
+      {/* Header Section */}
       <div className="sm:flex sm:items-center sm:justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
@@ -125,6 +140,7 @@ const Users = () => {
         </div>
       </div>
 
+      {/* Error Message */}
       {error && (
         <div className="mb-6 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm flex items-center">
           <svg
@@ -144,119 +160,147 @@ const Users = () => {
         </div>
       )}
 
-      <div className="flex flex-col">
-        <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div className="overflow-hidden shadow-sm ring-1 ring-slate-200 md:rounded-2xl bg-white">
-              <table className="min-w-full divide-y divide-slate-200">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
-                    >
-                      Name
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
-                    >
-                      Email
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
-                    >
-                      Role
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
-                    >
-                      Created
-                    </th>
-                    <th scope="col" className="relative px-6 py-4">
-                      <span className="sr-only">Actions</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 bg-white">
-                  {users.map((u) => (
-                    <tr
-                      key={u._id}
-                      className="hover:bg-slate-50/80 transition-colors duration-150"
-                    >
-                      <td className="whitespace-nowrap px-6 py-4">
-                        <div className="flex items-center">
-                          <div className="h-9 w-9 shrink-0 rounded-full bg-linear-to-br from-emerald-100 to-teal-100 flex items-center justify-center text-emerald-700 font-bold border border-emerald-200">
-                            {u.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-slate-900">
-                              {u.name}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-500">
-                        {u.email}
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border ${
-                            u.role === "admin"
-                              ? "bg-purple-50 text-purple-700 border-purple-200"
-                              : u.role === "commercial"
-                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                : u.role === "stock"
-                                  ? "bg-amber-50 text-amber-700 border-amber-200"
-                                  : "bg-indigo-50 text-indigo-700 border-indigo-200"
-                          }`}
-                        >
-                          {u.role === "commercial"
-                            ? "Technico-Commercial"
-                            : u.role === "stock"
-                              ? "Responsable Stock"
-                              : u.role === "director"
-                                ? "Directeur"
-                                : "Admin"}
-                        </span>
-                      </td>
-                      <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-500">
-                        {new Date(u.createdAt).toLocaleDateString(undefined, {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </td>
-                      <td className="relative whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleEditUser(u)}
-                          className="text-emerald-600 hover:text-emerald-900 mr-4 transition-colors"
-                        >
-                          Edit
-                        </button>
-                        {u._id !== user?._id && ( // Cannot delete yourself
-                          <button
-                            onClick={() => handleDeleteUser(u._id, u.name)}
-                            className="text-red-500 hover:text-red-700 transition-colors"
-                          >
-                            Delete
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {users.length === 0 && !loading && (
-                <div className="text-center py-10 text-slate-500 text-sm">
-                  No users found.
+      {/* Empty State */}
+      {users.length === 0 && !loading && (
+        <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <svg
+            className="mx-auto h-12 w-12 text-slate-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1}
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
+          </svg>
+          <h3 className="mt-2 text-sm font-medium text-slate-900">
+            No users found
+          </h3>
+          <p className="mt-1 text-sm text-slate-500">
+            Get started by creating a new user.
+          </p>
+        </div>
+      )}
+
+      {/* User Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {users.map((u) => (
+          <div
+            key={u._id}
+            className={`flex flex-col bg-white rounded-2xl border ${u.isBanned ? "border-red-200 shadow-red-100/50" : "border-slate-200"} shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200`}
+          >
+            {/* Card Content */}
+            <div className="p-6 flex-grow">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center space-x-4">
+                  <div
+                    className={`h-12 w-12 shrink-0 rounded-full flex items-center justify-center text-lg font-bold border ${u.isBanned ? "bg-red-50 text-red-700 border-red-200" : "bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-700 border-emerald-200"}`}
+                  >
+                    {u.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    {" "}
+                    {/* min-w-0 allows truncate to work inside flex */}
+                    <h3 className="text-lg font-bold text-slate-900 truncate">
+                      {u.name}
+                    </h3>
+                    <p className="text-sm text-slate-500 truncate">{u.email}</p>
+                  </div>
                 </div>
+              </div>
+
+              {/* Badges Section */}
+              <div className="mt-5 flex flex-wrap gap-2">
+                <span
+                  className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold border ${
+                    u.role === "admin"
+                      ? "bg-purple-50 text-purple-700 border-purple-200"
+                      : u.role === "commercial"
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : u.role === "stock"
+                          ? "bg-amber-50 text-amber-700 border-amber-200"
+                          : "bg-indigo-50 text-indigo-700 border-indigo-200"
+                  }`}
+                >
+                  {u.role === "commercial"
+                    ? "Technico-Commercial"
+                    : u.role === "stock"
+                      ? "Responsable Stock"
+                      : u.role === "director"
+                        ? "Directeur"
+                        : "Admin"}
+                </span>
+
+                <span
+                  className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold border ${
+                    u.isBanned
+                      ? "bg-red-50 text-red-700 border-red-200"
+                      : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  }`}
+                >
+                  {u.isBanned ? "Banned" : "Active"}
+                </span>
+              </div>
+
+              {/* Additional Info */}
+              <div className="mt-5 text-xs text-slate-500 flex items-center">
+                <svg
+                  className="w-4 h-4 mr-1.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Joined:{" "}
+                {new Date(u.createdAt).toLocaleDateString(undefined, {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </div>
+            </div>
+
+            {/* Card Footer (Actions) */}
+            <div
+              className={`px-6 py-4 border-t flex justify-end gap-4 ${u.isBanned ? "bg-red-50/30 border-red-100" : "bg-slate-50 border-slate-100"}`}
+            >
+              <button
+                onClick={() => handleEditUser(u)}
+                className="text-emerald-600 hover:text-emerald-800 text-sm font-semibold transition-colors flex items-center"
+              >
+                Edit
+              </button>
+
+              {u._id !== user?._id && ( // Cannot ban/delete yourself
+                <>
+                  <button
+                    onClick={() => handleToggleBan(u._id, u.name, u.isBanned)}
+                    className={`${u.isBanned ? "text-amber-600 hover:text-amber-800" : "text-orange-500 hover:text-orange-700"} text-sm font-semibold transition-colors`}
+                  >
+                    {u.isBanned ? "Unban" : "Ban"}
+                  </button>
+
+                  <button
+                    onClick={() => handleDeleteUser(u._id, u.name)}
+                    className="text-red-500 hover:text-red-700 text-sm font-semibold transition-colors"
+                  >
+                    Delete
+                  </button>
+                </>
               )}
             </div>
           </div>
-        </div>
+        ))}
       </div>
 
       {showForm && (
