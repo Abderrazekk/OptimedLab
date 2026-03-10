@@ -1,53 +1,60 @@
-
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const SupplierSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Please add a supplier name'],
-    trim: true
+    required: [true, "Please add a supplier name"],
+    trim: true,
   },
   contactPerson: {
     type: String,
-    default: ''
+    default: "",
   },
   email: {
     type: String,
-    required: [true, 'Please add an email'],
+    required: [true, "Please add an email"],
     lowercase: true,
     match: [
       /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-      'Please add a valid email'
-    ]
+      "Please add a valid email",
+    ],
   },
   phone: {
     type: String,
-    required: [true, 'Please add a phone number']
+    required: [true, "Please add a phone number"],
   },
   address: {
     street: String,
     city: String,
     state: String,
     zipCode: String,
-    country: String
+    country: String,
   },
   website: {
     type: String,
-    default: ''
+    default: "",
   },
   notes: {
     type: String,
-    default: ''
+    default: "",
+  },
+  image: {
+    type: String,
+    default: "",
+  },
+  bgColor: {
+    type: String,
+    default: "#ffffff", // Default to white
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+    ref: "User",
+    required: true,
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-module.exports = mongoose.model('Supplier', SupplierSchema);
+module.exports = mongoose.model("Supplier", SupplierSchema);

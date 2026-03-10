@@ -1,5 +1,4 @@
-
-const Supplier = require('../models/Supplier');
+const Supplier = require("../models/Supplier");
 
 // @desc    Get all suppliers
 // @route   GET /api/suppliers
@@ -7,12 +6,12 @@ const Supplier = require('../models/Supplier');
 const getSuppliers = async (req, res) => {
   try {
     const suppliers = await Supplier.find()
-      .populate('createdBy', 'name email')
-      .sort('-createdAt');
+      .populate("createdBy", "name email")
+      .sort("-createdAt");
     res.json({
       success: true,
       count: suppliers.length,
-      data: suppliers
+      data: suppliers,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -24,15 +23,25 @@ const getSuppliers = async (req, res) => {
 // @access  Private (Admin, Stock)
 const createSupplier = async (req, res) => {
   try {
-    const supplier = await Supplier.create({
-      ...req.body,
-      createdBy: req.user.id
-    });
-    const populated = await Supplier.findById(supplier._id).populate('createdBy', 'name email');
-    res.status(201).json({
-      success: true,
-      data: populated
-    });
+    const supplierData = { ...req.body, createdBy: req.user.id };
+
+    // SAFEGUARD: Remove image if it arrived as a weird object in the body
+    if (supplierData.image) {
+      delete supplierData.image;
+    }
+
+    // Assign the actual uploaded file path from multer
+    if (req.file) {
+      supplierData.image = `/uploads/suppliers/${req.file.filename}`;
+    }
+
+    const supplier = await Supplier.create(supplierData);
+    const populated = await Supplier.findById(supplier._id).populate(
+      "createdBy",
+      "name email",
+    );
+
+    res.status(201).json({ success: true, data: populated });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -45,13 +54,28 @@ const updateSupplier = async (req, res) => {
   try {
     let supplier = await Supplier.findById(req.params.id);
     if (!supplier) {
-      return res.status(404).json({ success: false, message: 'Supplier not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Supplier not found" });
     }
-    supplier = await Supplier.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    ).populate('createdBy', 'name email');
+
+    const updateData = { ...req.body };
+
+    // SAFEGUARD: Remove image if it arrived as a weird object in the body
+    if (updateData.image) {
+      delete updateData.image;
+    }
+
+    // Check if a NEW image was uploaded via multer
+    if (req.file) {
+      updateData.image = `/uploads/suppliers/${req.file.filename}`;
+    }
+
+    supplier = await Supplier.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    }).populate("createdBy", "name email");
+
     res.json({ success: true, data: supplier });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -65,19 +89,22 @@ const deleteSupplier = async (req, res) => {
   try {
     const supplier = await Supplier.findById(req.params.id);
     if (!supplier) {
-      return res.status(404).json({ success: false, message: 'Supplier not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Supplier not found" });
     }
     // Check if any products reference this supplier
-    const Product = require('../models/Product');
+    const Product = require("../models/Product");
     const productsUsing = await Product.findOne({ supplier: supplier._id });
     if (productsUsing) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Cannot delete supplier because it is used by one or more products.' 
+      return res.status(400).json({
+        success: false,
+        message:
+          "Cannot delete supplier because it is used by one or more products.",
       });
     }
     await supplier.deleteOne();
-    res.json({ success: true, message: 'Supplier deleted successfully' });
+    res.json({ success: true, message: "Supplier deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -87,5 +114,5 @@ module.exports = {
   getSuppliers,
   createSupplier,
   updateSupplier,
-  deleteSupplier
+  deleteSupplier,
 };
