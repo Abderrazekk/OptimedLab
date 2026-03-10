@@ -25,7 +25,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173", // Keeps local development working
-      "https://your-actual-vercel-url.vercel.app", // Allows your Vercel frontend
+      "https://optimedlab.vercel.app", // Allows your Vercel frontend
     ],
     credentials: true,
   }),
