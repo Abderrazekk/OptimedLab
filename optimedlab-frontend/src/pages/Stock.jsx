@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import stockService from "../services/stockService";
 import AdjustStockForm from "../components/stock/AdjustStockForm";
 import ProductDetailModal from "../components/products/ProductDetailModal";
+import QRScannerModal from "../components/stock/QRScannerModal"; // <-- NEW IMPORT
 
 const Stock = () => {
   const { user } = useAuth();
@@ -14,6 +15,7 @@ const Stock = () => {
   // States for our Modals
   const [detailProduct, setDetailProduct] = useState(null);
   const [adjustProduct, setAdjustProduct] = useState(null); // Track WHICH product to adjust
+  const [showScanner, setShowScanner] = useState(false); // <-- NEW STATE FOR SCANNER
 
   const canAdjust = user && (user.role === "admin" || user.role === "stock");
 
@@ -53,6 +55,18 @@ const Stock = () => {
     return `${baseUrl}/${cleanPath}`;
   };
 
+  // <-- NEW FUNCTION: Handle successful QR Scan
+  const handleScanSuccess = (scannedId) => {
+    setShowScanner(false); // Close the camera modal
+    const foundProduct = products.find((p) => p._id === scannedId);
+
+    if (foundProduct) {
+      setAdjustProduct(foundProduct); // Instantly open the Adjust Form for this product
+    } else {
+      alert("Product not found in the current stock list.");
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -65,7 +79,31 @@ const Stock = () => {
             adjustments.
           </p>
         </div>
-        {/* The top button has been removed from here! */}
+
+        {/* <-- NEW: SCAN QR CODE BUTTON */}
+        {canAdjust && (
+          <div className="mt-4 sm:mt-0">
+            <button
+              onClick={() => setShowScanner(true)}
+              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <svg
+                className="-ml-1 mr-2 h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm14 0a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zM3 16a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm14 0a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z"
+                />
+              </svg>
+              Scan QR Code
+            </button>
+          </div>
+        )}
       </div>
 
       {error && (
@@ -270,6 +308,14 @@ const Stock = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* <-- NEW: RENDER THE SCANNER MODAL */}
+      {showScanner && (
+        <QRScannerModal
+          onClose={() => setShowScanner(false)}
+          onScanSuccess={handleScanSuccess}
+        />
       )}
 
       {/* Render Adjust Stock Form for a specific product */}

@@ -1,4 +1,3 @@
-
 const mongoose = require("mongoose");
 
 const ProductSchema = new mongoose.Schema({
@@ -48,6 +47,11 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     unique: true,
     sparse: true,
+    default: "",
+  },
+  // ADD THIS NEW FIELD
+  qrCode: {
+    type: String,
     default: "",
   },
   createdBy: {

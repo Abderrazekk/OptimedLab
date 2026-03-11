@@ -1,6 +1,7 @@
 const Product = require("../models/Product");
 const fs = require("fs");
 const path = require("path");
+const QRCode = require("qrcode");
 
 // @desc    Get all products
 // @route   GET /api/products
@@ -43,14 +44,23 @@ const createProduct = async (req, res) => {
       createdBy: req.user.id,
     };
 
-    // Store relative paths for images (important!)
+    // Store relative paths for images
     if (req.files && req.files.length > 0) {
       productData.images = req.files.map(
         (file) => "uploads/products/" + file.filename,
       );
     }
 
-    const product = await Product.create(productData);
+    // 2. MODIFIED LOGIC: Create product first to get its unique _id
+    let product = await Product.create(productData);
+
+    // 3. Generate QR Code holding the product's _id
+    const qrCodeImage = await QRCode.toDataURL(product._id.toString());
+
+    // 4. Save the QR Code to the product
+    product.qrCode = qrCodeImage;
+    await product.save();
+
     const populated = await Product.findById(product._id)
       .populate("supplier", "name email")
       .populate("createdBy", "name email");
