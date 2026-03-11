@@ -3,7 +3,6 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./src/config/db");
 const seedAdmin = require("./src/utils/seedAdmin");
-const path = require("path");
 
 // Load env vars
 dotenv.config();
@@ -20,24 +19,14 @@ const app = express();
 app.use(express.json());
 
 // Enable CORS
-// ⚠️ IMPORTANT: Replace the Vercel URL below with your actual deployed frontend URL!
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://optimedlab.vercel.app",
-      "https://optimedlab-9uwsgugqm-abderazek.vercel.app", // Added your preview URL!
-    ],
+    origin: process.env.FRONTEND_URL || "http://localhost:5173", 
     credentials: true,
   }),
 );
 
-// Health check route to fix "Cannot GET /"
-app.get("/", (req, res) => {
-  res.send("OptimedLab API is live and running!");
-});
-
-// Static folder for uploads
+const path = require("path");
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Mount routes
