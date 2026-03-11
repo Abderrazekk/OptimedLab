@@ -2,14 +2,13 @@ from groq import Groq
 import os
 import json
 import faiss
-from langchain_ollama import OllamaEmbeddings
 import numpy as np
 import time
 from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_ollama import OllamaEmbeddings
 from langchain_community.vectorstores import FAISS
 from typing import List, Dict, Any
 from fastapi import FastAPI, HTTPException
@@ -27,7 +26,7 @@ class RAGSystem:
     # embedding model name = "nomic-embed-text:latest"
     #top_k: int = 1 => to take the most relivant document 
     def __init__(self, data_path: str, index_path: str, model_name: str = "llama-3.1-8b-instant", 
-                 embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2", top_k: int = 1):
+                 embedding_model: str = "nomic-embed-text:latest", top_k: int = 1):
         """Initialize the RAG system with configuration parameters"""
         self.data_path = data_path
         self.index_path = index_path
@@ -35,8 +34,8 @@ class RAGSystem:
         self.embedding_model_name = embedding_model
         self.top_k = top_k
         
-        # Set up embedding model (HuggingFace instead of Ollama)
-        self.embeddings = HuggingFaceEmbeddings(model_name=self.embedding_model_name)
+        # Set up embedding model
+        self.embeddings = OllamaEmbeddings(model=self.embedding_model_name)
         
         # Initialize Groq client
         self.client = Groq()
@@ -176,7 +175,12 @@ app = FastAPI()
 # Add CORS middleware – restrict to your backend and frontend origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allows your live backend and frontend to talk to it
+    allow_origins=[
+        "http://localhost:5000",   # Node backend
+        "http://127.0.0.1:5000",
+        "http://localhost:5173",   # Vite frontend
+        "http://127.0.0.1:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
