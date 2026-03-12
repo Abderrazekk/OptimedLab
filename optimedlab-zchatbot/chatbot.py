@@ -10,7 +10,7 @@ from langchain_core.documents import Document
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_groq import ChatGroq
-from langchain_ollama import OllamaEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, HTTPException, Header
@@ -98,7 +98,11 @@ class RAGSystem:
         
         # Set up embedding model
         try:
-            self.embeddings = OllamaEmbeddings(model=self.embedding_model_name)
+            self.embeddings = HuggingFaceEmbeddings(
+    model_name="all-MiniLM-L6-v2",  # small, fast, decent quality
+    model_kwargs={'device': 'cpu'},
+    encode_kwargs={'normalize_embeddings': True}
+)
             print("✅ Embedding model initialized")
         except Exception as e:
             print(f"❌ Error initializing embeddings: {e}")

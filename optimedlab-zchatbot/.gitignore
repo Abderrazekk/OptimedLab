@@ -16,9 +16,9 @@ __pycache__/
 ENV/
 
 # FAISS Index & Processed Data
-faiss_index_store/
-*.faiss
-*.pkl
+#faiss_index_store/
+#*.faiss
+#*.pkl
 
 # Virtual Environments
 venv/
