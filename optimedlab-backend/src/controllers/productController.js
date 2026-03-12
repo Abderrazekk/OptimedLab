@@ -35,8 +35,25 @@ const getProductById = async (req, res) => {
   }
 };
 
+// Helper function to extract shelfLocation from FormData
+const extractShelfLocation = (body) => {
+  if (
+    body["shelfLocation[aisle]"] ||
+    body["shelfLocation[shelfNumber]"] ||
+    body["shelfLocation[binCode]"]
+  ) {
+    return {
+      aisle: body["shelfLocation[aisle]"] || "",
+      shelfNumber: parseInt(body["shelfLocation[shelfNumber]"]) || 0,
+      binCode: body["shelfLocation[binCode]"] || "",
+    };
+  }
+  return undefined;
+};
+
 // @desc    Create a product
 // @route   POST /api/products
+// @desc    Create a product
 const createProduct = async (req, res) => {
   try {
     const productData = {
@@ -44,27 +61,31 @@ const createProduct = async (req, res) => {
       createdBy: req.user.id,
     };
 
-    // Store relative paths for images
+    // ✅ THE FIX: Parse the stringified JSON back into an object
+    if (req.body.shelfLocation) {
+      try {
+        productData.shelfLocation = JSON.parse(req.body.shelfLocation);
+      } catch (e) {
+        console.error("Could not parse shelf location");
+      }
+    }
+
     if (req.files && req.files.length > 0) {
       productData.images = req.files.map(
         (file) => "uploads/products/" + file.filename,
       );
     }
 
-    // 2. MODIFIED LOGIC: Create product first to get its unique _id
     let product = await Product.create(productData);
 
-    // 3. Generate QR Code holding the product's _id
+    // Generate QR Code holding the product's _id
     const qrCodeImage = await QRCode.toDataURL(product._id.toString());
-
-    // 4. Save the QR Code to the product
     product.qrCode = qrCodeImage;
     await product.save();
 
     const populated = await Product.findById(product._id)
       .populate("supplier", "name email")
       .populate("createdBy", "name email");
-
     res.status(201).json({ success: true, data: populated });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -72,7 +93,6 @@ const createProduct = async (req, res) => {
 };
 
 // @desc    Update a product
-// @route   PUT /api/products/:id
 const updateProduct = async (req, res) => {
   try {
     let product = await Product.findById(req.params.id);
@@ -84,18 +104,16 @@ const updateProduct = async (req, res) => {
 
     const updateData = { ...req.body };
 
-    // Handle new images
-    if (req.files && req.files.length > 0) {
-      // Delete old images from disk
-      if (product.images && product.images.length > 0) {
-        product.images.forEach((imagePath) => {
-          const fullPath = path.join(__dirname, "..", "..", imagePath);
-          if (fs.existsSync(fullPath)) {
-            fs.unlinkSync(fullPath);
-          }
-        });
+    // ✅ THE FIX: Parse the stringified JSON back into an object
+    if (req.body.shelfLocation) {
+      try {
+        updateData.shelfLocation = JSON.parse(req.body.shelfLocation);
+      } catch (e) {
+        console.error("Could not parse shelf location");
       }
-      // Store new relative paths
+    }
+
+    if (req.files && req.files.length > 0) {
       updateData.images = req.files.map(
         (file) => "uploads/products/" + file.filename,
       );
@@ -113,7 +131,6 @@ const updateProduct = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 // @desc    Delete a product
 // @route   DELETE /api/products/:id
 const deleteProduct = async (req, res) => {

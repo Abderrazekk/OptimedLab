@@ -3,24 +3,28 @@ import React from "react";
 import { formatPrice } from "../../utils/formatPrice";
 
 const ProductDetailModal = ({ product, onClose }) => {
-  const apiUrl = import.meta.env.VITE_API_URL;
-
-  // Strip '/api' from the end of the URL to get the base server URL
+  const apiUrl = import.meta.env.VITE_API_URL || "";
   const serverUrl = apiUrl.endsWith("/api") ? apiUrl.slice(0, -4) : apiUrl;
 
+  // <-- NEW: Helper to format location
+  const hasLocation = product.shelfLocation && product.shelfLocation.aisle;
+
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-5 border w-full max-w-3xl shadow-lg rounded-md bg-white">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-2xl font-semibold text-gray-900">
-            {product.name}
-          </h3>
+    <div className="fixed inset-0 bg-gray-900 bg-opacity-60 overflow-y-auto h-full w-full z-50 flex justify-center items-center backdrop-blur-sm">
+      <div className="relative p-6 border w-full max-w-2xl shadow-2xl rounded-xl bg-white">
+        <div className="flex justify-between items-start mb-6 border-b pb-4">
+          <div>
+            <h3 className="text-2xl font-bold text-gray-900">{product.name}</h3>
+            <span className="inline-flex items-center mt-2 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {product.category}
+            </span>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-red-500 transition-colors bg-gray-100 rounded-full p-2"
           >
             <svg
-              className="h-6 w-6"
+              className="h-5 w-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -35,95 +39,107 @@ const ProductDetailModal = ({ product, onClose }) => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Images */}
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Image Section */}
+          <div className="flex justify-center items-start">
             {product.images && product.images.length > 0 ? (
-              <div className="space-y-2">
-                <img
-                  src={`${serverUrl}/${product.images[0]}`}
-                  alt={product.name}
-                  className="w-full h-64 object-cover rounded-lg"
-                />
-                {product.images.length > 1 && (
-                  <div className="flex gap-2 overflow-x-auto">
-                    {product.images.slice(1).map((img, idx) => (
-                      <img
-                        key={idx}
-                        src={`${apiUrl}/${img}`}
-                        alt={`${product.name} ${idx + 2}`}
-                        className="w-20 h-20 object-cover rounded"
-                      />
-                    ))}
-                  </div>
-                )}
+              <img
+                src={`${serverUrl}/${product.images[0].replace(/^\//, "")}`}
+                alt={product.name}
+                className="max-w-full h-auto rounded-lg shadow-md border border-gray-200"
+              />
+            ) : (
+              <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                <span className="text-gray-400">No Image Available</span>
+              </div>
+            )}
+          </div>
+
+          {/* Details Section */}
+          <div className="space-y-4">
+            {/* <-- NEW: Storage Location Badge --> */}
+            {hasLocation ? (
+              <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 flex items-start">
+                <div className="bg-indigo-600 rounded p-2 text-white mr-3 shadow-sm">
+                  <svg
+                    className="w-6 h-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider">
+                    Storage Location
+                  </p>
+                  <p className="text-lg font-bold text-indigo-900">
+                    Aisle {product.shelfLocation.aisle} • Shelf{" "}
+                    {product.shelfLocation.shelfNumber} • Bin{" "}
+                    {product.shelfLocation.binCode}
+                  </p>
+                </div>
               </div>
             ) : (
-              <div className="w-full h-64 bg-gray-200 flex items-center justify-center text-gray-400 rounded-lg">
-                No image
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 text-gray-500 text-sm italic">
+                No physical location assigned.
               </div>
             )}
 
-            {product.qrCode && (
-              <div className="mt-4 flex flex-col items-center">
-                <p className="text-sm font-bold text-gray-700">Stock QR Code</p>
-                <img
-                  src={product.qrCode}
-                  alt="Product QR Code"
-                  className="w-32 h-32 shadow-sm border p-1"
-                />
+            <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase">
+                  Current Stock
+                </p>
+                <p
+                  className={`text-xl font-bold ${product.stockQuantity <= product.threshold ? "text-red-600" : "text-green-600"}`}
+                >
+                  {product.stockQuantity} Units
+                </p>
               </div>
-            )}
-          </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase">
+                  Price
+                </p>
+                <p className="text-xl font-bold text-gray-900">
+                  {formatPrice(product.price)}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase">
+                  Alert Threshold
+                </p>
+                <p className="text-sm font-medium text-gray-900">
+                  {product.threshold} Units
+                </p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 uppercase">
+                  SKU / Ref
+                </p>
+                <p className="text-sm font-medium text-gray-900">
+                  {product.sku || "N/A"}
+                </p>
+              </div>
+            </div>
 
-          {/* Details */}
-          <div className="space-y-4">
-            <div>
-              <p className="text-sm text-gray-500">Category</p>
-              <p className="text-lg font-medium">{product.category}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Price</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {formatPrice(product.price)}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Stock</p>
-              <p
-                className={`text-lg ${product.stockQuantity <= product.threshold ? "text-red-600 font-semibold" : ""}`}
-              >
-                {product.stockQuantity} units
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Alert Threshold</p>
-              <p className="text-lg">{product.threshold}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Supplier</p>
-              <p className="text-lg">{product.supplier?.name || "N/A"}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">SKU</p>
-              <p className="text-lg">{product.sku || "N/A"}</p>
-            </div>
             {product.description && (
               <div>
-                <p className="text-sm text-gray-500">Description</p>
-                <p className="text-gray-700">{product.description}</p>
+                <p className="text-xs font-semibold text-gray-500 uppercase mb-1">
+                  Description
+                </p>
+                <p className="text-sm text-gray-700 bg-white border rounded p-3">
+                  {product.description}
+                </p>
               </div>
             )}
           </div>
-        </div>
-
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Close
-          </button>
         </div>
       </div>
     </div>

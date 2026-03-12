@@ -49,7 +49,12 @@ const ProductSchema = new mongoose.Schema({
     sparse: true,
     default: "",
   },
-  // ADD THIS NEW FIELD
+  // <-- NEW: Storage Location for the 2D Map -->
+  shelfLocation: {
+    aisle: { type: String, default: "" },
+    shelfNumber: { type: Number, default: 0 },
+    binCode: { type: String, default: "" },
+  },
   qrCode: {
     type: String,
     default: "",

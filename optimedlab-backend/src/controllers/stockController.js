@@ -1,4 +1,3 @@
-
 const Product = require("../models/Product");
 const StockMovement = require("../models/StockMovement");
 
@@ -10,7 +9,7 @@ const getStockList = async (req, res) => {
     const products = await Product.find()
       // Add 'description' here so the modal can display it:
       .select(
-        "name sku description category stockQuantity threshold price supplier images",
+        "name sku description category stockQuantity threshold price supplier images shelfLocation",
       )
       .populate("supplier", "name");
     res.json({ success: true, data: products });
