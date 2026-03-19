@@ -1,5 +1,4 @@
-
-const Client = require('../models/Client');
+const Client = require("../models/Client");
 
 // @desc    Get all clients
 // @route   GET /api/clients
@@ -7,19 +6,19 @@ const Client = require('../models/Client');
 const getClients = async (req, res) => {
   try {
     let query = {};
-    
-    // If user is commercial, they might see only their own clients? 
+
+    // If user is commercial, they might see only their own clients?
     // Requirement: "Commercial sees all? Probably yes." We'll allow all for simplicity.
     // If you want commercial to see only theirs, add condition: if (req.user.role === 'commercial') query.createdBy = req.user.id;
 
     const clients = await Client.find(query)
-      .populate('createdBy', 'name email')
-      .sort('-createdAt');
+      .populate("createdBy", "name email")
+      .sort("-createdAt");
 
     res.json({
       success: true,
       count: clients.length,
-      data: clients
+      data: clients,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -31,7 +30,22 @@ const getClients = async (req, res) => {
 // @access  Private (Admin, Commercial)
 const createClient = async (req, res) => {
   try {
-    const { name, email, phone, address, company, notes } = req.body;
+    const { name, email, phone, company, notes } = req.body;
+
+    // Handle nested address fields sent via FormData
+    const address = {
+      street: req.body["address.street"] || "",
+      city: req.body["address.city"] || "",
+      state: req.body["address.state"] || "",
+      zipCode: req.body["address.zipCode"] || "",
+      country: req.body["address.country"] || "",
+    };
+
+    // Capture the uploaded image filename
+    let image = "";
+    if (req.file) {
+      image = req.file.filename;
+    }
 
     const client = await Client.create({
       name,
@@ -40,16 +54,18 @@ const createClient = async (req, res) => {
       address,
       company,
       notes,
-      createdBy: req.user.id
+      image,
+      createdBy: req.user._id, // Use req.user._id or req.user.id depending on your auth middleware
     });
 
-    const populatedClient = await Client.findById(client._id).populate('createdBy', 'name email');
+    const populatedClient = await Client.findById(client._id).populate(
+      "createdBy",
+      "name email",
+    );
 
-    res.status(201).json({
-      success: true,
-      data: populatedClient
-    });
+    res.status(201).json({ success: true, data: populatedClient });
   } catch (error) {
+    console.error("Error creating client:", error); // <-- This will log the exact error in your terminal
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -62,24 +78,45 @@ const updateClient = async (req, res) => {
     let client = await Client.findById(req.params.id);
 
     if (!client) {
-      return res.status(404).json({ success: false, message: 'Client not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Client not found" });
     }
 
-    // Check ownership or admin? Admin can update any, commercial only their own? 
-    // Requirement: "update (admin, commercial)" – we assume commercial can update any client as well (since they see all). If you want commercial to update only their own, add condition.
-    // We'll allow both admin and commercial to update any client.
+    // Create a clean update object
+    const updateData = {
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      company: req.body.company,
+      notes: req.body.notes,
+    };
+
+    // Reconstruct address object safely
+    if (req.body["address.street"] !== undefined) {
+      updateData.address = {
+        street: req.body["address.street"],
+        city: req.body["address.city"],
+        state: req.body["address.state"],
+        zipCode: req.body["address.zipCode"],
+        country: req.body["address.country"],
+      };
+    }
+
+    // Capture new image if uploaded
+    if (req.file) {
+      updateData.image = req.file.filename;
+    }
 
     client = await Client.findByIdAndUpdate(
       req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    ).populate('createdBy', 'name email');
+      { $set: updateData },
+      { new: true, runValidators: true },
+    ).populate("createdBy", "name email");
 
-    res.json({
-      success: true,
-      data: client
-    });
+    res.json({ success: true, data: client });
   } catch (error) {
+    console.error("Error updating client:", error); // <-- This will log the exact error in your terminal
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -92,14 +129,16 @@ const deleteClient = async (req, res) => {
     const client = await Client.findById(req.params.id);
 
     if (!client) {
-      return res.status(404).json({ success: false, message: 'Client not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: "Client not found" });
     }
 
     await client.deleteOne();
 
     res.json({
       success: true,
-      message: 'Client deleted successfully'
+      message: "Client deleted successfully",
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -110,5 +149,5 @@ module.exports = {
   getClients,
   createClient,
   updateClient,
-  deleteClient
+  deleteClient,
 };

@@ -1,29 +1,36 @@
-
-const express = require('express');
-const { 
-  getClients, 
-  createClient, 
-  updateClient, 
-  deleteClient 
-} = require('../controllers/clientController');
-const { protect } = require('../middleware/authMiddleware');
-const { allowRoles } = require('../middleware/roleMiddleware');
+const express = require("express");
+const {
+  getClients,
+  createClient,
+  updateClient,
+  deleteClient,
+} = require("../controllers/clientController");
+const { protect } = require("../middleware/authMiddleware");
+const { allowRoles } = require("../middleware/roleMiddleware");
+const uploadClientImages = require("../middleware/uploadClientMiddleware"); // <-- IMPORT ADDED
 
 const router = express.Router();
 
-// All routes require authentication
 router.use(protect);
 
-// GET /api/clients – accessible by admin, commercial, director
-router.get('/', allowRoles('admin', 'commercial', 'director'), getClients);
+router.get("/", allowRoles("admin", "commercial", "director"), getClients);
 
-// POST /api/clients – accessible by admin, commercial
-router.post('/', allowRoles('admin', 'commercial'), createClient);
+// <-- ADD MIDDLEWARE HERE
+router.post(
+  "/",
+  allowRoles("admin", "commercial"),
+  uploadClientImages.single("image"),
+  createClient,
+);
 
-// PUT /api/clients/:id – accessible by admin, commercial
-router.put('/:id', allowRoles('admin', 'commercial'), updateClient);
+// <-- ADD MIDDLEWARE HERE
+router.put(
+  "/:id",
+  allowRoles("admin", "commercial"),
+  uploadClientImages.single("image"),
+  updateClient,
+);
 
-// DELETE /api/clients/:id – accessible only by admin
-router.delete('/:id', allowRoles('admin'), deleteClient);
+router.delete("/:id", allowRoles("admin"), deleteClient);
 
 module.exports = router;

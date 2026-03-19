@@ -8,6 +8,7 @@ import TopClients from "../components/dashboard/TopClients";
 import StatsCard from "../components/dashboard/StatsCard";
 import AlertsWidget from "../components/stock/AlertsWidget";
 import StockMovementChart from "../components/dashboard/StockMovementChart";
+import ClientsMap from "../components/dashboard/ClientsMap";
 import { formatPrice } from "../utils/formatPrice";
 
 const Dashboard = () => {
@@ -16,6 +17,8 @@ const Dashboard = () => {
   const [period, setPeriod] = useState("month");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const [viewMode, setViewMode] = useState("analytics");
 
   useEffect(() => {
     fetchStats();
@@ -36,163 +39,244 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-        <select
-          value={period}
-          onChange={(e) => setPeriod(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-md"
-        >
-          <option value="day">Last 24 Hours</option>
-          <option value="week">Last Week</option>
-          <option value="month">Last Month</option>
-          <option value="year">Last Year</option>
-        </select>
+    <div className="py-8 px-4 sm:px-8 container mx-auto max-w-7xl font-sans">
+      {/* PREMIUM HEADER SECTION */}
+      <div className="relative bg-white rounded-3xl p-8 mb-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row justify-between items-center overflow-hidden gap-6">
+        {/* Decorative blur elements for modern glass effect */}
+        <div className="absolute top-0 left-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -ml-20 -mt-20 z-0 pointer-events-none"></div>
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-50 rounded-full blur-3xl -mr-20 -mb-20 z-0 pointer-events-none"></div>
+
+        <div className="relative z-10 text-center md:text-left">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-indigo-900 to-indigo-600 tracking-tight">
+            Overview
+          </h1>
+          <p className="text-gray-500 font-medium mt-1">
+            Welcome back,{" "}
+            <span className="text-indigo-600 font-semibold">{user?.name}</span>
+          </p>
+        </div>
+
+        {/* MODERN SEGMENTED CONTROL TOGGLE */}
+        <div className="relative z-10 bg-gray-100/80 backdrop-blur-md p-1.5 rounded-2xl inline-flex w-full md:w-auto border border-gray-200/50 shadow-inner">
+          <button
+            onClick={() => setViewMode("analytics")}
+            className={`relative flex-1 md:flex-none px-6 py-3 text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2.5 z-10 ${
+              viewMode === "analytics"
+                ? "text-indigo-700 shadow-md bg-white"
+                : "text-gray-500 hover:text-gray-800 hover:bg-gray-200/50"
+            }`}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2.5"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
+            </svg>
+            Analytics
+          </button>
+          <button
+            onClick={() => setViewMode("map")}
+            className={`relative flex-1 md:flex-none px-6 py-3 text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2.5 z-10 ${
+              viewMode === "map"
+                ? "text-indigo-700 shadow-md bg-white"
+                : "text-gray-500 hover:text-gray-800 hover:bg-gray-200/50"
+            }`}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2.5"
+                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+              />
+            </svg>
+            Clients Map
+          </button>
+        </div>
       </div>
 
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-xl mb-6 shadow-sm font-medium">
           {error}
         </div>
       )}
 
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      ) : stats ? (
-        <>
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <StatsCard
-              title="Total Sales"
-              value={formatPrice(stats.totalSales)}
-              icon={
+      {/* VIEW RENDERER WITH SOFT FADE ANIMATION */}
+      <div className="transition-all duration-500 ease-in-out">
+        {viewMode === "map" ? (
+          <div className="animate-fade-in-up">
+            <ClientsMap />
+          </div>
+        ) : (
+          <div className="animate-fade-in-up">
+            {loading ? (
+              <div className="flex justify-center items-center py-32">
+                <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+              </div>
+            ) : stats ? (
+              <div className="space-y-8">
+                {/* Custom Period Selector */}
+                <div className="flex justify-end">
+                  <div className="relative inline-block w-48">
+                    <select
+                      value={period}
+                      onChange={(e) => setPeriod(e.target.value)}
+                      className="block w-full appearance-none bg-white border border-gray-200 text-gray-700 font-semibold py-3 px-4 pr-8 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer transition-shadow"
+                    >
+                      <option value="week">This Week</option>
+                      <option value="month">This Month</option>
+                      <option value="year">This Year</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                      <svg
+                        className="fill-current h-4 w-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <StatsCard
+                    title="Total Revenue"
+                    value={formatPrice(stats.totalRevenue)}
+                    type="revenue"
+                  />
+                  <StatsCard
+                    title="Total Sales"
+                    value={stats.totalSalesCount}
+                    type="sales"
+                  />
+                  <StatsCard
+                    title="Total Products"
+                    value={stats.totalProducts}
+                    type="products"
+                  />
+                  <StatsCard
+                    title="Active Clients"
+                    value={stats.totalClients}
+                    type="clients"
+                  />
+                </div>
+
+                {/* Main Charts */}
+                <div className="bg-white p-6 md:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-800">
+                      Revenue Trend
+                    </h2>
+                    <span className="px-3 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-full uppercase tracking-wider">
+                      Active
+                    </span>
+                  </div>
+                  <SalesChart data={stats.salesByDate} />
+                </div>
+
+                <div className="bg-white p-6 md:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-800">
+                      Stock Movements
+                    </h2>
+                  </div>
+                  <StockMovementChart />
+                </div>
+
+                {/* Two Column Section */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
+                    <TopProducts products={stats.topProducts} />
+                  </div>
+                  <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
+                    <TopClients clients={stats.topClients} />
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-6">
+                  <AlertsWidget />
+                </div>
+
+                {/* Executive Section */}
+                {user?.role === "director" && stats.averageInvoiceValue && (
+                  <div className="bg-linear-to-br from-gray-900 to-indigo-900 p-8 rounded-3xl shadow-xl border border-gray-800 relative overflow-hidden text-white">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20"></div>
+
+                    <h3 className="font-bold text-xl mb-6 flex items-center gap-3">
+                      <svg
+                        className="w-6 h-6 text-yellow-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
+                      Executive Insights
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+                      <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+                        <p className="text-sm text-gray-300 font-medium mb-2 uppercase tracking-wider">
+                          Avg. Invoice Value
+                        </p>
+                        <p className="text-3xl font-bold text-white tracking-tight">
+                          {formatPrice(stats.averageInvoiceValue)}
+                        </p>
+                      </div>
+                      <div className="bg-red-500/20 backdrop-blur-md p-6 rounded-2xl border border-red-500/20 hover:bg-red-500/30 transition-colors">
+                        <p className="text-sm text-red-200 font-medium mb-2 uppercase tracking-wider">
+                          Unpaid Invoices
+                        </p>
+                        <p className="text-3xl font-bold text-red-400 tracking-tight">
+                          {formatPrice(stats.unpaidInvoices)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100 border-dashed">
                 <svg
-                  className="h-6 w-6"
+                  className="mx-auto h-12 w-12 text-gray-300 mb-4"
                   fill="none"
-                  viewBox="0 0 24 24"
                   stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    strokeWidth="1.5"
+                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
                   />
                 </svg>
-              }
-              color="green"
-            />
-            <StatsCard
-              title="Invoices"
-              value={stats.totalInvoices}
-              icon={
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-              }
-              color="blue"
-            />
-            <StatsCard
-              title="Pending Quotes"
-              value={stats.pendingQuotes}
-              icon={
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
-                </svg>
-              }
-              color="yellow"
-            />
-            <StatsCard
-              title="Stock Alerts"
-              value={stats.stockAlerts}
-              icon={
-                <svg
-                  className="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                  />
-                </svg>
-              }
-              color="red"
-            />
+                <p className="text-gray-500 font-medium">
+                  No analytical data available for this period.
+                </p>
+              </div>
+            )}
           </div>
-
-          {/* Sales Chart */}
-          <div className="bg-white p-4 rounded shadow mb-6">
-            <h2 className="text-lg font-medium text-gray-800 mb-4">
-              Sales Trend
-            </h2>
-            <SalesChart data={stats.salesByDate} />
-          </div>
-
-          {/* Stock Movement Chart */}
-          <StockMovementChart />
-
-          {/* Two column layout */}
-          <div className="grid p-4 grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <TopProducts products={stats.topProducts} />
-            <TopClients clients={stats.topClients} />
-          </div>
-
-          {/* Alerts Widget */}
-          <div className="mb-6">
-            <AlertsWidget />
-          </div>
-
-          {/* Director-only extra stats */}
-          {user?.role === "director" && stats.averageInvoiceValue && (
-            <div className="bg-white p-4 rounded shadow">
-              <h3 className="font-medium text-gray-700 mb-2">
-                Executive Insights
-              </h3>
-              <p className="text-sm text-gray-600">
-                Average Invoice Value:{" "}
-                <span className="font-semibold">
-                  {formatPrice(stats.averageInvoiceValue)}
-                </span>
-              </p>
-              <p className="text-sm text-gray-600">
-                Unpaid Invoices Total:{" "}
-                <span className="font-semibold text-red-600">
-                  {formatPrice(stats.unpaidInvoices)}
-                </span>
-              </p>
-            </div>
-          )}
-        </>
-      ) : (
-        <p>No data available</p>
-      )}
+        )}
+      </div>
     </div>
   );
 };
