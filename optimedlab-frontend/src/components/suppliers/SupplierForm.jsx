@@ -1,4 +1,3 @@
-// src/components/suppliers/SupplierForm.jsx
 import { useState, useEffect } from "react";
 import {
   MapContainer,
@@ -209,7 +208,7 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
           </button>
         </div>
 
-        <div className="overflow-y-auto custom-scrollbar flex-grow bg-gray-50/50">
+        <div className="overflow-y-auto custom-scrollbar grow bg-gray-50/50">
           <form id="supplier-form" onSubmit={handleSubmit} className="p-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
               {/* LEFT COLUMN */}
@@ -339,7 +338,7 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
 
               {/* RIGHT COLUMN: Map & Address */}
               <div className="space-y-6 flex flex-col">
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm flex-grow flex flex-col">
+                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm grow flex flex-col">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider">
                       Location Setup
@@ -374,7 +373,7 @@ const SupplierForm = ({ supplier, onSubmit, onClose }) => {
 
                   <div className="relative w-full h-64 sm:h-72 rounded-xl overflow-hidden border-2 border-gray-200 shadow-inner z-0 mb-6">
                     {isFetchingAddress && (
-                      <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-[1000] flex flex-col items-center justify-center">
+                      <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-1000 flex flex-col items-center justify-center">
                         <div className="animate-spin rounded-full h-10 w-10 border-4 border-emerald-200 border-t-emerald-600 mb-2"></div>
                       </div>
                     )}

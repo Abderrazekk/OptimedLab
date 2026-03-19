@@ -1,4 +1,3 @@
-// src/components/dashboard/ClientsMap.jsx
 import { useState, useEffect } from "react";
 import {
   MapContainer,
@@ -31,7 +30,7 @@ const createCustomIcon = (name, type) => {
   return L.divIcon({
     className: "custom-marker",
     html: `
-      <div class="relative flex items-center justify-center w-10 h-10 bg-gradient-to-br ${bgGradient} rounded-full border-[3px] border-white shadow-[0_8px_15px_-3px_${shadowColor}] text-white font-bold text-sm transition-transform duration-300 hover:scale-110 hover:z-50">
+      <div class="relative flex items-center justify-center w-10 h-10 bg-linear-to-br ${bgGradient} rounded-full border-[3px] border-white shadow-[0_8px_15px_-3px_${shadowColor}] text-white font-bold text-sm transition-transform duration-300 hover:scale-110 hover:z-50">
         ${name.charAt(0).toUpperCase()}
         <div class="absolute -bottom-1.5 w-2.5 h-2.5 ${dotColor} rounded-full shadow-sm border border-white"></div>
       </div>
@@ -46,7 +45,7 @@ const createStartIcon = () => {
   return L.divIcon({
     className: "custom-marker",
     html: `
-      <div class="relative flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full border-4 border-white shadow-[0_8px_20px_-3px_rgba(59,130,246,0.6)] text-white animate-bounce">
+      <div class="relative flex items-center justify-center w-12 h-12 bg-linear-to-br from-blue-500 to-cyan-500 rounded-full border-4 border-white shadow-[0_8px_20px_-3px_rgba(59,130,246,0.6)] text-white animate-bounce">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
       </div>
     `,
@@ -106,6 +105,7 @@ const RoutingMachine = ({ start, end, onRouteCalculated }) => {
 
 // --- MAIN MAP COMPONENT ---
 const ClientsMap = () => {
+  // eslint-disable-next-line no-unused-vars
   const [entities, setEntities] = useState([]);
   const [geocodedEntities, setGeocodedEntities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -238,7 +238,7 @@ const ClientsMap = () => {
   };
 
   return (
-    <div className="bg-white p-3 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative h-[700px] flex flex-col overflow-hidden group">
+    <div className="bg-white p-3 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 relative h-175 flex flex-col overflow-hidden group">
       {loading ? (
         <div className="flex-1 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-10 rounded-2xl">
           <div className="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
@@ -340,7 +340,7 @@ const ClientsMap = () => {
             ))}
           </MapContainer>
 
-          <div className="absolute top-6 left-6 z-[400] flex flex-col gap-4 w-72 pointer-events-none">
+          <div className="absolute top-6 left-6 z-400 flex flex-col gap-4 w-72 pointer-events-none">
             <div className="bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-gray-100 transition-all pointer-events-auto">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-bold text-gray-800 text-sm uppercase tracking-wider">
@@ -354,7 +354,7 @@ const ClientsMap = () => {
               {!navMode ? (
                 <button
                   onClick={handleStartRouting}
-                  className="w-full mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                  className="w-full mt-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white text-sm font-semibold py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
                 >
                   <svg
                     className="w-4 h-4"
@@ -425,7 +425,7 @@ const ClientsMap = () => {
             </div>
 
             {navMode && routeSummary && destination && (
-              <div className="bg-gradient-to-br from-indigo-900 to-purple-900 p-5 rounded-2xl shadow-2xl border border-indigo-700 text-white animate-fade-in-up pointer-events-auto">
+              <div className="bg-linear-to-br from-indigo-900 to-purple-900 p-5 rounded-2xl shadow-2xl border border-indigo-700 text-white animate-fade-in-up pointer-events-auto">
                 <p className="text-xs text-indigo-300 font-bold uppercase tracking-wider mb-1">
                   Route to
                 </p>
@@ -482,18 +482,18 @@ const ClientsMap = () => {
             )}
           </div>
 
-          <div className="absolute bottom-6 left-6 z-[400] bg-white/90 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-gray-100 pointer-events-none">
+          <div className="absolute bottom-6 left-6 z-400 bg-white/90 backdrop-blur-md px-4 py-3 rounded-xl shadow-lg border border-gray-100 pointer-events-none">
             <h4 className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-2">
               Legend
             </h4>
             <div className="flex items-center gap-3 mb-1.5">
-              <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600"></div>
+              <div className="w-3.5 h-3.5 rounded-full bg-linear-to-br from-indigo-500 to-purple-600"></div>
               <span className="text-xs font-semibold text-gray-700">
                 Clients
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600"></div>
+              <div className="w-3.5 h-3.5 rounded-full bg-linear-to-br from-emerald-500 to-teal-600"></div>
               <span className="text-xs font-semibold text-gray-700">
                 Suppliers
               </span>

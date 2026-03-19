@@ -8,7 +8,7 @@ const SupplierDetailsModal = ({ supplier, onClose }) => {
   const brandColor = supplier.bgColor || '#10b981'; // Default to emerald
 
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm overflow-y-auto">
+    <div className="fixed inset-0 z-500 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm overflow-y-auto">
       <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up my-8">
         
         {/* Header Background using Supplier's Brand Color */}
@@ -17,7 +17,7 @@ const SupplierDetailsModal = ({ supplier, onClose }) => {
           style={{ backgroundColor: brandColor }}
         >
           {/* Soft overlay gradient for texture */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-black/20"></div>
+          <div className="absolute inset-0 bg-linear-to-b from-white/10 to-black/20"></div>
         </div>
         
         {/* Close Button */}

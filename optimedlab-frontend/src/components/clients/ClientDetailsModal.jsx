@@ -1,4 +1,3 @@
-// src/components/clients/ClientDetailsModal.jsx
 import React from "react";
 
 const ClientDetailsModal = ({ client, onClose }) => {
@@ -8,7 +7,7 @@ const ClientDetailsModal = ({ client, onClose }) => {
   const brandColor = "#4f46e5";
 
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm overflow-y-auto">
+    <div className="fixed inset-0 z-500 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm overflow-y-auto">
       <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up my-8">
         {/* Header Background using Brand Color */}
         <div
@@ -16,7 +15,7 @@ const ClientDetailsModal = ({ client, onClose }) => {
           style={{ backgroundColor: brandColor }}
         >
           {/* Soft overlay gradient for texture */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-black/20"></div>
+          <div className="absolute inset-0 bg-linear-to-b from-white/10 to-black/20"></div>
         </div>
 
         {/* Close Button */}
