@@ -139,6 +139,17 @@ const ProductDetailModal = ({ product, onClose }) => {
                 </p>
               </div>
             )}
+
+            {product.qrCode && (
+              <div className="mt-4 flex flex-col items-center">
+                <p className="text-sm font-bold text-gray-700">Stock QR Code</p>
+                <img
+                  src={product.qrCode}
+                  alt="Product QR Code"
+                  className="w-32 h-32 shadow-sm border p-1"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
