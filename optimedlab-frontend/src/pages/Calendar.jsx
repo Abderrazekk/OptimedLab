@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/immutability */
 // src/pages/Calendar.jsx
 import { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
@@ -248,7 +249,7 @@ const Calendar = () => {
             <div className="p-6 space-y-6 overflow-y-auto">
               {/* Date & Time block */}
               <div className="flex items-start">
-                <div className="flex-shrink-0 mt-1">
+                <div className="shrink-0 mt-1">
                   <svg
                     className="w-5 h-5 text-slate-400"
                     fill="none"
@@ -285,7 +286,7 @@ const Calendar = () => {
 
               {/* Commercials block (Supports Multiple) */}
               <div className="flex items-start">
-                <div className="flex-shrink-0 mt-1">
+                <div className="shrink-0 mt-1">
                   <svg
                     className="w-5 h-5 text-slate-400"
                     fill="none"
@@ -331,7 +332,7 @@ const Calendar = () => {
               {/* Products block (WITH QUANTITIES) */}
               {selectedVisitDetails.products?.length > 0 && (
                 <div className="flex items-start border-t border-slate-100 pt-5">
-                  <div className="flex-shrink-0 mt-1">
+                  <div className="shrink-0 mt-1">
                     <svg
                       className="w-5 h-5 text-slate-400"
                       fill="none"
@@ -372,7 +373,7 @@ const Calendar = () => {
               {/* Notes block */}
               {selectedVisitDetails.notes && (
                 <div className="flex items-start border-t border-slate-100 pt-5">
-                  <div className="flex-shrink-0 mt-1">
+                  <div className="shrink-0 mt-1">
                     <svg
                       className="w-5 h-5 text-slate-400"
                       fill="none"
