@@ -33,17 +33,26 @@ const Calendar = () => {
   };
 
   // Convert backend data to FullCalendar format
-  const events = visits.map((visit) => ({
-    id: visit._id,
-    title: visit.client?.name || "Client inconnu",
-    extendedProps: {
-      ...visit,
-      commercialName: visit.commercial?.name || "Non assigné",
-    },
-    start: visit.date,
-    backgroundColor: visit.color || "#10b981",
-    borderColor: "transparent",
-  }));
+  const events = visits.map((visit) => {
+    // Combine all commercial names into one string separated by commas for the calendar badge
+    const names =
+      visit.commercials?.length > 0
+        ? visit.commercials.map((c) => c.name).join(", ")
+        : "Non assigné";
+
+    return {
+      id: visit._id,
+      title: visit.client?.name || "Client inconnu",
+      extendedProps: {
+        ...visit,
+        commercialNames: names,
+        commercialsList: visit.commercials || [], // Pass full array to the detail modal
+      },
+      start: visit.date,
+      backgroundColor: visit.color || "#10b981",
+      borderColor: "transparent",
+    };
+  });
 
   const handleDateClick = (arg) => {
     if (isSuperCommercial) {
@@ -69,7 +78,7 @@ const Calendar = () => {
           {eventInfo.event.title}
         </span>
         <span className="text-[10px] font-medium opacity-90 truncate text-white">
-          👤 {eventInfo.event.extendedProps.commercialName}
+          👥 {eventInfo.event.extendedProps.commercialNames}
         </span>
       </div>
     );
@@ -274,7 +283,7 @@ const Calendar = () => {
                 </div>
               </div>
 
-              {/* Commercial block */}
+              {/* Commercials block (Supports Multiple) */}
               <div className="flex items-start">
                 <div className="flex-shrink-0 mt-1">
                   <svg
@@ -287,26 +296,39 @@ const Calendar = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                     />
                   </svg>
                 </div>
                 <div className="ml-3 flex-1">
-                  <p className="text-sm font-medium text-slate-500">
-                    Assigné à
+                  <p className="text-sm font-medium text-slate-500 mb-2">
+                    Commerciaux Assignés
                   </p>
-                  <div className="mt-1 flex items-center bg-slate-50 border border-slate-100 rounded-xl p-2">
-                    <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center text-sm font-bold text-emerald-700 mr-3">
-                      {selectedVisitDetails.commercialName.charAt(0)}
-                    </div>
-                    <p className="text-sm font-semibold text-slate-800">
-                      {selectedVisitDetails.commercialName}
-                    </p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedVisitDetails.commercialsList?.map((c) => (
+                      <div
+                        key={c._id}
+                        className="flex items-center bg-slate-50 border border-slate-100 rounded-xl p-2 pr-3"
+                      >
+                        <div className="h-7 w-7 rounded-full bg-emerald-100 flex items-center justify-center text-xs font-bold text-emerald-700 mr-2 shadow-sm">
+                          {c.name.charAt(0)}
+                        </div>
+                        <p className="text-sm font-semibold text-slate-800">
+                          {c.name}
+                        </p>
+                      </div>
+                    ))}
+                    {(!selectedVisitDetails.commercialsList ||
+                      selectedVisitDetails.commercialsList.length === 0) && (
+                      <p className="text-sm font-semibold text-slate-500">
+                        Non assigné
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Products block (UPDATED FOR QUANTITIES) */}
+              {/* Products block (WITH QUANTITIES) */}
               {selectedVisitDetails.products?.length > 0 && (
                 <div className="flex items-start border-t border-slate-100 pt-5">
                   <div className="flex-shrink-0 mt-1">

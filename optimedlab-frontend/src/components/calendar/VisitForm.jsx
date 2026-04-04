@@ -7,16 +7,15 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     date: "",
-    commercial: user._id, // Default to self
+    commercials: [user._id], // Defaults to an array containing the logged-in user
     client: "",
-    products: [], // Now an array of objects: { product: id, quantity: num }
+    products: [],
     notes: "",
     color: "#10b981", // Default Emerald
   });
 
   const [selectedSupplier, setSelectedSupplier] = useState("");
-
-  const [commercials, setCommercials] = useState([]);
+  const [commercialsList, setCommercialsList] = useState([]);
   const [clients, setClients] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [products, setProducts] = useState([]);
@@ -27,7 +26,7 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
     if (isOpen) {
       setFormData({
         date: "",
-        commercial: user._id,
+        commercials: [user._id],
         client: "",
         products: [],
         notes: "",
@@ -49,10 +48,9 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      // Make ONE call to our specialized endpoint
       const data = await visitService.getFormData();
 
-      setCommercials(data.commercials || []);
+      setCommercialsList(data.commercials || []);
       setClients(data.clients || []);
       setSuppliers(data.suppliers || []);
       setProducts(data.products || []);
@@ -68,10 +66,26 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // NEW: Handle multi-select for Commercials
+  const handleCommercialSelection = (e) => {
+    const selectedOptions = Array.from(
+      e.target.selectedOptions,
+      (option) => option.value,
+    );
+    setFormData((prev) => ({ ...prev, commercials: selectedOptions }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validation
+    if (formData.commercials.length === 0) {
+      alert("Veuillez assigner au moins un commercial à cette visite.");
+      return;
+    }
+
     try {
-      // Clean up product data before sending (backend only needs product ID and quantity)
+      // Clean up product data before sending
       const submitData = {
         ...formData,
         products: formData.products.map((p) => ({
@@ -101,8 +115,8 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
           <h2 className="text-lg font-bold text-slate-800">
             Planifier une Visite / Livraison
           </h2>
@@ -119,8 +133,11 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
             Chargement des données...
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <form
+            onSubmit={handleSubmit}
+            className="p-6 space-y-4 overflow-y-auto"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Date et Heure
@@ -133,41 +150,6 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
                   onChange={handleChange}
                   className="w-full border border-slate-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-emerald-500 outline-none"
                 />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Couleur Calendrier
-                </label>
-                <input
-                  type="color"
-                  name="color"
-                  value={formData.color}
-                  onChange={handleChange}
-                  className="w-full h-[42px] rounded cursor-pointer border-0"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Commercial Assigné
-                </label>
-                <select
-                  name="commercial"
-                  required
-                  value={formData.commercial}
-                  onChange={handleChange}
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2 outline-none"
-                >
-                  <option value="">-- Sélectionner un commercial --</option>
-                  {commercials.map((c) => (
-                    <option key={c._id} value={c._id}>
-                      {c.name} {c._id === user._id ? "(Moi)" : ""}
-                    </option>
-                  ))}
-                </select>
               </div>
 
               <div>
@@ -191,14 +173,51 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
               </div>
             </div>
 
-            {/* --- NEW PRODUCTS WITH QUANTITY UI --- */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* MULTIPLE COMMERCIALS SELECTOR */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Commerciaux Assignés{" "}
+                  <span className="text-xs text-slate-400 font-normal">
+                    (Maintenez CTRL)
+                  </span>
+                </label>
+                <select
+                  multiple
+                  name="commercials"
+                  required
+                  value={formData.commercials}
+                  onChange={handleCommercialSelection}
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 outline-none h-[96px] focus:ring-2 focus:ring-emerald-500"
+                >
+                  {commercialsList.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.name} {c._id === user._id ? "(Moi)" : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Couleur Calendrier
+                </label>
+                <input
+                  type="color"
+                  name="color"
+                  value={formData.color}
+                  onChange={handleChange}
+                  className="w-full h-[96px] rounded-xl cursor-pointer border-0"
+                />
+              </div>
+            </div>
+
+            {/* PRODUCTS & QUANTITY UI */}
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
               <div className="flex justify-between items-center mb-3">
                 <h3 className="text-sm font-bold text-slate-700">
                   Produits à Livrer
                 </h3>
-
-                {/* Supplier Filter for Products */}
                 <select
                   value={selectedSupplier}
                   onChange={(e) => setSelectedSupplier(e.target.value)}
@@ -220,7 +239,6 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
                     const prodId = e.target.value;
                     if (!prodId) return;
                     const prodDetails = products.find((p) => p._id === prodId);
-                    // Add if not already in list
                     if (!formData.products.find((p) => p.product === prodId)) {
                       setFormData((prev) => ({
                         ...prev,
@@ -253,7 +271,6 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
                 </select>
               </div>
 
-              {/* List of selected products with quantity inputs */}
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {formData.products.map((item, index) => (
                   <div
@@ -322,7 +339,7 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
               ></textarea>
             </div>
 
-            <div className="pt-4 flex justify-end space-x-3">
+            <div className="pt-4 flex justify-end space-x-3 shrink-0">
               <button
                 type="button"
                 onClick={onClose}

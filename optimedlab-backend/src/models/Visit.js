@@ -6,17 +6,19 @@ const VisitSchema = new mongoose.Schema(
       type: Date,
       required: [true, "Veuillez spécifier une date"],
     },
-    commercial: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: [true, "Veuillez assigner un commercial"],
-    },
+    // CHANGED: Now an array to support multiple commercials
+    commercials: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: [true, "Veuillez assigner au moins un commercial"],
+      },
+    ],
     client: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Client",
       required: [true, "Veuillez sélectionner un client"],
     },
-    // CHANGED: Now stores the product AND the quantity taken
     products: [
       {
         product: {

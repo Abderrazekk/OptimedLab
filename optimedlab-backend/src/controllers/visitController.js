@@ -8,9 +8,9 @@ const StockMovement = require("../models/StockMovement"); // <-- ADD THIS
 const getVisits = async (req, res) => {
   try {
     const visits = await Visit.find({})
-      .populate("commercial", "name avatar")
+      .populate("commercials", "name avatar")
       .populate("client", "name address phone")
-      .populate("products.product", "name"); // Update populate path
+      .populate("products.product", "name");
 
     res.status(200).json(visits);
   } catch (error) {
@@ -28,15 +28,14 @@ const createVisit = async (req, res) => {
         .json({ message: "Seul un Super Commercial peut créer une visite." });
     }
 
-    const { date, commercial, client, products, notes, color } = req.body;
+    const { date, commercials, client, products, notes, color } = req.body; // <-- CHANGED to commercials
 
-    // Fetch client to use their name in the stock movement reference
     const clientData = await Client.findById(client);
     const referenceText = `Visite/Livraison Client : ${clientData ? clientData.name : "Inconnu"}`;
 
     const newVisit = await Visit.create({
       date,
-      commercial,
+      commercials, // <-- CHANGED to commercials
       client,
       products,
       notes,
@@ -44,15 +43,12 @@ const createVisit = async (req, res) => {
       createdBy: req.user.id,
     });
 
-    // AUTOMATIC STOCK DEDUCTION & MOVEMENT LOGGING
     if (products && products.length > 0) {
       for (let item of products) {
-        // 1. Deduct from main stock
         await Product.findByIdAndUpdate(item.product, {
           $inc: { stockQuantity: -item.quantity },
         });
 
-        // 2. Create history trace in StockMovements
         await StockMovement.create({
           product: item.product,
           type: "out",
