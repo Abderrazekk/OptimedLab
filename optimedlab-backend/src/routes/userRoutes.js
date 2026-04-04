@@ -4,7 +4,8 @@ const {
   createUser,
   updateUser,
   deleteUser,
-  toggleBanUser, // ADD THIS IMPORT
+  toggleBanUser,
+  toggleSuperCommercial,
 } = require("../controllers/userController");
 const { protect } = require("../middleware/authMiddleware");
 const { allowRoles } = require("../middleware/roleMiddleware");
@@ -21,5 +22,7 @@ router.route("/:id").put(updateUser).delete(deleteUser);
 
 // ADD THE NEW BAN ROUTE
 router.route("/:id/ban").put(toggleBanUser);
+
+router.route("/:id/super-commercial").put(toggleSuperCommercial);
 
 module.exports = router;

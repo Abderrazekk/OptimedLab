@@ -180,10 +180,38 @@ const toggleBanUser = async (req, res) => {
   }
 };
 
+const toggleSuperCommercial = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+
+    if (user.role !== "commercial") {
+      return res.status(400).json({
+        message: "Seul un profil commercial peut devenir Super Commercial.",
+      });
+    }
+
+    // Toggle the boolean
+    user.isSuperCommercial = !user.isSuperCommercial;
+    const updatedUser = await user.save();
+
+    res.status(200).json({
+      message: "Statut Super Commercial mis à jour avec succès",
+      user: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Erreur serveur", error: error.message });
+  }
+};
+
 module.exports = {
   getUsers,
   createUser,
   updateUser,
   deleteUser,
-  toggleBanUser, // Ensure this is exported!
+  toggleBanUser,
+  toggleSuperCommercial,
 };

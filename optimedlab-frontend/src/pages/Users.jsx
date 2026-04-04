@@ -78,6 +78,31 @@ const Users = () => {
     }
   };
 
+  // NEW: Handler for toggling Super Commercial status directly from the list
+  const handleToggleSuperCommercial = async (
+    userId,
+    userName,
+    isCurrentlySuper,
+  ) => {
+    const action = isCurrentlySuper
+      ? "retirer le statut de"
+      : "promouvoir comme";
+    if (
+      !window.confirm(
+        `Voulez-vous vraiment ${action} Super Commercial pour ${userName}?`,
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await userService.toggleSuperCommercial(userId);
+      fetchUsers(); // Refresh the list to show new status
+    } catch (err) {
+      alert(err.response?.data?.message || "Action impossible");
+    }
+  };
+
   const handleFormSubmit = async (formData) => {
     try {
       setFormLoading(true);
@@ -234,6 +259,13 @@ const Users = () => {
                         : "Admin"}
                 </span>
 
+                {/* NEW: Super Commercial Badge */}
+                {u.role === "commercial" && u.isSuperCommercial && (
+                  <span className="inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold border bg-yellow-50 text-yellow-700 border-yellow-200">
+                    👑 Super Commercial
+                  </span>
+                )}
+
                 <span
                   className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold border ${
                     u.isBanned
@@ -272,7 +304,7 @@ const Users = () => {
 
             {/* Card Footer (Actions) */}
             <div
-              className={`px-6 py-4 border-t flex justify-end gap-4 ${u.isBanned ? "bg-red-50/30 border-red-100" : "bg-slate-50 border-slate-100"}`}
+              className={`px-6 py-4 border-t flex flex-wrap justify-end gap-4 ${u.isBanned ? "bg-red-50/30 border-red-100" : "bg-slate-50 border-slate-100"}`}
             >
               <button
                 onClick={() => handleEditUser(u)}
@@ -280,6 +312,22 @@ const Users = () => {
               >
                 Edit
               </button>
+
+              {/* NEW: Toggle Super Commercial Button */}
+              {u.role === "commercial" && !u.isBanned && (
+                <button
+                  onClick={() =>
+                    handleToggleSuperCommercial(
+                      u._id,
+                      u.name,
+                      u.isSuperCommercial,
+                    )
+                  }
+                  className="text-blue-600 hover:text-blue-800 text-sm font-semibold transition-colors"
+                >
+                  {u.isSuperCommercial ? "Demote Super" : "Make Super"}
+                </button>
+              )}
 
               {u._id !== user?._id && ( // Cannot ban/delete yourself
                 <>

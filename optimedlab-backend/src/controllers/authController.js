@@ -32,6 +32,7 @@ const registerUser = async (req, res) => {
           name: user.name,
           email: user.email,
           role: user.role,
+          isSuperCommercial: user.isSuperCommercial, // <--- ADD THIS LINE HERE TOO
           token: generateToken(user._id),
         },
       });
@@ -89,6 +90,8 @@ const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        avatar: user.avatar,
+        isSuperCommercial: user.isSuperCommercial, // <--- ADD THIS LINE HERE
         token: generateToken(user._id),
       },
     });

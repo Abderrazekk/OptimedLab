@@ -7,6 +7,7 @@ const UserForm = ({ user, onSubmit, onClose }) => {
     email: "",
     password: "",
     role: "commercial",
+    isSuperCommercial: false, // <-- Added to initial state
   });
   const [errors, setErrors] = useState({});
 
@@ -19,6 +20,7 @@ const UserForm = ({ user, onSubmit, onClose }) => {
         email: user.email || "",
         password: "", // password field left empty for edit
         role: user.role || "commercial",
+        isSuperCommercial: user.isSuperCommercial || false, // <-- Added for editing existing users
       });
     }
   }, [user]);
@@ -64,6 +66,11 @@ const UserForm = ({ user, onSubmit, onClose }) => {
     const submitData = { ...formData };
     if (user && !submitData.password) {
       delete submitData.password;
+    }
+
+    // If role is changed away from commercial, remove super commercial status
+    if (submitData.role !== "commercial") {
+      submitData.isSuperCommercial = false;
     }
 
     onSubmit(submitData);
@@ -183,6 +190,30 @@ const UserForm = ({ user, onSubmit, onClose }) => {
                 <option value="director">Directeur</option>
               </select>
             </div>
+
+            {formData.role === "commercial" && (
+              <div className="flex items-center mt-4">
+                <input
+                  type="checkbox"
+                  id="isSuperCommercial"
+                  name="isSuperCommercial"
+                  checked={formData.isSuperCommercial}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      isSuperCommercial: e.target.checked,
+                    })
+                  }
+                  className="h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-300 rounded"
+                />
+                <label
+                  htmlFor="isSuperCommercial"
+                  className="ml-2 block text-sm text-slate-700 font-medium cursor-pointer"
+                >
+                  Définir comme Super Commercial (Chef d'équipe)
+                </label>
+              </div>
+            )}
           </div>
 
           <div className="mt-8 flex justify-end space-x-3">

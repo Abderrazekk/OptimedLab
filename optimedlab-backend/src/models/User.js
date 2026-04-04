@@ -29,6 +29,10 @@ const UserSchema = new mongoose.Schema(
       enum: ["admin", "commercial", "stock", "director"],
       default: "commercial",
     },
+    isSuperCommercial: {
+      type: Boolean,
+      default: false,
+    },
     avatar: {
       type: String,
       default: "",

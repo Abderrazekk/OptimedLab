@@ -31,6 +31,12 @@ const userService = {
     const response = await api.put(`/users/${id}/ban`);
     return response.data;
   },
+
+  // Toggle super commercial status
+  async toggleSuperCommercial(id) {
+    const response = await api.put(`/users/${id}/super-commercial`);
+    return response.data;
+  },
 };
 
 export default userService;

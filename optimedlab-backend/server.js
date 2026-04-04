@@ -40,6 +40,7 @@ app.use("/api/invoices", require("./src/routes/invoiceRoutes"));
 app.use("/api/stock", require("./src/routes/stockRoutes"));
 app.use("/api/purchase-orders", require("./src/routes/purchaseOrderRoutes"));
 app.use("/api/bi", require("./src/routes/biRoutes"));
+app.use("/api/visits", require("./src/routes/visitRoutes"));
 app.use("/api/chatbot", require("./src/routes/chatbotRoutes"));
 
 const PORT = process.env.PORT || 5000;

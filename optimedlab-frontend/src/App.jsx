@@ -16,6 +16,7 @@ import Quotes from "./pages/Quotes";
 import Invoices from "./pages/Invoices";
 import Reports from "./pages/Reports";
 import Profile from './pages/Profile';
+import Calendar from "./pages/Calendar";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
             <Route path="clients" element={<Clients />} />
             <Route path="suppliers" element={<Suppliers />} />
             <Route path="products" element={<Products />} />
+            <Route path="calendar" element={<Calendar />} />
             <Route path="stock" element={<Stock />} />
             <Route path="stock/movements" element={<StockMovements />} />
             <Route path="purchase-orders" element={<PurchaseOrders />} />
