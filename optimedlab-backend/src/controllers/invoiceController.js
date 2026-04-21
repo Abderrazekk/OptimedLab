@@ -94,6 +94,9 @@ const createInvoiceFromQuote = async (req, res) => {
 
     const invoiceNumber = await generateInvoiceNumber(Invoice);
 
+    const dueDate = new Date();
+    dueDate.setDate(dueDate.getDate() + 30);
+
     // Create invoice
     const invoice = await Invoice.create({
       invoiceNumber,
@@ -107,6 +110,7 @@ const createInvoiceFromQuote = async (req, res) => {
       total: quote.total,
       createdBy: req.user.id,
       paymentStatus: "unpaid",
+      dueDate,
     });
 
     // Update stock and create movements
@@ -149,10 +153,17 @@ const updatePaymentStatus = async (req, res) => {
     const { paymentStatus } = req.body;
     const invoice = await Invoice.findById(req.params.id);
     if (!invoice) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Invoice not found" });
+      return res.status(404).json({ success: false, message: "Invoice not found" });
     }
+
+    // Prevent changing status if overdue
+    if (invoice.dueDate && new Date() > new Date(invoice.dueDate)) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot change payment status of an overdue invoice",
+      });
+    }
+
     invoice.paymentStatus = paymentStatus;
     await invoice.save();
     res.json({ success: true, data: invoice });

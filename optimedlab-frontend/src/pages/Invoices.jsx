@@ -1,31 +1,29 @@
 // src/pages/Invoices.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import invoiceService from "../services/invoiceService";
 import InvoiceDetailsModal from "../components/invoices/InvoiceDetailsModal";
 import { formatPrice } from "../utils/formatPrice";
+import { formatDate, getDaysRemaining, isOverdue } from "../utils/dateHelpers";
 
 const Invoices = () => {
   const { user } = useAuth();
   const [invoices, setInvoices] = useState([]);
-  const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [filter, setFilter] = useState("all"); // all, paid, unpaid
+  const [filter, setFilter] = useState("all"); // all, paid, unpaid, partially, overdue, dueThisWeek, thisMonth
   const [detailInvoice, setDetailInvoice] = useState(null);
 
   const canEdit = user && user.role === "commercial";
   const canView =
-    user && (user.role === "commercial" || user.role === "director" || user.role === "admin");
+    user &&
+    (user.role === "commercial" ||
+      user.role === "director" ||
+      user.role === "admin");
 
   useEffect(() => {
     fetchInvoices();
   }, []);
-
-  useEffect(() => {
-    if (filter === "all") setFiltered(invoices);
-    else setFiltered(invoices.filter((inv) => inv.paymentStatus === filter));
-  }, [filter, invoices]);
 
   const fetchInvoices = async () => {
     try {
@@ -38,6 +36,46 @@ const Invoices = () => {
       setLoading(false);
     }
   };
+
+  // Memoized filtered invoices based on selected filter
+  const filteredInvoices = useMemo(() => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(now.getDate() + 7);
+
+    switch (filter) {
+      case "all":
+        return invoices;
+      case "paid":
+        return invoices.filter((inv) => inv.paymentStatus === "paid");
+      case "unpaid":
+        return invoices.filter((inv) => inv.paymentStatus === "unpaid");
+      case "partially":
+        return invoices.filter((inv) => inv.paymentStatus === "partially");
+      case "overdue":
+        return invoices.filter(
+          (inv) =>
+            inv.paymentStatus === "unpaid" &&
+            inv.dueDate &&
+            new Date(inv.dueDate) < now,
+        );
+      case "dueThisWeek":
+        return invoices.filter(
+          (inv) =>
+            inv.paymentStatus === "unpaid" &&
+            inv.dueDate &&
+            new Date(inv.dueDate) > now &&
+            new Date(inv.dueDate) <= sevenDaysFromNow,
+        );
+      case "thisMonth":
+        return invoices.filter(
+          (inv) => new Date(inv.createdAt) >= startOfMonth,
+        );
+      default:
+        return invoices;
+    }
+  }, [invoices, filter]);
 
   const handlePaymentStatusChange = async (id, currentStatus) => {
     try {
@@ -59,13 +97,10 @@ const Invoices = () => {
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
-      // eslint-disable-next-line no-unused-vars
-    } catch (err) {
+    } catch {
       alert("Failed to download PDF");
     }
   };
-
-  const formatDate = (date) => new Date(date).toLocaleDateString("fr-FR");
 
   const calculateTotal = (inv) => {
     if (inv.total && inv.total > 0) return inv.total;
@@ -75,6 +110,38 @@ const Invoices = () => {
       return sum + item.quantity * price;
     }, 0);
   };
+
+  // Counts for filter badges
+  const counts = useMemo(() => {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(now.getDate() + 7);
+
+    return {
+      all: invoices.length,
+      paid: invoices.filter((inv) => inv.paymentStatus === "paid").length,
+      unpaid: invoices.filter((inv) => inv.paymentStatus === "unpaid").length,
+      partially: invoices.filter((inv) => inv.paymentStatus === "partially")
+        .length,
+      overdue: invoices.filter(
+        (inv) =>
+          inv.paymentStatus === "unpaid" &&
+          inv.dueDate &&
+          new Date(inv.dueDate) < now,
+      ).length,
+      dueThisWeek: invoices.filter(
+        (inv) =>
+          inv.paymentStatus === "unpaid" &&
+          inv.dueDate &&
+          new Date(inv.dueDate) > now &&
+          new Date(inv.dueDate) <= sevenDaysFromNow,
+      ).length,
+      thisMonth: invoices.filter(
+        (inv) => new Date(inv.createdAt) >= startOfMonth,
+      ).length,
+    };
+  }, [invoices]);
 
   if (!canView) return null;
 
@@ -89,25 +156,99 @@ const Invoices = () => {
         </div>
       </div>
 
-      <div className="mb-4 flex gap-2">
+      {/* Filter Bar */}
+      <div className="mb-6 flex flex-wrap gap-2">
         <button
           onClick={() => setFilter("all")}
-          className={`px-4 py-2 text-sm font-medium rounded-md ${filter === "all" ? "bg-blue-600 text-white" : "bg-white text-gray-700 border hover:bg-gray-50"}`}
+          className={`px-4 py-2 text-sm font-medium rounded-md flex items-center gap-1 ${
+            filter === "all"
+              ? "bg-blue-600 text-white"
+              : "bg-white text-gray-700 border hover:bg-gray-50"
+          }`}
         >
           All
-        </button>
-        <button
-          onClick={() => setFilter("unpaid")}
-          className={`px-4 py-2 text-sm font-medium rounded-md ${filter === "unpaid" ? "bg-red-600 text-white" : "bg-white text-gray-700 border hover:bg-gray-50"}`}
-        >
-          Unpaid
+          <span className="ml-1 text-xs opacity-75">({counts.all})</span>
         </button>
         <button
           onClick={() => setFilter("paid")}
-          className={`px-4 py-2 text-sm font-medium rounded-md ${filter === "paid" ? "bg-green-600 text-white" : "bg-white text-gray-700 border hover:bg-gray-50"}`}
+          className={`px-4 py-2 text-sm font-medium rounded-md flex items-center gap-1 ${
+            filter === "paid"
+              ? "bg-green-600 text-white"
+              : "bg-white text-gray-700 border hover:bg-gray-50"
+          }`}
         >
           Paid
+          <span className="ml-1 text-xs opacity-75">({counts.paid})</span>
         </button>
+        <button
+          onClick={() => setFilter("unpaid")}
+          className={`px-4 py-2 text-sm font-medium rounded-md flex items-center gap-1 ${
+            filter === "unpaid"
+              ? "bg-red-600 text-white"
+              : "bg-white text-gray-700 border hover:bg-gray-50"
+          }`}
+        >
+          Unpaid
+          <span className="ml-1 text-xs opacity-75">({counts.unpaid})</span>
+        </button>
+        {counts.partially > 0 && (
+          <button
+            onClick={() => setFilter("partially")}
+            className={`px-4 py-2 text-sm font-medium rounded-md flex items-center gap-1 ${
+              filter === "partially"
+                ? "bg-yellow-600 text-white"
+                : "bg-white text-gray-700 border hover:bg-gray-50"
+            }`}
+          >
+            Partially Paid
+            <span className="ml-1 text-xs opacity-75">
+              ({counts.partially})
+            </span>
+          </button>
+        )}
+        <button
+          onClick={() => setFilter("overdue")}
+          className={`px-4 py-2 text-sm font-medium rounded-md flex items-center gap-1 ${
+            filter === "overdue"
+              ? "bg-orange-600 text-white"
+              : "bg-white text-gray-700 border hover:bg-gray-50"
+          }`}
+        >
+          Overdue
+          <span className="ml-1 text-xs opacity-75">({counts.overdue})</span>
+        </button>
+        <button
+          onClick={() => setFilter("dueThisWeek")}
+          className={`px-4 py-2 text-sm font-medium rounded-md flex items-center gap-1 ${
+            filter === "dueThisWeek"
+              ? "bg-purple-600 text-white"
+              : "bg-white text-gray-700 border hover:bg-gray-50"
+          }`}
+        >
+          Due This Week
+          <span className="ml-1 text-xs opacity-75">
+            ({counts.dueThisWeek})
+          </span>
+        </button>
+        <button
+          onClick={() => setFilter("thisMonth")}
+          className={`px-4 py-2 text-sm font-medium rounded-md flex items-center gap-1 ${
+            filter === "thisMonth"
+              ? "bg-indigo-600 text-white"
+              : "bg-white text-gray-700 border hover:bg-gray-50"
+          }`}
+        >
+          This Month
+          <span className="ml-1 text-xs opacity-75">({counts.thisMonth})</span>
+        </button>
+        {filter !== "all" && (
+          <button
+            onClick={() => setFilter("all")}
+            className="px-4 py-2 text-sm font-medium rounded-md bg-gray-100 text-gray-700 border hover:bg-gray-200"
+          >
+            Clear Filters
+          </button>
+        )}
       </div>
 
       {error && (
@@ -136,6 +277,12 @@ const Invoices = () => {
                     Date
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Due Date
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Days Left
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Total
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -147,74 +294,101 @@ const Invoices = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filtered.map((inv) => (
-                  <tr
-                    key={inv._id}
-                    onClick={() => setDetailInvoice(inv)}
-                    className="hover:bg-gray-50 cursor-pointer transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {inv.invoiceNumber}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {inv.client?.name}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {inv.client?.company}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(inv.createdAt)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                      {formatPrice(calculateTotal(inv))}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm">
-                      <span
-                        className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold leading-5 ${
-                          inv.paymentStatus === "paid"
-                            ? "bg-green-100 text-green-800"
-                            : inv.paymentStatus === "unpaid"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {inv.paymentStatus.toUpperCase()}
-                      </span>
-                    </td>
-                    <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDownloadPDF(inv._id, inv.invoiceNumber);
-                        }}
-                        className="text-blue-600 hover:text-blue-900 mr-4 font-bold"
-                      >
-                        PDF
-                      </button>
-                      {canEdit && (
+                {filteredInvoices.map((inv) => {
+                  const daysLeft = getDaysRemaining(inv.dueDate);
+                  const overdue = isOverdue(inv.dueDate);
+                  return (
+                    <tr
+                      key={inv._id}
+                      onClick={() => setDetailInvoice(inv)}
+                      className="hover:bg-gray-50 cursor-pointer transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {inv.invoiceNumber}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">
+                          {inv.client?.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {inv.client?.company}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(inv.createdAt)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {inv.dueDate ? formatDate(inv.dueDate) : "—"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {inv.dueDate ? (
+                          <span
+                            className={
+                              daysLeft <= 0
+                                ? "text-red-600 font-bold"
+                                : "text-gray-700"
+                            }
+                          >
+                            {daysLeft} days
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                        {formatPrice(calculateTotal(inv))}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm">
+                        <span
+                          className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold leading-5 ${
+                            inv.paymentStatus === "paid"
+                              ? "bg-green-100 text-green-800"
+                              : inv.paymentStatus === "unpaid"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {inv.paymentStatus.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handlePaymentStatusChange(
-                              inv._id,
-                              inv.paymentStatus,
-                            );
+                            handleDownloadPDF(inv._id, inv.invoiceNumber);
                           }}
-                          className={`${inv.paymentStatus === "paid" ? "text-orange-600 hover:text-orange-900" : "text-green-600 hover:text-green-900"} font-bold`}
+                          className="text-blue-600 hover:text-blue-900 mr-4 font-bold"
                         >
-                          Mark as{" "}
-                          {inv.paymentStatus === "paid" ? "Unpaid" : "Paid"}
+                          PDF
                         </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
+                        {canEdit && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handlePaymentStatusChange(
+                                inv._id,
+                                inv.paymentStatus,
+                              );
+                            }}
+                            disabled={overdue && inv.paymentStatus === "unpaid"}
+                            className={`${
+                              inv.paymentStatus === "paid"
+                                ? "text-orange-600 hover:text-orange-900"
+                                : "text-green-600 hover:text-green-900"
+                            } font-bold disabled:opacity-50 disabled:cursor-not-allowed`}
+                          >
+                            Mark as{" "}
+                            {inv.paymentStatus === "paid" ? "Unpaid" : "Paid"}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+                {filteredInvoices.length === 0 && (
                   <tr>
                     <td
-                      colSpan="6"
+                      colSpan="8"
                       className="px-6 py-8 text-center text-gray-500"
                     >
                       No invoices found.

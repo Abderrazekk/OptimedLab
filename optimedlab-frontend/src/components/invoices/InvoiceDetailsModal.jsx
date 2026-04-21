@@ -1,6 +1,7 @@
 // src/components/invoices/InvoiceDetailsModal.jsx
 import React from "react";
 import { formatPrice } from "../../utils/formatPrice";
+import { formatDate, getDaysRemaining } from "../../utils/dateHelpers";
 
 const InvoiceDetailsModal = ({ invoice, onClose }) => {
   if (!invoice) return null;
@@ -13,8 +14,6 @@ const InvoiceDetailsModal = ({ invoice, onClose }) => {
     return `${baseUrl}/${cleanPath}`;
   };
 
-  const formatDate = (date) => new Date(date).toLocaleDateString("fr-FR");
-
   // Bulletproof total calculator
   const calculateTotal = () => {
     if (invoice.total && invoice.total > 0) return invoice.total;
@@ -25,6 +24,8 @@ const InvoiceDetailsModal = ({ invoice, onClose }) => {
       return sum + item.quantity * price;
     }, 0);
   };
+
+  const daysLeft = getDaysRemaining(invoice.dueDate);
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
@@ -80,6 +81,20 @@ const InvoiceDetailsModal = ({ invoice, onClose }) => {
                 {invoice.quote.quoteNumber || invoice.quote}
               </p>
             )}
+            <p className="text-sm text-gray-900">
+              <span className="font-medium">Due Date:</span>{" "}
+              {invoice.dueDate ? formatDate(invoice.dueDate) : "Not set"}
+            </p>
+            <p className="text-sm text-gray-900">
+              <span className="font-medium">Days Remaining:</span>{" "}
+              {invoice.dueDate ? (
+                <span className={daysLeft <= 0 ? "text-red-600 font-bold" : ""}>
+                  {daysLeft} days
+                </span>
+              ) : (
+                "—"
+              )}
+            </p>
             <div className="mt-2">
               <span
                 className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${

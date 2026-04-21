@@ -58,5 +58,18 @@ const InvoiceSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+// Virtual: days remaining until due date
+InvoiceSchema.virtual("daysRemaining").get(function () {
+  if (!this.dueDate) return null;
+  const now = new Date();
+  const due = new Date(this.dueDate);
+  const diffTime = due - now;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+});
+
+// Ensure virtuals are included in JSON responses
+InvoiceSchema.set("toJSON", { virtuals: true });
+InvoiceSchema.set("toObject", { virtuals: true });
 
 module.exports = mongoose.model("Invoice", InvoiceSchema);
