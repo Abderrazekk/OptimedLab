@@ -1,7 +1,8 @@
 // src/pages/Dashboard.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import biService from "../services/biService";
+import invoiceService from "../services/invoiceService";
 import SalesChart from "../components/dashboard/SalesChart";
 import TopProducts from "../components/dashboard/TopProducts";
 import TopClients from "../components/dashboard/TopClients";
@@ -10,6 +11,8 @@ import AlertsWidget from "../components/stock/AlertsWidget";
 import StockMovementChart from "../components/dashboard/StockMovementChart";
 import ClientsMap from "../components/dashboard/ClientsMap";
 import { formatPrice } from "../utils/formatPrice";
+import { formatDate, getDaysRemaining, isOverdue } from "../utils/dateHelpers";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -17,6 +20,8 @@ const Dashboard = () => {
   const [period, setPeriod] = useState("month");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [invoices, setInvoices] = useState([]);
+  const [loadingInvoices, setLoadingInvoices] = useState(false);
 
   const [viewMode, setViewMode] = useState("analytics");
 
@@ -24,6 +29,18 @@ const Dashboard = () => {
     fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period]);
+
+  useEffect(() => {
+    // Fetch invoices for payment alerts if user is commercial or director
+    if (
+      user &&
+      (user.role === "commercial" ||
+        user.role === "director" ||
+        user.role === "admin")
+    ) {
+      fetchInvoices();
+    }
+  }, [user]);
 
   const fetchStats = async () => {
     try {
@@ -37,6 +54,34 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
+
+  const fetchInvoices = async () => {
+    try {
+      setLoadingInvoices(true);
+      const response = await invoiceService.getInvoices();
+      setInvoices(response.data);
+    } catch (err) {
+      console.error("Failed to load invoices for alerts", err);
+    } finally {
+      setLoadingInvoices(false);
+    }
+  };
+
+  // Filter urgent invoices (unpaid and due within 7 days or overdue)
+  const urgentInvoices = useMemo(() => {
+    const now = new Date();
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(now.getDate() + 7);
+
+    return invoices
+      .filter((inv) => inv.paymentStatus === "unpaid" && inv.dueDate)
+      .filter((inv) => {
+        const due = new Date(inv.dueDate);
+        return due <= sevenDaysFromNow;
+      })
+      .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+      .slice(0, 5); // Limit to 5 most urgent
+  }, [invoices]);
 
   return (
     <div className="py-8 px-4 sm:px-8 container mx-auto max-w-7xl font-sans">
@@ -174,6 +219,80 @@ const Dashboard = () => {
                     type="clients"
                   />
                 </div>
+
+                {/* Invoice Payment Alerts (New Section) */}
+                {!loadingInvoices && urgentInvoices.length > 0 && (
+                  <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                        <svg
+                          className="w-5 h-5 text-amber-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        Payment Due Alerts
+                      </h2>
+                      <Link
+                        to="/invoices"
+                        className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                      >
+                        View all invoices →
+                      </Link>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {urgentInvoices.map((inv) => {
+                        const daysLeft = getDaysRemaining(inv.dueDate);
+                        const overdue = isOverdue(inv.dueDate);
+                        return (
+                          <div
+                            key={inv._id}
+                            className={`p-4 rounded-xl border ${
+                              overdue
+                                ? "border-red-200 bg-red-50"
+                                : "border-amber-200 bg-amber-50"
+                            } flex flex-col`}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <p className="font-semibold text-gray-900">
+                                  {inv.invoiceNumber}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  {inv.client?.name}
+                                </p>
+                              </div>
+                              <span
+                                className={`text-xs font-bold px-2 py-1 rounded-full ${
+                                  overdue
+                                    ? "bg-red-200 text-red-800"
+                                    : "bg-amber-200 text-amber-800"
+                                }`}
+                              >
+                                {overdue ? "OVERDUE" : `${daysLeft} days left`}
+                              </span>
+                            </div>
+                            <div className="mt-2 flex items-center justify-between">
+                              <span className="text-sm text-gray-500">
+                                Due: {formatDate(inv.dueDate)}
+                              </span>
+                              <span className="font-bold text-gray-900">
+                                {formatPrice(inv.total)}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 {/* Main Charts */}
                 <div className="bg-white p-6 md:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
