@@ -1,4 +1,4 @@
-// src/components/notifications/NotificationBell.jsx
+
 import React, { useState, useRef, useEffect } from "react";
 import { useNotifications } from "../../context/NotificationContext";
 import { formatDistanceToNow } from "date-fns";
@@ -30,10 +30,6 @@ const NotificationBell = () => {
     if (!notification.read) {
       await markAsRead(notification._id);
     }
-    // Do NOT navigate – only mark as read
-    // Keep dropdown open or close? Usually we keep it open for convenience.
-    // If you prefer to close it, uncomment the line below:
-    // setIsOpen(false);
   };
 
   const getIconForType = (type) => {

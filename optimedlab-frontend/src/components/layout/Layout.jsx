@@ -1,4 +1,4 @@
-// src/components/layout/Layout.jsx
+
 import { Outlet, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";

@@ -1,4 +1,3 @@
-// src/pages/Reports.jsx
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import biService from "../services/biService";
