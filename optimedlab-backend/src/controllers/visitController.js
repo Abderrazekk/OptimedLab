@@ -4,6 +4,7 @@ const Client = require("../models/Client");
 const Product = require("../models/Product");
 const Supplier = require("../models/Supplier");
 const StockMovement = require("../models/StockMovement"); // <-- ADD THIS
+const { createNotification } = require("./notificationController");
 
 const getVisits = async (req, res) => {
   try {
@@ -62,6 +63,19 @@ const createVisit = async (req, res) => {
     }
 
     res.status(201).json(newVisit);
+
+    // Notify assigned commercials
+    const User = require("../models/User");
+    for (const commId of commercials) {
+      await createNotification({
+        userId: commId,
+        type: "visit_scheduled",
+        title: "📅 Nouvelle visite planifiée",
+        message: `Visite chez ${clientData.name} le ${new Date(date).toLocaleString()}`,
+        link: `/calendar`,
+        metadata: { visitId: newVisit._id },
+      });
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

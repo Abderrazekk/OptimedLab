@@ -17,10 +17,12 @@ import Invoices from "./pages/Invoices";
 import Reports from "./pages/Reports";
 import Profile from './pages/Profile';
 import Calendar from "./pages/Calendar";
+import { NotificationProvider } from "./context/NotificationContext";
 
 function App() {
   return (
     <AuthProvider>
+      <NotificationProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -51,6 +53,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

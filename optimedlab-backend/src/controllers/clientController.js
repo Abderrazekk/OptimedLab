@@ -1,4 +1,5 @@
 const Client = require("../models/Client");
+const { createNotification } = require("./notificationController");
 
 // @desc    Get all clients
 // @route   GET /api/clients
@@ -64,6 +65,23 @@ const createClient = async (req, res) => {
     );
 
     res.status(201).json({ success: true, data: populatedClient });
+
+    // Notify all commercials, admin, director
+    const User = require("../models/User");
+    const usersToNotify = await User.find({
+      role: { $in: ["commercial", "admin", "director"] },
+      isBanned: false,
+    }).select("_id");
+
+    for (const u of usersToNotify) {
+      await createNotification({
+        userId: u._id,
+        type: "client_added",
+        title: "👤 Nouveau client ajouté",
+        message: `${name} ajouté par ${req.user.name}`,
+        link: `/clients/${client._id}`,
+      });
+    }
   } catch (error) {
     console.error("Error creating client:", error); // <-- This will log the exact error in your terminal
     res.status(500).json({ success: false, message: error.message });

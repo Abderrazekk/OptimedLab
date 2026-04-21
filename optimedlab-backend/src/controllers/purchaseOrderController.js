@@ -1,8 +1,8 @@
-
 const PurchaseOrder = require("../models/PurchaseOrder");
 const Product = require("../models/Product");
 const StockMovement = require("../models/StockMovement");
 const { generatePONumber } = require("../utils/numberGenerator");
+const { createNotification } = require("./notificationController");
 
 // @desc    Get all purchase orders
 // @route   GET /api/purchase-orders
@@ -87,6 +87,25 @@ const createPurchaseOrder = async (req, res) => {
       .populate("createdBy", "name");
 
     res.status(201).json({ success: true, data: populated });
+
+    // Notify Responsable Stock, Admin, Director
+    const User = require("../models/User");
+    const usersToNotify = await User.find({
+      role: { $in: ["stock", "admin", "director"] },
+      isBanned: false,
+    }).select("_id");
+
+    for (const u of usersToNotify) {
+      await createNotification({
+        userId: u._id,
+        type: "po_created",
+        title: "🛒 Bon de commande fournisseur créé",
+        message: `BC n°${order.poNumber} pour ${supplierName}`,
+        link: `/purchase-orders/${order._id}`,
+        metadata: { poId: order._id },
+      });
+    }
+    
   } catch (error) {
     console.error("Create PO error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -221,6 +240,23 @@ const receivePurchaseOrder = async (req, res) => {
       .populate("createdBy", "name");
 
     res.json({ success: true, data: updated });
+
+    // Notify same roles
+    const User = require("../models/User");
+    const usersToNotify = await User.find({
+      role: { $in: ["stock", "admin", "director"] },
+      isBanned: false,
+    }).select("_id");
+
+    for (const u of usersToNotify) {
+      await createNotification({
+        userId: u._id,
+        type: "po_received",
+        title: "📦 Réception marchandise",
+        message: `BC n°${order.poNumber} reçu. Stock mis à jour.`,
+        link: `/purchase-orders/${order._id}`,
+      });
+    }
   } catch (error) {
     console.error("Receive PO error:", error);
     res.status(500).json({ success: false, message: error.message });

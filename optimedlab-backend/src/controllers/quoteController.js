@@ -3,6 +3,7 @@ const Client = require("../models/Client");
 const Product = require("../models/Product");
 const { generateQuoteNumber } = require("../utils/numberGenerator");
 const { generateQuotePDF } = require("../utils/pdfGenerator");
+const { createNotification } = require("./notificationController");
 
 // @desc    Get all quotes
 // @route   GET /api/quotes
@@ -125,6 +126,24 @@ const createQuote = async (req, res) => {
       .populate("createdBy", "name");
 
     res.status(201).json({ success: true, data: populated });
+
+    // Notify admin & director
+    const User = require("../models/User");
+    const usersToNotify = await User.find({
+      role: { $in: ["admin", "director"] },
+      isBanned: false,
+    }).select("_id");
+
+    for (const u of usersToNotify) {
+      await createNotification({
+        userId: u._id,
+        type: "quote_created",
+        title: "📄 Nouveau devis créé",
+        message: `Devis n°${quote.quoteNumber} pour ${clientExists.name}`,
+        link: `/quotes/${quote._id}`,
+        metadata: { quoteId: quote._id },
+      });
+    }
   } catch (error) {
     console.error("❌ CREATE QUOTE ERROR:", error); // This will print full stack trace
     res
@@ -233,6 +252,30 @@ const validateQuote = async (req, res) => {
     }
     quote.status = "validated";
     await quote.save();
+    await createNotification({
+      userId: quote.createdBy,
+      type: "quote_validated",
+      title: "✅ Devis validé",
+      message: `Devis n°${quote.quoteNumber} a été validé`,
+      link: `/quotes/${quote._id}`,
+      metadata: { quoteId: quote._id },
+    });
+
+    // Also notify admin/director
+    const User = require("../models/User");
+    const admins = await User.find({
+      role: { $in: ["admin", "director"] },
+      isBanned: false,
+    }).select("_id");
+    for (const u of admins) {
+      await createNotification({
+        userId: u._id,
+        type: "quote_validated",
+        title: "✅ Devis validé",
+        message: `Devis n°${quote.quoteNumber} validé par ${req.user.name}`,
+        link: `/quotes/${quote._id}`,
+      });
+    }
     res.json({ success: true, data: quote });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

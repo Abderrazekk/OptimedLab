@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs"); // <-- ADDED THIS IMPORT
+const { createNotification } = require("./notificationController");
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -51,6 +52,23 @@ const createUser = async (req, res) => {
       success: true,
       data: userResponse,
     });
+
+    // Notify all admins
+    const User = require("../models/User");
+    const admins = await User.find({
+      role: "admin",
+      isBanned: false,
+    }).select("_id");
+
+    for (const u of admins) {
+      await createNotification({
+        userId: u._id,
+        type: "user_created",
+        title: "🆕 Nouvel utilisateur",
+        message: `${name} (${role}) créé`,
+        link: `/users`,
+      });
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -104,6 +122,21 @@ const updateUser = async (req, res) => {
       success: true,
       data: userResponse,
     });
+
+    if (role && role !== user.role) {
+      const admins = await User.find({ role: "admin", isBanned: false }).select(
+        "_id",
+      );
+      for (const u of admins) {
+        await createNotification({
+          userId: u._id,
+          type: "user_role_changed",
+          title: "🔐 Rôle modifié",
+          message: `${user.name} : ${user.role} → ${role}`,
+          link: `/users`,
+        });
+      }
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -175,6 +208,21 @@ const toggleBanUser = async (req, res) => {
       message: `User ${user.isBanned ? "banned" : "unbanned"} successfully`,
       isBanned: user.isBanned,
     });
+
+    const admins = await User.find({ role: "admin", isBanned: false }).select(
+      "_id",
+    );
+    for (const u of admins) {
+      await createNotification({
+        userId: u._id,
+        type: user.isBanned ? "user_banned" : "system",
+        title: user.isBanned
+          ? "⛔ Utilisateur banni"
+          : "✅ Utilisateur réactivé",
+        message: `${user.name} a été ${user.isBanned ? "banni" : "débloqué"}`,
+        link: `/users`,
+      });
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

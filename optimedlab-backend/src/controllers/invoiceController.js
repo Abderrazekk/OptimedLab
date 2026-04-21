@@ -5,6 +5,7 @@ const { generateInvoiceNumber } = require("../utils/numberGenerator");
 const { generateInvoicePDF } = require("../utils/pdfGenerator");
 const Product = require("../models/Product");
 const StockMovement = require("../models/StockMovement");
+const { createNotification } = require("./notificationController");
 
 // @desc    Get all invoices
 // @route   GET /api/invoices
@@ -139,6 +140,32 @@ const createInvoiceFromQuote = async (req, res) => {
       .populate("quote", "quoteNumber");
 
     res.status(201).json({ success: true, data: populated });
+
+    // Notify admin/director and the commercial who created the quote
+    const User = require("../models/User");
+    const usersToNotify = await User.find({
+      role: { $in: ["admin", "director"] },
+      isBanned: false,
+    }).select("_id");
+
+    // Also notify quote creator if different
+    if (quote.createdBy) {
+      usersToNotify.push({ _id: quote.createdBy });
+    }
+
+    const uniqueUsers = [
+      ...new Set(usersToNotify.map((u) => u._id.toString())),
+    ];
+    for (const userId of uniqueUsers) {
+      await createNotification({
+        userId,
+        type: "invoice_created",
+        title: "🧾 Facture générée",
+        message: `Facture n°${invoice.invoiceNumber} pour ${quote.client.name}`,
+        link: `/invoices/${invoice._id}`,
+        metadata: { invoiceId: invoice._id },
+      });
+    }
   } catch (error) {
     console.error("Create invoice error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -153,7 +180,9 @@ const updatePaymentStatus = async (req, res) => {
     const { paymentStatus } = req.body;
     const invoice = await Invoice.findById(req.params.id);
     if (!invoice) {
-      return res.status(404).json({ success: false, message: "Invoice not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Invoice not found" });
     }
 
     // Prevent changing status if overdue
@@ -167,6 +196,23 @@ const updatePaymentStatus = async (req, res) => {
     invoice.paymentStatus = paymentStatus;
     await invoice.save();
     res.json({ success: true, data: invoice });
+
+    if (paymentStatus === "paid") {
+      const User = require("../models/User");
+      const admins = await User.find({
+        role: { $in: ["admin", "director"] },
+        isBanned: false,
+      }).select("_id");
+      for (const u of admins) {
+        await createNotification({
+          userId: u._id,
+          type: "invoice_paid",
+          title: "💰 Facture payée",
+          message: `Facture n°${invoice.invoiceNumber} marquée comme payée`,
+          link: `/invoices/${invoice._id}`,
+        });
+      }
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

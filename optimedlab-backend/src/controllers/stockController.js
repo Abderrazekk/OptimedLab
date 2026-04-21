@@ -1,5 +1,6 @@
 const Product = require("../models/Product");
 const StockMovement = require("../models/StockMovement");
+const { createNotification } = require("./notificationController");
 
 // @desc    Get all products with stock (list)
 // @route   GET /api/stock
@@ -141,6 +142,31 @@ const adjustStock = async (req, res) => {
         movement,
       },
     });
+
+    // After product.save() and movement creation
+    // Check if stock is below threshold
+    if (product.stockQuantity <= product.threshold) {
+      // Find users to notify: Responsable Stock, Admin, Directeur
+      const User = require("../models/User");
+      const usersToNotify = await User.find({
+        role: { $in: ["stock", "admin", "director"] },
+        isBanned: false,
+      }).select("_id");
+
+      for (const u of usersToNotify) {
+        await createNotification({
+          userId: u._id,
+          type: product.stockQuantity === 0 ? "stock_critical" : "stock_alert",
+          title:
+            product.stockQuantity === 0
+              ? "🚨 Rupture de stock"
+              : "⚠️ Stock faible",
+          message: `${product.name} : ${product.stockQuantity} unité(s) restante(s) (seuil: ${product.threshold})`,
+          link: `/stock`,
+          metadata: { productId: product._id },
+        });
+      }
+    }
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
