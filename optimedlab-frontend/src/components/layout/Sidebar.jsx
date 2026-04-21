@@ -2,6 +2,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useState } from "react";
+import logoImage from "../../assets/optimedlab_logo.png";
 
 const Sidebar = () => {
   const { user } = useAuth();
@@ -76,9 +77,22 @@ const Sidebar = () => {
         <div className="flex items-center justify-center h-20 border-b border-slate-100 px-6">
           <Link
             to="/dashboard"
-            className="text-2xl font-extrabold tracking-tight bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+            className="flex items-center justify-center hover:opacity-80 transition-opacity"
           >
-            OptimedLab
+            <img
+              src={logoImage}
+              alt="OptimedLab"
+              className="h-14 w-auto object-contain"
+              onError={(e) => {
+                // Fallback to text if image still fails
+                e.currentTarget.style.display = "none";
+                const fallback = e.currentTarget.nextElementSibling;
+                if (fallback) fallback.style.display = "block";
+              }}
+            />
+            <span className="text-2xl font-extrabold tracking-tight bg-linear-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent hidden">
+              OptimedLab
+            </span>
           </Link>
         </div>
 
