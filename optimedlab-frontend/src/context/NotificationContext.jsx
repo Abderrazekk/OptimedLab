@@ -4,6 +4,7 @@ import { useAuth } from "./AuthContext";
 
 const NotificationContext = createContext();
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useNotifications = () => useContext(NotificationContext);
 
 export const NotificationProvider = ({ children }) => {
@@ -68,6 +69,7 @@ export const NotificationProvider = ({ children }) => {
       const interval = setInterval(() => fetchNotifications(), 30000);
       return () => clearInterval(interval);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const value = {
