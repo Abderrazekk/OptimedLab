@@ -14,6 +14,16 @@ const visitService = {
     const response = await api.get("/visits/form-data");
     return response.data;
   },
+
+  async updateVisit(id, data) {
+    const response = await api.put(`/visits/${id}`, data);
+    return response.data;
+  },
+
+  async deleteVisit(id) {
+    const response = await api.delete(`/visits/${id}`);
+    return response.data;
+  },
 };
 
 export default visitService;

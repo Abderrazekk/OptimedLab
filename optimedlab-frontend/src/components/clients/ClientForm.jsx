@@ -1,6 +1,4 @@
-// src/components/clients/ClientForm.jsx
-// eslint-disable-next-line no-unused-vars
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -11,7 +9,6 @@ import {
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
-// Fix for default Leaflet marker icons in React
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
@@ -23,7 +20,18 @@ let DefaultIcon = L.icon({
 });
 L.Marker.prototype.options.icon = DefaultIcon;
 
-// Helper component to smoothly center the map when position changes
+/* -----------------------------------------------------------
+   Tailwind requires custom keyframes for the rise animation.
+   Add this to your tailwind.config.js theme.extend:
+   keyframes: { rise: { '0%': { opacity: '0', transform: 'translateY(20px) scale(0.98)' }, '100%': { opacity: '1', transform: 'translateY(0) scale(1)' } } },
+   animation: { rise: 'rise 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both' }
+   Then use className="animate-rise" below.
+   -----------------------------------------------------------
+   For this code we apply the animation via the `animate-rise` class
+   (see className on the panel). Please ensure the configuration exists
+   or replace with a simple `[animation:rise_0.3s…]` arbitrary value.
+   ----------------------------------------------------------- */
+
 const RecenterAutomatically = ({ lat, lng }) => {
   const map = useMap();
   useEffect(() => {
@@ -45,10 +53,9 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
   const [errors, setErrors] = useState({});
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-
-  // Map States - Defaulting to Tunisia/Métlaoui region
   const [mapPosition, setMapPosition] = useState([34.3333, 8.4]);
   const [isFetchingAddress, setIsFetchingAddress] = useState(false);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   useEffect(() => {
     if (client) {
@@ -66,7 +73,6 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
         },
         notes: client.notes || "",
       });
-
       if (client.image) {
         setImagePreview(
           `http://localhost:5000/uploads/clients/${client.image}`,
@@ -86,11 +92,22 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDraggingOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
@@ -103,7 +120,6 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
       );
       const data = await response.json();
-
       if (data && data.address) {
         setFormData((prev) => ({
           ...prev,
@@ -121,7 +137,7 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
         }));
       }
     } catch (error) {
-      console.error("Error fetching address details:", error);
+      console.error("Error fetching address:", error);
     } finally {
       setIsFetchingAddress(false);
     }
@@ -135,9 +151,7 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
         fetchAddressFromCoords(lat, lng);
       },
     });
-    return mapPosition === null ? null : (
-      <Marker position={mapPosition}></Marker>
-    );
+    return mapPosition === null ? null : <Marker position={mapPosition} />;
   };
 
   const handleUseMyLocation = () => {
@@ -162,11 +176,11 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name) newErrors.name = "Name is required";
+    if (!formData.name) newErrors.name = "Full name is required";
     if (!formData.email) {
-      newErrors.email = "Email is required";
+      newErrors.email = "Email address is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email address is invalid";
+      newErrors.email = "Enter a valid email address";
     }
     if (!formData.phone) newErrors.phone = "Phone number is required";
     return newErrors;
@@ -179,7 +193,6 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
       setErrors(newErrors);
       return;
     }
-
     const submitData = new FormData();
     submitData.append("name", formData.name);
     submitData.append("email", formData.email);
@@ -191,114 +204,160 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
     submitData.append("address.state", formData.address.state);
     submitData.append("address.zipCode", formData.address.zipCode);
     submitData.append("address.country", formData.address.country);
-
     if (imageFile) submitData.append("image", imageFile);
-
     onSubmit(submitData);
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4 sm:p-6">
-      <div className="relative w-full max-w-5xl shadow-2xl rounded-2xl bg-white flex flex-col max-h-[95vh] animate-fade-in-up overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-emerald-900/50 p-6 backdrop-blur-[6px]">
+      <div className="relative flex w-full max-w-240 animate-rise flex-col overflow-hidden rounded-[20px] bg-white shadow-[0_0_0_1px_rgba(5,150,105,0.08),0_32px_80px_rgba(6,78,59,0.22),0_8px_24px_rgba(0,0,0,0.08)]">
         {/* Header */}
-        <div className="flex justify-between items-center px-8 py-5 border-b border-gray-100 bg-white z-10">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800">
-              {client ? "Edit Client Profile" : "New Client Profile"}
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Fill in the information below to register a client.
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2.5 bg-gray-50 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        <div className="relative shrink-0 overflow-hidden bg-linear-to-br from-emerald-900 via-emerald-800 to-emerald-700 px-7 py-6">
+          {/* decorative circle */}
+          <div className="pointer-events-none absolute -right-12 -top-12 h-45 w-45 rounded-full border border-white/5"></div>
+
+          <div className="relative z-10 flex items-center justify-between">
+            <div>
+              <div className="mb-1 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300"></span>
+                <span className="text-xs font-bold uppercase tracking-[0.12em] text-emerald-300">
+                  {client ? "Edit Record" : "New Record"}
+                </span>
+              </div>
+              <h2 className="text-xl font-bold -tracking-[0.02em] text-white">
+                {client ? "Edit Client Profile" : "Add New Client"}
+              </h2>
+              <p className="mt-0.5 text-sm text-white/50">
+                {client
+                  ? "Update the details below and save your changes."
+                  : "Fill in the information to register a new client."}
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-white/80 backdrop-blur transition hover:bg-white/20 hover:text-white"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        {/* Scrollable Form Body */}
-        <div className="overflow-y-auto custom-scrollbar grow bg-gray-50/50">
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto bg-gray-50/80 p-7">
           <form
             id="client-form"
             onSubmit={handleSubmit}
             encType="multipart/form-data"
-            className="p-8"
           >
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-              {/* LEFT COLUMN: Info & Avatar */}
-              <div className="space-y-6">
-                {/* Image Upload */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                  <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-4">
-                    Client Avatar
-                  </h3>
-                  <div className="flex items-center space-x-6">
-                    <div className="shrink-0 relative group cursor-pointer">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+              {/* Left column */}
+              <div>
+                {/* Avatar */}
+                <div className="mb-4 rounded-2xl border border-gray-100 bg-white p-5">
+                  <div className="mb-4 flex items-center gap-2 border-b border-gray-100 pb-3">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-emerald-100 text-emerald-600">
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                      Client Avatar
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl border-2 border-emerald-50 bg-linear-to-br from-emerald-50 to-emerald-100 shadow-md shadow-emerald-500/10">
                       {imagePreview ? (
                         <img
-                          className="h-24 w-24 object-cover rounded-full border-4 border-white shadow-lg"
                           src={imagePreview}
                           alt="Preview"
+                          className="h-full w-full rounded-xl object-cover"
                         />
                       ) : (
-                        <div className="h-24 w-24 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-400 border-4 border-white shadow-lg">
-                          <svg
-                            className="w-8 h-8"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="1.5"
-                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                        </div>
+                        <svg
+                          width="26"
+                          height="26"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#059669"
+                          strokeWidth="1.5"
+                        >
+                          <rect x="3" y="3" width="18" height="18" rx="2" />
+                          <circle cx="8.5" cy="8.5" r="1.5" />
+                          <polyline points="21 15 16 10 5 21" />
+                        </svg>
                       )}
                     </div>
-                    <label className="block flex-1">
-                      <div className="w-full flex justify-center items-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl hover:border-indigo-400 hover:bg-indigo-50/50 transition-colors cursor-pointer">
-                        <span className="text-sm font-medium text-indigo-600">
-                          Click to browse images
-                        </span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                          className="hidden"
-                        />
+                    <label
+                      className={`flex-1 cursor-pointer rounded-xl border-2 border-dashed px-4 py-3 text-center transition ${
+                        isDraggingOver
+                          ? "border-emerald-600 bg-emerald-100"
+                          : "border-emerald-200 bg-emerald-50 hover:border-emerald-600 hover:bg-emerald-100"
+                      }`}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDraggingOver(true);
+                      }}
+                      onDragLeave={() => setIsDraggingOver(false)}
+                      onDrop={handleDrop}
+                    >
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                      <div className="text-sm font-semibold text-emerald-600">
+                        {imagePreview ? "Replace photo" : "Upload photo"}
                       </div>
-                      <p className="text-xs text-gray-400 mt-2 text-center">
-                        PNG, JPG or WEBP up to 5MB
-                      </p>
+                      <div className="mt-1 text-xs text-gray-400">
+                        Drag & drop or click · PNG, JPG, WEBP up to 5MB
+                      </div>
                     </label>
                   </div>
                 </div>
 
-                {/* Basic Info */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
-                  <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider mb-4">
-                    Personal Details
-                  </h3>
+                {/* Personal Details */}
+                <div className="mb-4 rounded-2xl border border-gray-100 bg-white p-5">
+                  <div className="mb-4 flex items-center gap-2 border-b border-gray-100 pb-3">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-emerald-100 text-emerald-600">
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                      </svg>
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                      Personal Details
+                    </span>
+                  </div>
 
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase">
+                  {/* Name */}
+                  <div className="mb-3">
+                    <label className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.06em] text-gray-500">
                       Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -306,19 +365,36 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      className={`w-full px-4 py-2.5 bg-gray-50 border rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${errors.name ? "border-red-400" : "border-gray-200"}`}
+                      className={`w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition ${
+                        errors.name
+                          ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                          : "border-gray-200 bg-gray-50 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+                      }`}
                       placeholder="e.g. Jane Doe"
                     />
                     {errors.name && (
-                      <p className="text-red-500 text-xs mt-1.5">
+                      <div className="mt-1 flex items-center gap-1 text-xs text-red-600">
+                        <svg
+                          width="11"
+                          height="11"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="12" y1="8" x2="12" y2="12" />
+                          <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
                         {errors.name}
-                      </p>
+                      </div>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Email + Phone */}
+                  <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase">
+                      <label className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.06em] text-gray-500">
                         Email <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -326,17 +402,33 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className={`w-full px-4 py-2.5 bg-gray-50 border rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${errors.email ? "border-red-400" : "border-gray-200"}`}
+                        className={`w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition ${
+                          errors.email
+                            ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                            : "border-gray-200 bg-gray-50 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+                        }`}
                         placeholder="mail@example.com"
                       />
                       {errors.email && (
-                        <p className="text-red-500 text-xs mt-1.5">
+                        <div className="mt-1 flex items-center gap-1 text-xs text-red-600">
+                          <svg
+                            width="11"
+                            height="11"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                          </svg>
                           {errors.email}
-                        </p>
+                        </div>
                       )}
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase">
+                      <label className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.06em] text-gray-500">
                         Phone <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -344,104 +436,141 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleChange}
-                        className={`w-full px-4 py-2.5 bg-gray-50 border rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all ${errors.phone ? "border-red-400" : "border-gray-200"}`}
+                        className={`w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition ${
+                          errors.phone
+                            ? "border-red-300 bg-red-50 focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                            : "border-gray-200 bg-gray-50 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+                        }`}
                         placeholder="+216 XX XXX XXX"
                       />
                       {errors.phone && (
-                        <p className="text-red-500 text-xs mt-1.5">
+                        <div className="mt-1 flex items-center gap-1 text-xs text-red-600">
+                          <svg
+                            width="11"
+                            height="11"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                          </svg>
                           {errors.phone}
-                        </p>
+                        </div>
                       )}
                     </div>
                   </div>
 
+                  {/* Company */}
                   <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase">
-                      Company (Optional)
+                    <label className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.06em] text-gray-500">
+                      Company
                     </label>
                     <input
                       type="text"
                       name="company"
                       value={formData.company}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-                      placeholder="Enter company name"
+                      className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+                      placeholder="Company name (optional)"
                     />
                   </div>
                 </div>
 
                 {/* Notes */}
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                  <label className="block text-sm font-semibold text-gray-800 uppercase tracking-wider mb-3">
-                    Internal Notes
-                  </label>
+                <div className="rounded-2xl border border-gray-100 bg-white p-5">
+                  <div className="mb-4 flex items-center gap-2 border-b border-gray-100 pb-3">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-emerald-100 text-emerald-600">
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <path d="M11 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-5" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
+                      Internal Notes
+                    </span>
+                  </div>
                   <textarea
                     name="notes"
-                    rows="3"
+                    rows="4"
                     value={formData.notes}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all resize-none"
-                    placeholder="Add any specific requirements, preferences, or remarks..."
-                  ></textarea>
+                    className="w-full resize-none rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm leading-relaxed outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+                    placeholder="Add requirements, preferences, or private remarks…"
+                  />
                 </div>
               </div>
 
-              {/* RIGHT COLUMN: Map & Address */}
-              <div className="space-y-6 flex flex-col">
-                <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm grow flex flex-col">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-sm font-semibold text-gray-800 uppercase tracking-wider">
+              {/* Right column - Map & Address */}
+              <div>
+                <div className="rounded-2xl border border-gray-100 bg-white p-5">
+                  <div className="mb-4 flex items-center gap-2 border-b border-gray-100 pb-3">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-md bg-emerald-100 text-emerald-600">
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                      </svg>
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-gray-400">
                       Location Setup
-                    </h3>
+                    </span>
+                  </div>
+
+                  <div className="mb-3 flex items-center justify-between">
+                    <p className="mr-2 flex-1 text-sm text-gray-400">
+                      Click the map to pin a location — address fields
+                      auto-fill.
+                    </p>
                     <button
                       type="button"
                       onClick={handleUseMyLocation}
-                      className="text-xs font-medium text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors flex items-center gap-1.5"
+                      className="flex items-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600 transition hover:bg-emerald-100 hover:border-emerald-600"
                     >
                       <svg
-                        className="w-4 h-4"
+                        width="13"
+                        height="13"
+                        viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
-                        viewBox="0 0 24 24"
+                        strokeWidth="2.5"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                        />
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                        />
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M12 1v4M12 19v4M1 12h4M19 12h4" />
                       </svg>
                       Locate Me
                     </button>
                   </div>
 
-                  <p className="text-sm text-gray-500 mb-4">
-                    Click anywhere on the map to drop a pin. The address fields
-                    will auto-fill based on your selection.
-                  </p>
-
-                  {/* Map Container */}
-                  <div className="relative w-full h-64 sm:h-72 rounded-xl overflow-hidden border-2 border-gray-200 shadow-inner z-0 mb-6 group">
-                    {/* Loading Overlay */}
+                  {/* Map */}
+                  <div className="relative mb-4 h-56 overflow-hidden rounded-xl border border-gray-200">
                     {isFetchingAddress && (
-                      <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-1000 flex flex-col items-center justify-center transition-all">
-                        <div className="animate-spin rounded-full h-10 w-10 border-4 border-indigo-200 border-t-indigo-600 mb-2"></div>
-                        <span className="text-sm font-semibold text-indigo-800">
-                          Pinpointing Address...
+                      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-white/85 backdrop-blur-sm">
+                        <div className="h-8 w-8 animate-spin rounded-full border-[3px] border-emerald-100 border-t-emerald-600"></div>
+                        <span className="text-sm font-semibold text-emerald-900">
+                          Pinpointing address…
                         </span>
                       </div>
                     )}
-
                     <MapContainer
                       center={mapPosition}
                       zoom={13}
-                      style={{ height: "100%", width: "100%" }}
+                      className="h-full w-full"
                     >
                       <TileLayer
                         url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
@@ -455,10 +584,10 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
                     </MapContainer>
                   </div>
 
-                  {/* Extracted Address Grid */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                      <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase">
+                  {/* Address Fields */}
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="col-span-full">
+                      <label className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.06em] text-gray-500">
                         Street Address
                       </label>
                       <input
@@ -466,12 +595,12 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
                         name="address.street"
                         value={formData.address.street}
                         onChange={handleChange}
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-                        placeholder="Street Name & Number"
+                        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+                        placeholder="Street name & number"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase">
+                      <label className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.06em] text-gray-500">
                         City
                       </label>
                       <input
@@ -479,12 +608,12 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
                         name="address.city"
                         value={formData.address.city}
                         onChange={handleChange}
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
                         placeholder="City"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase">
+                      <label className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.06em] text-gray-500">
                         State / Province
                       </label>
                       <input
@@ -492,25 +621,25 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
                         name="address.state"
                         value={formData.address.state}
                         onChange={handleChange}
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
                         placeholder="State"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase">
-                        Zip Code
+                      <label className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.06em] text-gray-500">
+                        ZIP Code
                       </label>
                       <input
                         type="text"
                         name="address.zipCode"
                         value={formData.address.zipCode}
                         onChange={handleChange}
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-                        placeholder="0000"
+                        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
+                        placeholder="00000"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1.5 uppercase">
+                      <label className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.06em] text-gray-500">
                         Country
                       </label>
                       <input
@@ -518,7 +647,7 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
                         name="address.country"
                         value={formData.address.country}
                         onChange={handleChange}
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                        className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3.5 py-2.5 text-sm outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
                         placeholder="Country"
                       />
                     </div>
@@ -529,35 +658,50 @@ const ClientForm = ({ client, onSubmit, onClose }) => {
           </form>
         </div>
 
-        {/* Footer Actions */}
-        <div className="flex justify-end items-center gap-3 px-8 py-5 border-t border-gray-100 bg-white z-10">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-6 py-2.5 text-sm font-semibold text-gray-600 bg-white border-2 border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300 transition-all"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            form="client-form"
-            className="px-6 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all flex items-center gap-2"
-          >
+        {/* Footer */}
+        <div className="flex shrink-0 items-center justify-between border-t border-gray-100 bg-white px-7 py-4">
+          <div className="flex items-center gap-1 text-xs text-gray-400">
             <svg
-              className="w-4 h-4"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              viewBox="0 0 24 24"
+              strokeWidth="2"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M5 13l4 4L19 7"
-              />
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            {client ? "Update Client" : "Create Client"}
-          </button>
+            Fields marked <span className="mx-0.5 text-red-500">*</span> are
+            required
+          </div>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              form="client-form"
+              className="flex items-center gap-1.5 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-600/20 transition hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-600/40 active:translate-y-0.5"
+            >
+              <svg
+                width="15"
+                height="15"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              {client ? "Save Changes" : "Create Client"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

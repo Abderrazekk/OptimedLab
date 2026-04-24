@@ -1,17 +1,22 @@
-// src/components/calendar/VisitForm.jsx
 import { useState, useEffect } from "react";
 import visitService from "../../services/visitService";
 import { useAuth } from "../../context/AuthContext";
 
-const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
+const VisitForm = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  initialDate,
+  visit = null,
+}) => {
   const { user } = useAuth();
   const [formData, setFormData] = useState({
     date: "",
-    commercials: [user._id], // Defaults to an array containing the logged-in user
+    commercials: [user?._id],
     client: "",
     products: [],
     notes: "",
-    color: "#10b981", // Default Emerald
+    color: "#10b981",
   });
 
   const [selectedSupplier, setSelectedSupplier] = useState("");
@@ -20,36 +25,70 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
   const [suppliers, setSuppliers] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   // Reset form and fetch data when opened
   useEffect(() => {
     if (isOpen) {
-      setFormData({
-        date: "",
-        commercials: [user._id],
-        client: "",
-        products: [],
-        notes: "",
-        color: "#10b981",
-      });
-      setSelectedSupplier("");
       fetchData();
 
-      if (initialDate) {
-        // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
-        const dateObj = new Date(initialDate);
-        dateObj.setHours(9, 0); // Default to 9:00 AM
-        const formattedDate = dateObj.toISOString().slice(0, 16);
-        setFormData((prev) => ({ ...prev, date: formattedDate }));
+      if (visit) {
+        // Editing mode
+        setFormData({
+          date: visit.date
+            ? new Date(visit.date).toISOString().slice(0, 16)
+            : "",
+          commercials: visit.commercials?.map((c) => c._id) || [user._id],
+          client: visit.client?._id || "",
+          products:
+            visit.products?.map((p) => ({
+              product: p.product?._id || p.product,
+              name: p.product?.name || "Produit",
+              maxStock: p.product?.stockQuantity || 9999,
+              quantity: p.quantity,
+            })) || [],
+          notes: visit.notes || "",
+          color: visit.color || "#10b981",
+        });
+        setSelectedSupplier("");
+      } else {
+        // Creation mode
+        setFormData({
+          date: "",
+          commercials: [user._id],
+          client: "",
+          products: [],
+          notes: "",
+          color: "#10b981",
+        });
+        setSelectedSupplier("");
+        if (initialDate) {
+          const dateObj = new Date(initialDate);
+          dateObj.setHours(9, 0);
+          const formattedDate = dateObj.toISOString().slice(0, 16);
+          setFormData((prev) => ({ ...prev, date: formattedDate }));
+        }
       }
     }
-  }, [isOpen, initialDate, user._id]);
+  }, [isOpen, visit, initialDate, user._id]);
+
+  // When products list loads, update maxStock for pre-filled products in edit mode
+  useEffect(() => {
+    if (visit && products.length > 0 && formData.products.length > 0) {
+      setFormData((prev) => ({
+        ...prev,
+        products: prev.products.map((p) => {
+          const fresh = products.find((prod) => prod._id === p.product);
+          return { ...p, maxStock: fresh ? fresh.stockQuantity : p.maxStock };
+        }),
+      }));
+    }
+  }, [products, visit, formData.products.length]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
       const data = await visitService.getFormData();
-
       setCommercialsList(data.commercials || []);
       setClients(data.clients || []);
       setSuppliers(data.suppliers || []);
@@ -66,7 +105,6 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // NEW: Handle multi-select for Commercials
   const handleCommercialSelection = (e) => {
     const selectedOptions = Array.from(
       e.target.selectedOptions,
@@ -77,15 +115,12 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Validation
     if (formData.commercials.length === 0) {
       alert("Veuillez assigner au moins un commercial à cette visite.");
       return;
     }
-
     try {
-      // Clean up product data before sending
+      setSubmitting(true);
       const submitData = {
         ...formData,
         products: formData.products.map((p) => ({
@@ -94,15 +129,20 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
         })),
       };
 
-      await visitService.createVisit(submitData);
-      onSuccess(); // Refresh calendar
-      onClose(); // Close modal
+      if (visit) {
+        await visitService.updateVisit(visit._id, submitData);
+      } else {
+        await visitService.createVisit(submitData);
+      }
+      onSuccess();
+      onClose();
     } catch (error) {
-      alert(error.response?.data?.message || "Erreur lors de la création");
+      alert(error.response?.data?.message || "Erreur lors de l'enregistrement");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // Filter products based on the selected supplier
   const filteredProducts = selectedSupplier
     ? products.filter(
         (p) =>
@@ -118,11 +158,13 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
           <h2 className="text-lg font-bold text-slate-800">
-            Planifier une Visite / Livraison
+            {visit
+              ? "Modifier la Visite / Livraison"
+              : "Planifier une Visite / Livraison"}
           </h2>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600"
+            className="text-slate-400 hover:text-slate-600 text-xl"
           >
             ✕
           </button>
@@ -151,7 +193,6 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
                   className="w-full border border-slate-200 rounded-xl px-3 py-2 focus:ring-2 focus:ring-emerald-500 outline-none"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Client
@@ -174,7 +215,6 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* MULTIPLE COMMERCIALS SELECTOR */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Commerciaux Assignés{" "}
@@ -188,7 +228,7 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
                   required
                   value={formData.commercials}
                   onChange={handleCommercialSelection}
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2 outline-none h-[96px] focus:ring-2 focus:ring-emerald-500"
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2 outline-none h-24 focus:ring-2 focus:ring-emerald-500"
                 >
                   {commercialsList.map((c) => (
                     <option key={c._id} value={c._id}>
@@ -197,7 +237,6 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
                   ))}
                 </select>
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
                   Couleur Calendrier
@@ -207,12 +246,11 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
                   name="color"
                   value={formData.color}
                   onChange={handleChange}
-                  className="w-full h-[96px] rounded-xl cursor-pointer border-0"
+                  className="w-full h-24 rounded-xl cursor-pointer border-0"
                 />
               </div>
             </div>
 
-            {/* PRODUCTS & QUANTITY UI */}
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
               <div className="flex justify-between items-center mb-3">
                 <h3 className="text-sm font-bold text-slate-700">
@@ -349,9 +387,34 @@ const VisitForm = ({ isOpen, onClose, onSuccess, initialDate }) => {
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors shadow-sm"
+                disabled={submitting}
+                className="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                Planifier et Déduire du Stock
+                {submitting ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                    Enregistrement...
+                  </>
+                ) : visit ? (
+                  "Enregistrer les modifications"
+                ) : (
+                  "Planifier et Déduire du Stock"
+                )}
               </button>
             </div>
           </form>

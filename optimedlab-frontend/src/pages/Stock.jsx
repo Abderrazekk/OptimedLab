@@ -1,4 +1,3 @@
-// src/pages/Stock.jsx
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import stockService from "../services/stockService";
@@ -12,13 +11,18 @@ const Stock = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // States for our Modals and Views
   const [detailProduct, setDetailProduct] = useState(null);
   const [adjustProduct, setAdjustProduct] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
-  const [viewMode, setViewMode] = useState("list"); // "list" or "map"
+  const [viewMode, setViewMode] = useState("list"); // "list" | "map"
 
   const canAdjust = user && (user.role === "admin" || user.role === "stock");
+  const canView =
+    user &&
+    (user.role === "admin" ||
+      user.role === "stock" ||
+      user.role === "commercial" ||
+      user.role === "director");
 
   useEffect(() => {
     fetchStock();
@@ -43,9 +47,9 @@ const Stock = () => {
   };
 
   const statusColors = {
-    out: "bg-red-100 text-red-800 border-red-200",
-    low: "bg-yellow-100 text-yellow-800 border-yellow-200",
-    normal: "bg-green-100 text-green-800 border-green-200",
+    out: "bg-red-50 text-red-700 border-red-200",
+    low: "bg-amber-50 text-amber-700 border-amber-200",
+    normal: "bg-emerald-50 text-emerald-700 border-emerald-200",
   };
 
   const getImageUrl = (imagePath) => {
@@ -66,7 +70,6 @@ const Stock = () => {
     }
   };
 
-  // Extract unique aisles for the Digital Twin map
   const aisles = useMemo(() => {
     const allAisles = products
       .filter((p) => p.shelfLocation && p.shelfLocation.aisle)
@@ -74,72 +77,149 @@ const Stock = () => {
     return [...new Set(allAisles)].sort();
   }, [products]);
 
+  const inStockCount = products.filter((p) => p.stockQuantity > 0).length;
+  const lowStockCount = products.filter(
+    (p) => p.stockQuantity > 0 && p.stockQuantity <= p.threshold,
+  ).length;
+  const outOfStockCount = products.filter((p) => p.stockQuantity <= 0).length;
+
   if (!user) return null;
 
+  if (!canView) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50/80 p-8">
+        <div className="flex items-center gap-4 rounded-2xl border border-red-100 bg-white p-6 shadow-sm">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+            <svg
+              className="h-6 w-6 text-red-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              Access Denied
+            </h3>
+            <p className="text-sm text-gray-500">
+              You don't have permission to view stock.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 bg-slate-50 min-h-screen">
-      {/* Header and Controls */}
-      <div className="sm:flex sm:items-center sm:justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+    <div className="min-h-screen bg-gray-50/80">
+      {/* Header */}
+      <div className="relative overflow-hidden bg-linear-to-br from-emerald-900 via-emerald-800 to-emerald-700 px-8 pb-16 pt-10">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(16,185,129,0.15)_0%,transparent_60%)]"></div>
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(5,150,105,0.2)_0%,transparent_50%)]"></div>
+        <div className="absolute -right-15 -top-15 h-75 w-75 rounded-full border border-white/5"></div>
+
+        <div className="relative z-10">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300"></span>
+            <span className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-emerald-300">
+              Inventory Management
+            </span>
+          </div>
+          <h1 className="text-3xl font-bold -tracking-[0.02em] text-white">
             Warehouse Inventory
           </h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Monitor current stock levels, adjust quantities, or view the
-            physical layout.
+          <p className="mt-1 text-sm text-white/50">
+            Monitor stock levels, adjust quantities, or view the physical
+            layout.
           </p>
         </div>
+      </div>
 
-        <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
-          {/* View Toggle Buttons */}
-          <div className="bg-white border border-gray-300 rounded-md shadow-sm inline-flex p-1">
-            <button
-              onClick={() => setViewMode("list")}
-              className={`px-4 py-2 text-sm font-medium rounded-sm flex items-center transition-colors ${viewMode === "list" ? "bg-slate-800 text-white shadow" : "text-gray-500 hover:text-gray-900"}`}
+      {/* Stats Bar */}
+      <div className="px-8">
+        <div className="relative z-10 -mt-6 flex overflow-hidden rounded-2xl bg-white shadow-lg shadow-gray-200/70">
+          <div className="flex-1 border-r border-gray-100 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              Total Products
+            </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {products.length}
+            </div>
+          </div>
+          <div className="flex-1 border-r border-gray-100 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              In Stock
+            </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {inStockCount}
+            </div>
+          </div>
+          <div className="flex-1 border-r border-gray-100 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              Low Stock
+            </div>
+            <div
+              className={`text-2xl font-bold -tracking-[0.03em] ${lowStockCount > 0 ? "text-amber-600" : "text-emerald-900"}`}
             >
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 10h16M4 14h16M4 18h16"
-                ></path>
-              </svg>
-              List View
-            </button>
-            <button
-              onClick={() => setViewMode("map")}
-              className={`px-4 py-2 text-sm font-medium rounded-sm flex items-center transition-colors ${viewMode === "map" ? "bg-indigo-600 text-white shadow" : "text-gray-500 hover:text-gray-900"}`}
+              {lowStockCount}
+            </div>
+          </div>
+          <div className="flex-1 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              Out of Stock
+            </div>
+            <div
+              className={`text-2xl font-bold -tracking-[0.03em] ${outOfStockCount > 0 ? "text-red-600" : "text-emerald-900"}`}
             >
-              <svg
-                className="w-4 h-4 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              {outOfStockCount}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="px-8 pb-10 pt-6">
+        {/* Controls bar */}
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex rounded-xl border border-gray-200 bg-white p-0.5">
+              <button
+                onClick={() => setViewMode("list")}
+                className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                  viewMode === "list"
+                    ? "bg-emerald-900 text-white shadow-sm"
+                    : "text-gray-400 hover:text-gray-600"
+                }`}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
-                ></path>
-              </svg>
-              2D Map View
-            </button>
+                List View
+              </button>
+              <button
+                onClick={() => setViewMode("map")}
+                className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                  viewMode === "map"
+                    ? "bg-emerald-900 text-white shadow-sm"
+                    : "text-gray-400 hover:text-gray-600"
+                }`}
+              >
+                2D Map View
+              </button>
+            </div>
           </div>
 
           {canAdjust && (
             <button
               onClick={() => setShowScanner(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-600/30 transition hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-600/40 active:translate-y-0.5"
             >
               <svg
-                className="-ml-1 mr-2 h-5 w-5"
+                className="h-5 w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -155,255 +235,266 @@ const Stock = () => {
             </button>
           )}
         </div>
-      </div>
 
-      {error && (
-        <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md shadow-sm">
-          <p className="text-sm text-red-700">{error}</p>
-        </div>
-      )}
+        {/* Error */}
+        {error && (
+          <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 border-l-4 border-l-red-500 bg-white p-4">
+            <svg
+              className="h-5 w-5 shrink-0 text-red-500"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <div>
+              <div className="text-sm font-semibold text-red-900">
+                Something went wrong
+              </div>
+              <div className="text-sm text-red-700">{error}</div>
+            </div>
+          </div>
+        )}
 
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
-        </div>
-      ) : viewMode === "list" ? (
-        /* ---------------- ORIGINAL LIST VIEW ---------------- */
-        <div className="flex flex-col">
-          <div className="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                <table className="min-w-full divide-y divide-gray-300">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        Product
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        Location
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        Stock Info
-                      </th>
-                      <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      {canAdjust && (
-                        <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 bg-white">
-                    {products.map((p) => {
-                      const status = getStockStatus(p);
-                      return (
-                        <tr
-                          key={p._id}
-                          onClick={() => setDetailProduct(p)}
-                          className="hover:bg-gray-50 cursor-pointer"
-                        >
-                          <td className="whitespace-nowrap px-6 py-4">
-                            <div className="flex items-center">
-                              <div className="h-12 w-12 shrink-0">
-                                {p.images && p.images.length > 0 ? (
-                                  <img
-                                    className="h-12 w-12 rounded-lg object-cover border border-gray-200"
-                                    src={getImageUrl(p.images[0])}
-                                    alt={p.name}
-                                  />
-                                ) : (
-                                  <div className="h-12 w-12 rounded-lg bg-gray-100 flex items-center justify-center border border-gray-200">
-                                    <span className="text-gray-400 text-xs">
-                                      No img
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-semibold text-gray-900">
-                                  {p.name}
-                                </div>
-                                <div className="text-xs text-gray-500 mt-0.5">
-                                  SKU: {p.sku || "N/A"}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="whitespace-nowrap px-6 py-4">
-                            <div className="text-sm text-gray-900 font-medium">
-                              {p.shelfLocation?.aisle
-                                ? `Aisle ${p.shelfLocation.aisle}`
-                                : "Unassigned"}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {p.shelfLocation?.binCode
-                                ? `Bin ${p.shelfLocation.binCode}`
-                                : ""}
-                            </div>
-                          </td>
-                          <td className="whitespace-nowrap px-6 py-4">
-                            <div className="text-sm text-gray-900 font-bold">
-                              {p.stockQuantity} Units
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              Threshold: {p.threshold}
-                            </div>
-                          </td>
-                          <td className="whitespace-nowrap px-6 py-4">
-                            <span
-                              className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold border ${statusColors[status]}`}
+        {/* Loading */}
+        {loading ? (
+          <div className="flex min-h-80 flex-col items-center justify-center gap-4">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600"></div>
+            <span className="text-sm text-gray-400">Loading inventory…</span>
+          </div>
+        ) : viewMode === "list" ? (
+          /* List View */
+          <div>
+            {products.length === 0 ? (
+              <div className="flex min-h-90 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-100 bg-white p-12 text-center">
+                <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-br from-emerald-100 to-emerald-200 text-emerald-600">
+                  <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                </div>
+                <div className="text-lg font-bold text-gray-900">
+                  No products in stock
+                </div>
+                <p className="mt-1 max-w-xs text-sm text-gray-400">
+                  Add products to your catalog to start tracking inventory.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {products.map((p) => {
+                  const status = getStockStatus(p);
+                  return (
+                    <div
+                      key={p._id}
+                      onClick={() => setDetailProduct(p)}
+                      className="group flex cursor-pointer items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4 transition-all hover:translate-x-0.5 hover:border-emerald-200 hover:shadow-md hover:shadow-emerald-500/5"
+                    >
+                      {/* Image */}
+                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-gray-100">
+                        {p.images && p.images.length > 0 ? (
+                          <img
+                            className="h-full w-full rounded-xl object-cover border border-gray-100"
+                            src={getImageUrl(p.images[0])}
+                            alt={p.name}
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-gray-400">
+                            <svg
+                              className="h-6 w-6"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
                             >
-                              {status === "out"
-                                ? "Out of Stock"
-                                : status === "low"
-                                  ? "Low Stock"
-                                  : "Normal"}
-                            </span>
-                          </td>
-                          {canAdjust && (
-                            <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setAdjustProduct(p);
-                                }}
-                                className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                              >
-                                Adjust
-                              </button>
-                            </td>
-                          )}
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* ---------------- NEW DIGITAL TWIN MAP VIEW ---------------- */
-        <div className="bg-white p-6 sm:p-10 rounded-2xl shadow-lg border border-slate-200 relative">
-          <div className="mb-10 flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-8 bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-widest flex items-center">
-              <svg
-                className="w-5 h-5 mr-2 text-indigo-500"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-                ></path>
-              </svg>
-              Live Map Legend
-            </h3>
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center text-sm font-medium text-slate-600">
-                <div className="w-5 h-5 bg-green-500 rounded border border-green-600 mr-2 shadow-sm"></div>{" "}
-                Optimal Stock
-              </div>
-              <div className="flex items-center text-sm font-medium text-slate-600">
-                <div className="w-5 h-5 bg-yellow-400 rounded border border-yellow-500 mr-2 shadow-sm"></div>{" "}
-                Low Warning
-              </div>
-              <div className="flex items-center text-sm font-medium text-slate-600">
-                <div className="w-5 h-5 bg-red-500 rounded border border-red-600 mr-2 shadow-sm animate-pulse"></div>{" "}
-                Out of Stock
-              </div>
-            </div>
-          </div>
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-            {aisles.length === 0 && (
-              <div className="col-span-full text-center py-12 bg-slate-50 rounded-lg border-2 border-dashed border-slate-300">
-                <svg
-                  className="mx-auto h-12 w-12 text-slate-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                  ></path>
-                </svg>
-                <p className="mt-4 text-slate-500 font-medium">
-                  No products have been assigned physical locations yet.
-                </p>
-                <p className="text-sm text-slate-400 mt-1">
-                  Edit products to assign an Aisle and Bin Code.
-                </p>
+                      {/* Product Info */}
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-bold text-gray-900">
+                          {p.name}
+                        </div>
+                        <div className="text-xs font-medium text-gray-500">
+                          SKU: {p.sku || "N/A"} &bull;{" "}
+                          {p.shelfLocation?.aisle
+                            ? `Aisle ${p.shelfLocation.aisle}`
+                            : "Unassigned"}
+                          {p.shelfLocation?.binCode &&
+                            ` / Bin ${p.shelfLocation.binCode}`}
+                        </div>
+                      </div>
+
+                      {/* Stock Info */}
+                      <div className="hidden text-right sm:block">
+                        <div className="text-sm font-bold text-gray-900">
+                          {p.stockQuantity} Units
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          Threshold: {p.threshold}
+                        </div>
+                      </div>
+
+                      {/* Status Badge */}
+                      <span
+                        className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusColors[status]}`}
+                      >
+                        {status === "out"
+                          ? "Out of Stock"
+                          : status === "low"
+                            ? "Low Stock"
+                            : "Normal"}
+                      </span>
+
+                      {/* Adjust Button */}
+                      {canAdjust && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setAdjustProduct(p);
+                          }}
+                          className="inline-flex items-center gap-1 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-600"
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                          Adjust
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
-
-            {aisles.map((aisle) => (
-              <div
-                key={aisle}
-                className="bg-slate-50 border-2 border-slate-300 rounded-xl p-6 shadow-sm relative group"
-              >
-                <div className="flex justify-between items-center mb-6 border-b-2 border-slate-200 pb-3">
-                  <h3 className="text-3xl font-black text-slate-800">
-                    Aisle {aisle}
-                  </h3>
-                  <span className="text-xs font-bold text-indigo-600 bg-indigo-100 px-3 py-1 border border-indigo-200 rounded-full shadow-sm">
-                    Storage Zone
-                  </span>
-                </div>
-
-                {/* Render Bins inside this Aisle */}
-                <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
-                  {products
-                    .filter(
-                      (p) => p.shelfLocation?.aisle?.toUpperCase() === aisle,
-                    )
-                    .sort(
-                      (a, b) =>
-                        (a.shelfLocation.shelfNumber || 0) -
-                        (b.shelfLocation.shelfNumber || 0),
-                    )
-                    .map((p) => {
-                      const status = getStockStatus(p);
-                      const mapColor =
-                        status === "out"
-                          ? "bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.8)] border-red-700"
-                          : status === "low"
-                            ? "bg-yellow-400 border-yellow-600"
-                            : "bg-green-500 border-green-700";
-
-                      return (
-                        <div
-                          key={p._id}
-                          onClick={() => setDetailProduct(p)}
-                          title={`${p.name}\nStock: ${p.stockQuantity} \nBin: ${p.shelfLocation.binCode}`}
-                          className={`
-                            aspect-square rounded-md cursor-pointer border-b-4
-                            hover:scale-110 hover:z-10 transition-all duration-200 relative
-                            ${mapColor} flex flex-col items-center justify-center shadow-md
-                          `}
-                        >
-                          <span className="text-white text-[10px] font-extrabold bg-black/40 px-1 rounded-sm">
-                            {p.shelfLocation.binCode || "-"}
-                          </span>
-                        </div>
-                      );
-                    })}
-                </div>
-                {/* Floor graphic */}
-                <div className="mt-6 w-full h-3 bg-linear-to-r from-slate-300 to-slate-400 rounded-full opacity-50"></div>
-              </div>
-            ))}
           </div>
-        </div>
-      )}
+        ) : (
+          /* 2D Map View */
+          <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-sm sm:p-10">
+            {/* Legend */}
+            <div className="mb-8 flex flex-wrap items-center gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4">
+              <h3 className="text-sm font-extrabold uppercase tracking-widest text-gray-600">
+                Live Map Legend
+              </h3>
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                  <div className="h-5 w-5 rounded border border-emerald-600 bg-emerald-500 shadow-sm"></div>{" "}
+                  Optimal Stock
+                </div>
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                  <div className="h-5 w-5 rounded border border-amber-500 bg-amber-400 shadow-sm"></div>{" "}
+                  Low Warning
+                </div>
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                  <div className="h-5 w-5 animate-pulse rounded border border-red-600 bg-red-500 shadow-sm"></div>{" "}
+                  Out of Stock
+                </div>
+              </div>
+            </div>
+
+            {/* Aisles Grid */}
+            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {aisles.length === 0 && (
+                <div className="col-span-full flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 py-12 text-center">
+                  <svg
+                    className="mx-auto h-12 w-12 text-gray-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    ></path>
+                  </svg>
+                  <p className="mt-4 font-medium text-gray-500">
+                    No products have been assigned physical locations yet.
+                  </p>
+                  <p className="mt-1 text-sm text-gray-400">
+                    Edit products to assign an Aisle and Bin Code.
+                  </p>
+                </div>
+              )}
+
+              {aisles.map((aisle) => (
+                <div
+                  key={aisle}
+                  className="group rounded-xl border-2 border-gray-200 bg-gray-50 p-6 shadow-sm"
+                >
+                  <div className="mb-6 flex items-center justify-between border-b-2 border-gray-200 pb-3">
+                    <h3 className="text-3xl font-black text-gray-800">
+                      Aisle {aisle}
+                    </h3>
+                    <span className="rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-600 shadow-sm">
+                      Storage Zone
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-3 sm:grid-cols-5">
+                    {products
+                      .filter(
+                        (p) => p.shelfLocation?.aisle?.toUpperCase() === aisle,
+                      )
+                      .sort(
+                        (a, b) =>
+                          (a.shelfLocation.shelfNumber || 0) -
+                          (b.shelfLocation.shelfNumber || 0),
+                      )
+                      .map((p) => {
+                        const status = getStockStatus(p);
+                        const mapColor =
+                          status === "out"
+                            ? "bg-red-500 border-red-700 shadow-[0_0_15px_rgba(239,68,68,0.8)]"
+                            : status === "low"
+                              ? "bg-amber-400 border-amber-600"
+                              : "bg-emerald-500 border-emerald-700";
+
+                        return (
+                          <div
+                            key={p._id}
+                            onClick={() => setDetailProduct(p)}
+                            title={`${p.name}\nStock: ${p.stockQuantity} \nBin: ${p.shelfLocation.binCode}`}
+                            className={`aspect-square cursor-pointer rounded-md border-b-4 transition-all duration-200 hover:z-10 hover:scale-110 ${mapColor} relative flex flex-col items-center justify-center shadow-md`}
+                          >
+                            <span className="rounded-sm bg-black/40 px-1 text-[10px] font-extrabold text-white">
+                              {p.shelfLocation.binCode || "-"}
+                            </span>
+                          </div>
+                        );
+                      })}
+                  </div>
+                  <div className="mt-6 h-3 w-full rounded-full bg-linear-to-r from-gray-300 to-gray-400 opacity-50"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Modals */}
       {showScanner && (

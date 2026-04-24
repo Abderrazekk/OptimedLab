@@ -1,11 +1,10 @@
-// src/pages/Suppliers.jsx
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import supplierService from "../services/supplierService";
 import SupplierForm from "../components/suppliers/SupplierForm";
-import SupplierCard from "../components/suppliers/SupplierCard"; // <-- Import the new card
+import SupplierCard from "../components/suppliers/SupplierCard";
 
-// --- DETAILS MODAL COMPONENT ---
+// --- DETAILS MODAL (redesigned to match ClientDetailsModal) ---
 const SupplierDetailsModal = ({
   supplier,
   onClose,
@@ -15,149 +14,186 @@ const SupplierDetailsModal = ({
 }) => {
   if (!supplier) return null;
 
+  const hasAddress =
+    supplier.address &&
+    (supplier.address.street ||
+      supplier.address.city ||
+      supplier.address.country);
+
+  const avatarGradients = [
+    "from-emerald-400 to-green-600",
+    "from-green-400 to-teal-600",
+    "from-teal-400 to-emerald-600",
+    "from-green-500 to-emerald-700",
+    "from-emerald-300 to-green-500",
+  ];
+  const avatarGradient =
+    avatarGradients[supplier.name.charCodeAt(0) % avatarGradients.length];
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm transition-opacity">
+    <div
+      className="fixed inset-0 z-500 flex items-center justify-center overflow-y-auto bg-emerald-900/45 p-4 backdrop-blur-[6px]"
+      onClick={onClose}
+    >
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden relative flex flex-col max-h-[90vh]"
+        className="relative my-8 w-full max-w-145 overflow-hidden rounded-[20px] bg-white shadow-[0_0_0_1px_rgba(5,150,105,0.08),0_24px_64px_rgba(6,78,59,0.2),0_8px_24px_rgba(0,0,0,0.08)]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Accent Line */}
-        <div
-          className="h-2 w-full"
-          style={{ backgroundColor: supplier.bgColor || "#d1d5db" }}
-        ></div>
+        {/* Header */}
+        <div className="relative overflow-hidden bg-linear-to-br from-emerald-900 via-emerald-800 to-emerald-700 px-7 pb-14 pt-7">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-55 w-55 rounded-full border border-white/5"></div>
+          <div className="pointer-events-none absolute -bottom-12 left-[30%] h-40 w-40 rounded-full border border-white/3"></div>
 
-        {/* Header Area */}
-        <div className="px-8 pt-8 pb-6 border-b border-gray-100 flex items-start justify-between flex-shrink-0">
-          <div className="flex items-center space-x-5">
-            <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-md bg-gray-50 flex-shrink-0">
-              {supplier.image ? (
-                <img
-                  src={`${BACKEND_URL}${supplier.image}`}
-                  alt={supplier.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div
-                  className="w-full h-full flex items-center justify-center text-3xl font-bold text-white tracking-wide"
-                  style={{ backgroundColor: supplier.bgColor || "#9ca3af" }}
-                >
-                  {supplier.name.charAt(0).toUpperCase()}
-                </div>
-              )}
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300"></span>
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-300">
+                Supplier Profile
+              </span>
             </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 leading-tight">
-                {supplier.name}
-              </h2>
-              <p className="text-sm font-medium text-gray-500 mt-1 flex items-center">
-                <svg
-                  className="w-4 h-4 mr-1.5 text-gray-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                  />
-                </svg>
-                {supplier.contactPerson || "No Contact Person Added"}
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-full p-2 transition-colors focus:outline-none"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+            <button
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-white/80 backdrop-blur transition hover:bg-white/20 hover:text-white"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        {/* Scrollable Body */}
-        <div className="px-8 py-6 overflow-y-auto flex-1 bg-gray-50/30">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Contact Info Block */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                Contact Details
-              </h4>
+        {/* Avatar + identity pull-up */}
+        <div className="relative z-10 mx-7 -mt-9 flex items-end gap-5">
+          <div className="shrink-0 rounded-2xl bg-white p-0.5 shadow-lg shadow-emerald-900/20">
+            {supplier.image ? (
+              <img
+                src={`${BACKEND_URL}${supplier.image}`}
+                alt={supplier.name}
+                className="h-20 w-20 rounded-2xl object-cover"
+                onError={(e) => {
+                  e.target.style.display = "none";
+                }}
+              />
+            ) : (
+              <div
+                className={`flex h-20 w-20 items-center justify-center rounded-2xl bg-linear-to-br ${avatarGradient} text-2xl font-bold text-white`}
+              >
+                {supplier.name.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div className="min-w-0 flex-1 pb-1">
+            <h2 className="truncate text-xl font-bold -tracking-[0.02em] text-gray-900">
+              {supplier.name}
+            </h2>
+            <p className="mt-1 text-sm text-gray-500">
+              {supplier.contactPerson || "No contact person added"}
+            </p>
+          </div>
+        </div>
 
-              <div className="flex items-start">
-                <svg
-                  className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+        {/* Body */}
+        <div className="p-6">
+          <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Contact */}
+            <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+              <div className="mb-3 flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded bg-emerald-100 text-emerald-600">
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 7.5 7.5l1.96-1.96a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </span>
+                <span className="text-[0.65rem] font-bold uppercase tracking-widest text-gray-400">
+                  Contact
+                </span>
+              </div>
+
+              <div className="flex items-center gap-3 border-b border-gray-100 py-2 first:pt-0 last:border-none last:pb-0">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-600">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
                     strokeWidth="2"
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
+                  >
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                  </svg>
+                </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900 break-all">
+                  <div className="text-[0.7rem] font-medium text-gray-400">
+                    Email
+                  </div>
+                  <a
+                    href={`mailto:${supplier.email}`}
+                    className="text-sm font-semibold text-emerald-600 transition hover:text-emerald-700 hover:underline"
+                  >
                     {supplier.email}
-                  </p>
-                  <p className="text-xs text-gray-500">Email Address</p>
+                  </a>
                 </div>
               </div>
 
-              <div className="flex items-start">
-                <svg
-                  className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+              <div className="flex items-center gap-3 border-b border-gray-100 py-2 first:pt-0 last:border-none last:pb-0">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
                     strokeWidth="2"
-                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                  />
-                </svg>
+                  >
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 7.5 7.5l1.96-1.96a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">
+                  <div className="text-[0.7rem] font-medium text-gray-400">
+                    Phone
+                  </div>
+                  <a
+                    href={`tel:${supplier.phone}`}
+                    className="text-sm font-semibold text-emerald-600 transition hover:text-emerald-700 hover:underline"
+                  >
                     {supplier.phone}
-                  </p>
-                  <p className="text-xs text-gray-500">Phone Number</p>
+                  </a>
                 </div>
               </div>
 
               {supplier.website && (
-                <div className="flex items-start">
-                  <svg
-                    className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                <div className="flex items-center gap-3 border-b border-gray-100 py-2 first:pt-0 last:border-none last:pb-0">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
                       strokeWidth="2"
-                      d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"
-                    />
-                  </svg>
+                    >
+                      <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                    </svg>
+                  </div>
                   <div>
+                    <div className="text-[0.7rem] font-medium text-gray-400">
+                      Website
+                    </div>
                     <a
                       href={
                         supplier.website.startsWith("http")
@@ -166,101 +202,138 @@ const SupplierDetailsModal = ({
                       }
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm font-medium text-blue-600 hover:underline break-all"
+                      className="text-sm font-semibold text-indigo-600 transition hover:text-indigo-700 hover:underline"
                     >
                       {supplier.website}
                     </a>
-                    <p className="text-xs text-gray-500">Website</p>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Address Block */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                Location
-              </h4>
-              <div className="flex items-start">
-                <svg
-                  className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+            {/* Location */}
+            <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+              <div className="mb-3 flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded bg-emerald-100 text-emerald-600">
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                </span>
+                <span className="text-[0.65rem] font-bold uppercase tracking-widest text-gray-400">
+                  Location
+                </span>
+              </div>
+
+              <div className="flex items-start gap-3 border-b border-gray-100 py-2 first:pt-0 last:border-none last:pb-0">
+                <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-slate-600">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
                     strokeWidth="2"
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
+                  >
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-900">
-                    {supplier.address?.street ? (
-                      <>
-                        {supplier.address.street} <br />
-                        {supplier.address.city && `${supplier.address.city}, `}
-                        {supplier.address.state && `${supplier.address.state} `}
-                        {supplier.address.zipCode} <br />
-                        {supplier.address.country}
-                      </>
-                    ) : (
-                      <span className="text-gray-400 italic">
-                        No address provided
-                      </span>
-                    )}
-                  </p>
+                  <div className="text-[0.7rem] font-medium text-gray-400">
+                    Address
+                  </div>
+                  {hasAddress ? (
+                    <div className="text-sm font-medium text-gray-700">
+                      {supplier.address.street && (
+                        <div>{supplier.address.street}</div>
+                      )}
+                      {(supplier.address.city ||
+                        supplier.address.state ||
+                        supplier.address.zipCode) && (
+                        <div>
+                          {[
+                            supplier.address.city,
+                            supplier.address.state,
+                            supplier.address.zipCode,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </div>
+                      )}
+                      {supplier.address.country && (
+                        <span className="mt-1 inline-block rounded bg-emerald-50 px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-[0.08em] text-emerald-600">
+                          {supplier.address.country}
+                        </span>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-sm italic text-gray-400">
+                      Not provided
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-
-            {/* Notes Block */}
-            {supplier.notes && (
-              <div className="col-span-1 md:col-span-2 pt-4 border-t border-gray-100">
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  Notes
-                </h4>
-                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                    {supplier.notes}
-                  </p>
-                </div>
-              </div>
-            )}
           </div>
+
+          {/* Notes */}
+          {supplier.notes && (
+            <div className="mb-4 rounded-2xl border border-amber-200 bg-linear-to-br from-amber-50 to-amber-100 p-4">
+              <div className="mb-3 flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded bg-amber-200/50 text-amber-600">
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                  </svg>
+                </span>
+                <span className="text-[0.65rem] font-bold uppercase tracking-widest text-amber-800">
+                  Internal Notes
+                </span>
+              </div>
+              <p className="whitespace-pre-wrap text-sm font-normal leading-relaxed text-amber-900">
+                {supplier.notes}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="px-8 py-4 border-t border-gray-100 bg-white flex justify-between items-center flex-shrink-0">
-          <p className="text-xs text-gray-400">
-            Added on {new Date(supplier.createdAt).toLocaleDateString()}
-          </p>
-          <div className="space-x-3 flex">
+        <div className="flex flex-col gap-3 px-7 pb-7 sm:flex-row">
+          <button
+            onClick={onClose}
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-gray-100 px-4 py-3 text-sm font-semibold text-gray-500 transition hover:bg-gray-200 hover:text-gray-700"
+          >
+            Close
+          </button>
+          {canEdit && (
             <button
-              onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none"
+              onClick={() => {
+                onClose();
+                onEdit(supplier);
+              }}
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-600/20 transition hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-600/40 active:translate-y-0.5"
             >
-              Close
+              Edit Supplier
             </button>
-            {canEdit && (
-              <button
-                onClick={() => {
-                  onClose();
-                  onEdit(supplier);
-                }}
-                className="px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors focus:outline-none shadow-sm"
-              >
-                Edit Supplier
-              </button>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </div>
@@ -275,7 +348,6 @@ const Suppliers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // States for Modals
   const [showForm, setShowForm] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [viewingSupplier, setViewingSupplier] = useState(null);
@@ -289,7 +361,6 @@ const Suppliers = () => {
       user.role === "stock" ||
       user.role === "director");
 
-  // Adjust this base URL to match your backend port if different
   const BACKEND_URL = "http://localhost:5000";
 
   useEffect(() => {
@@ -360,11 +431,11 @@ const Suppliers = () => {
 
   if (!canView) {
     return (
-      <div className="min-h-screen p-8 flex items-center justify-center bg-gray-50">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-red-100 flex items-center space-x-4 max-w-md">
-          <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50/80 p-8">
+        <div className="flex items-center gap-4 rounded-2xl border border-red-100 bg-white p-6 shadow-sm">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
             <svg
-              className="w-6 h-6 text-red-500"
+              className="h-6 w-6 text-red-500"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -391,136 +462,205 @@ const Suppliers = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative">
-      {/* Header Area */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+    <div className="min-h-screen bg-gray-50/80">
+      {/* Header */}
+      <div className="relative overflow-hidden bg-linear-to-br from-emerald-900 via-emerald-800 to-emerald-700 px-8 pb-16 pt-10">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(16,185,129,0.15)_0%,transparent_60%)]"></div>
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(5,150,105,0.2)_0%,transparent_50%)]"></div>
+        <div className="absolute -right-15 -top-15 h-75 w-75 rounded-full border border-white/5"></div>
+
+        <div className="relative z-10">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300"></span>
+            <span className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-emerald-300">
+              Supplier Management
+            </span>
+          </div>
+          <h1 className="text-3xl font-bold -tracking-[0.02em] text-white">
             Suppliers
           </h1>
-          <p className="mt-2 text-sm text-gray-500 max-w-xl">
-            Manage your vendor network, contact details, and partnership
-            information.
+          <p className="mt-1 text-sm text-white/50">
+            Manage your vendor network, contact details, and partnerships
           </p>
         </div>
+      </div>
 
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          <div className="relative w-full md:w-72">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+      {/* Stats Bar */}
+      <div className="px-8">
+        <div className="relative z-10 -mt-6 flex overflow-hidden rounded-2xl bg-white shadow-lg shadow-gray-200/70">
+          <div className="flex-1 border-r border-gray-100 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              Total Suppliers
             </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {suppliers.length}
+            </div>
+          </div>
+          <div className="flex-1 border-r border-gray-100 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              Showing
+            </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {filtered.length}
+            </div>
+          </div>
+          <div className="flex-1 border-r border-gray-100 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              With Website
+            </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {suppliers.filter((s) => s.website).length}
+            </div>
+          </div>
+          <div className="flex-1 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              Has Contact
+            </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {suppliers.filter((s) => s.contactPerson).length}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="px-8 pb-10 pt-6">
+        {/* Controls */}
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+          <div className="relative min-w-55 max-w-90 flex-1">
+            <svg
+              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
             <input
               type="text"
-              placeholder="Search by name, email..."
+              placeholder="Search by name, email, contact..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 sm:text-sm transition-all shadow-sm"
+              className="w-full rounded-xl border border-gray-200 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-300 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
             />
           </div>
+
+          <div className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-500">
+            <strong className="text-emerald-900">{filtered.length}</strong>
+            {filtered.length === 1 ? "supplier" : "suppliers"}
+          </div>
+
           {canEdit && (
             <button
               onClick={handleAdd}
-              className="inline-flex items-center justify-center px-5 py-2.5 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-all flex-shrink-0"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-600/30 transition hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-600/40 active:translate-y-0.5"
             >
               <svg
-                className="-ml-1 mr-2 h-5 w-5"
-                fill="none"
+                width="16"
+                height="16"
                 viewBox="0 0 24 24"
+                fill="none"
                 stroke="currentColor"
+                strokeWidth="2.5"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
               New Supplier
             </button>
           )}
         </div>
-      </div>
 
-      {error && (
-        <div className="mb-8 p-4 bg-red-50 rounded-xl border border-red-100 flex items-start text-red-800">
-          <svg
-            className="w-5 h-5 mr-3 mt-0.5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
+        {/* Error */}
+        {error && (
+          <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 border-l-4 border-l-red-500 bg-white p-4">
+            <svg
+              className="h-5 w-5 shrink-0 text-red-500"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
               strokeWidth="2"
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            ></path>
-          </svg>
-          <span className="text-sm font-medium">{error}</span>
-        </div>
-      )}
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <div>
+              <div className="text-sm font-semibold text-red-900">
+                Something went wrong
+              </div>
+              <div className="text-sm text-red-700">{error}</div>
+            </div>
+          </div>
+        )}
 
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="w-8 h-8 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin"></div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((s) => (
-            <SupplierCard
-              key={s._id}
-              supplier={s}
-              BACKEND_URL={BACKEND_URL}
-              canEdit={canEdit}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onViewDetails={setViewingSupplier}
-            />
-          ))}
-
-          {filtered.length === 0 && (
-            <div className="col-span-full py-20 flex flex-col items-center justify-center text-center bg-white rounded-3xl border border-dashed border-gray-300">
-              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+        {/* Loading */}
+        {loading ? (
+          <div className="flex min-h-80 flex-col items-center justify-center gap-4">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600"></div>
+            <span className="text-sm text-gray-400">Loading suppliers…</span>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="flex min-h-90 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-100 bg-white p-12 text-center">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-br from-emerald-100 to-emerald-200 text-emerald-600">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <path d="M20 13V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7m16 0v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5m16 0h-2.586a1 1 0 0 0-.707.293l-2.414 2.414a1 1 0 0 1-.707.293h-3.172a1 1 0 0 1-.707-.293l-2.414-2.414A1 1 0 0 0 6.586 13H4" />
+              </svg>
+            </div>
+            <div className="text-lg font-bold text-gray-900">
+              {searchTerm ? "No matching suppliers" : "No suppliers yet"}
+            </div>
+            <p className="mt-1 max-w-xs text-sm text-gray-400">
+              {searchTerm
+                ? "Try adjusting your search."
+                : "Add your first supplier to get started."}
+            </p>
+            {canEdit && !searchTerm && (
+              <button
+                onClick={handleAdd}
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              >
                 <svg
-                  className="w-8 h-8 text-gray-400"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
+                  strokeWidth="2.5"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                  />
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
-              </div>
-              <h3 className="text-gray-900 text-lg font-semibold">
-                No suppliers found
-              </h3>
-              <p className="text-gray-500 text-sm mt-1 max-w-sm">
-                We couldn't find anything matching your search. Try adjusting
-                your filters or adding a new supplier.
-              </p>
-            </div>
-          )}
-        </div>
-      )}
+                Add First Supplier
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((s) => (
+              <SupplierCard
+                key={s._id}
+                supplier={s}
+                BACKEND_URL={BACKEND_URL}
+                canEdit={canEdit}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onViewDetails={setViewingSupplier}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
-      {/* Forms and Modals */}
       {showForm && (
         <SupplierForm
           supplier={selectedSupplier}
@@ -529,7 +669,6 @@ const Suppliers = () => {
         />
       )}
 
-      {/* NEW: Supplier Details Modal */}
       <SupplierDetailsModal
         supplier={viewingSupplier}
         onClose={() => setViewingSupplier(null)}

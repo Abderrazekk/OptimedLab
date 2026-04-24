@@ -11,17 +11,15 @@ const Clients = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Modals state
   const [showForm, setShowForm] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
-  // Selected client states
   const [selectedClientToEdit, setSelectedClientToEdit] = useState(null);
   const [selectedClientToView, setSelectedClientToView] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [viewMode, setViewMode] = useState("grid"); // "grid" | "list"
 
-  // Check user role for permissions
   const canAddEdit =
     user && (user.role === "admin" || user.role === "commercial");
   const canDelete = user && user.role === "admin";
@@ -61,13 +59,13 @@ const Clients = () => {
   };
 
   const handleEdit = (e, client) => {
-    e.stopPropagation(); // Prevents opening the details modal when clicking edit
+    e.stopPropagation();
     setSelectedClientToEdit(client);
     setShowForm(true);
   };
 
   const handleDelete = async (e, id, name) => {
-    e.stopPropagation(); // Prevents opening the details modal when clicking delete
+    e.stopPropagation();
     if (window.confirm(`Are you sure you want to delete client ${name}?`)) {
       try {
         await clientService.deleteClient(id);
@@ -99,244 +97,570 @@ const Clients = () => {
     }
   };
 
+  // Avatar initials gradient palette
+  const avatarGradients = [
+    "from-emerald-400 to-green-600",
+    "from-green-400 to-teal-600",
+    "from-teal-400 to-emerald-600",
+    "from-green-500 to-emerald-700",
+    "from-emerald-300 to-green-500",
+  ];
+  const getAvatarGradient = (name) =>
+    avatarGradients[name.charCodeAt(0) % avatarGradients.length];
+
   return (
-    <div className="container mx-auto px-4 sm:px-8 py-8">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h2 className="text-3xl font-bold text-gray-800 tracking-tight">
+    <div className="min-h-screen bg-gray-50/80">
+      {/* ── Header ─────────────────────────────────────────── */}
+      <div className="relative overflow-hidden bg-linear-to-br from-emerald-900 via-emerald-800 to-emerald-700 px-8 pb-16 pt-10">
+        {/* Decorative circles */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(16,185,129,0.15)_0%,transparent_60%)]"></div>
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(5,150,105,0.2)_0%,transparent_50%)]"></div>
+        <div className="absolute -right-15 -top-15 h-75 w-75 rounded-full border border-white/5"></div>
+
+        <div className="relative z-10">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300"></span>
+            <span className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-emerald-300">
+              Client Management
+            </span>
+          </div>
+          <h1 className="text-3xl font-bold -tracking-[0.02em] text-white">
             Clients Directory
-          </h2>
-          <p className="text-gray-500 mt-1">
-            Manage and view your client network
+          </h1>
+          <p className="mt-1 text-sm text-white/50">
+            Manage and grow your client network
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row w-full md:w-auto gap-4">
-          <div className="relative w-full sm:w-72">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg
-                className="h-5 w-5 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
+      </div>
+
+      {/* ── Stats Bar ──────────────────────────────────────── */}
+      <div className="px-8">
+        <div className="relative z-10 -mt-6 flex overflow-hidden rounded-2xl bg-white shadow-lg shadow-gray-200/70">
+          <div className="flex-1 border-r border-gray-100 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              Total Clients
             </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {clients.length}
+            </div>
+            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[0.7rem] font-semibold text-emerald-600">
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M5 2L8 5H2L5 2Z" fill="currentColor" />
+              </svg>
+              Active
+            </span>
+          </div>
+          <div className="flex-1 border-r border-gray-100 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              Showing
+            </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {filteredClients.length}
+            </div>
+            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[0.7rem] font-semibold text-emerald-600">
+              Filtered
+            </span>
+          </div>
+          <div className="flex-1 border-r border-gray-100 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              With Company
+            </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {clients.filter((c) => c.company).length}
+            </div>
+            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[0.7rem] font-semibold text-emerald-600">
+              Corporate
+            </span>
+          </div>
+          <div className="flex-1 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              Independent
+            </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {clients.filter((c) => !c.company).length}
+            </div>
+            <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[0.7rem] font-semibold text-emerald-600">
+              Freelance
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Content ────────────────────────────────────────── */}
+      <div className="px-8 pb-10 pt-6">
+        {/* Controls bar */}
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+          <div className="relative min-w-55 max-w-90 flex-1">
+            <svg
+              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
             <input
               type="text"
-              placeholder="Search clients..."
+              placeholder="Search by name, email, or company…"
+              className="w-full rounded-xl border border-gray-200 py-2.5 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-300 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2.5 w-full border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm"
             />
           </div>
+
+          <div className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-500">
+            <strong className="text-emerald-900">
+              {filteredClients.length}
+            </strong>
+            {filteredClients.length === 1 ? "client" : "clients"}
+          </div>
+
+          <div className="flex rounded-xl border border-gray-200 bg-white p-0.5">
+            <button
+              onClick={() => setViewMode("grid")}
+              title="Grid view"
+              className={`rounded-lg p-2 transition ${
+                viewMode === "grid"
+                  ? "bg-emerald-900 text-white"
+                  : "text-gray-400 hover:bg-gray-50"
+              }`}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <rect
+                  x="1"
+                  y="1"
+                  width="6"
+                  height="6"
+                  rx="1.5"
+                  fill="currentColor"
+                />
+                <rect
+                  x="9"
+                  y="1"
+                  width="6"
+                  height="6"
+                  rx="1.5"
+                  fill="currentColor"
+                />
+                <rect
+                  x="1"
+                  y="9"
+                  width="6"
+                  height="6"
+                  rx="1.5"
+                  fill="currentColor"
+                />
+                <rect
+                  x="9"
+                  y="9"
+                  width="6"
+                  height="6"
+                  rx="1.5"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              title="List view"
+              className={`rounded-lg p-2 transition ${
+                viewMode === "list"
+                  ? "bg-emerald-900 text-white"
+                  : "text-gray-400 hover:bg-gray-50"
+              }`}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <rect
+                  x="1"
+                  y="2"
+                  width="14"
+                  height="2.5"
+                  rx="1.25"
+                  fill="currentColor"
+                />
+                <rect
+                  x="1"
+                  y="6.75"
+                  width="14"
+                  height="2.5"
+                  rx="1.25"
+                  fill="currentColor"
+                />
+                <rect
+                  x="1"
+                  y="11.5"
+                  width="14"
+                  height="2.5"
+                  rx="1.25"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+          </div>
+
           {canAddEdit && (
             <button
               onClick={handleAdd}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-6 rounded-xl shadow-sm hover:shadow transition-all whitespace-nowrap flex items-center justify-center gap-2"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-600/30 transition hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-600/40 active:translate-y-0.5"
             >
               <svg
-                className="w-5 h-5"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                viewBox="0 0 24 24"
+                strokeWidth="2.5"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 4v16m8-8H4"
-                />
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
               New Client
             </button>
           )}
         </div>
-      </div>
 
-      {error && (
-        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg mb-6 shadow-sm">
-          <p className="font-medium">Error</p>
-          <p className="text-sm">{error}</p>
-        </div>
-      )}
-
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
-      ) : (
-        <>
-          {filteredClients.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-2xl border border-gray-200 border-dashed">
-              <svg
-                className="mx-auto h-12 w-12 text-gray-300"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              <h3 className="mt-2 text-sm font-semibold text-gray-900">
-                No clients found
-              </h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Get started by creating a new client or adjust your search.
-              </p>
+        {/* Error */}
+        {error && (
+          <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 border-l-4 border-l-red-500 bg-white p-4">
+            <svg
+              className="h-5 w-5 shrink-0 text-red-500"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <div>
+              <div className="text-sm font-semibold text-red-900">
+                Something went wrong
+              </div>
+              <div className="text-sm text-red-700">{error}</div>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredClients.map((client) => (
-                <div
-                  key={client._id}
-                  onClick={() => handleViewDetails(client)}
-                  className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col overflow-hidden group"
+          </div>
+        )}
+
+        {/* Loading */}
+        {loading ? (
+          <div className="flex min-h-80 flex-col items-center justify-center gap-4">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600"></div>
+            <span className="text-sm text-gray-400">Loading clients…</span>
+          </div>
+        ) : filteredClients.length === 0 ? (
+          /* Empty state */
+          <div className="flex min-h-90 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-100 bg-white p-12 text-center">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-br from-emerald-100 to-emerald-200 text-emerald-600">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <div className="text-lg font-bold text-gray-900">
+              {searchTerm ? "No matching clients" : "No clients yet"}
+            </div>
+            <p className="mt-1 max-w-xs text-sm text-gray-400">
+              {searchTerm
+                ? `No results for "${searchTerm}". Try a different name, email, or company.`
+                : "Add your first client to get started with your network."}
+            </p>
+            {canAddEdit && !searchTerm && (
+              <button
+                onClick={handleAdd}
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
                 >
-                  {/* Card Body */}
-                  <div className="p-6 grow">
-                    <div className="flex items-start space-x-4">
-                      {/* Avatar */}
-                      <div className="shrink-0">
-                        {client.image ? (
-                          <img
-                            src={`http://localhost:5000/uploads/clients/${client.image}`}
-                            alt={client.name}
-                            className="h-14 w-14 rounded-full object-cover border-2 border-white shadow-md group-hover:border-blue-50 transition-colors"
-                            onError={(e) => {
-                              e.target.onerror = null;
-                              e.target.src =
-                                "https://via.placeholder.com/56?text=NA";
-                            }}
-                          />
-                        ) : (
-                          <div className="h-14 w-14 rounded-full bg-linear-to-br from-blue-50 to-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl border-2 border-white shadow-md">
-                            {client.name.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Add First Client
+              </button>
+            )}
+          </div>
+        ) : viewMode === "grid" ? (
+          /* ── Grid View ──────────────────────────────── */
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredClients.map((client) => (
+              <div
+                key={client._id}
+                onClick={() => handleViewDetails(client)}
+                className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-emerald-50 bg-white shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5"
+              >
+                {/* Top gradient bar on hover */}
+                <div className="absolute inset-x-0 top-0 h-0.75 bg-linear-to-r from-emerald-600 to-emerald-300 opacity-0 transition-opacity group-hover:opacity-100"></div>
 
-                      {/* Name & Company */}
-                      <div className="min-w-0 flex-1">
-                        <h3
-                          className="text-lg font-bold text-gray-900 truncate"
-                          title={client.name}
-                        >
-                          {client.name}
-                        </h3>
-                        <p
-                          className="text-sm font-medium text-blue-600 truncate"
-                          title={client.company}
-                        >
-                          {client.company || "Independent"}
-                        </p>
+                <div className="flex-1 p-5">
+                  <div className="mb-4 flex items-start gap-3">
+                    {client.image ? (
+                      <img
+                        src={`http://localhost:5000/uploads/clients/${client.image}`}
+                        alt={client.name}
+                        className="h-12 w-12 shrink-0 rounded-xl border-2 border-emerald-50 object-cover"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div
+                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-linear-to-br ${getAvatarGradient(client.name)} text-lg font-bold text-white shadow-sm`}
+                      >
+                        {client.name.charAt(0).toUpperCase()}
                       </div>
-                    </div>
-
-                    {/* Quick Contact Info */}
-                    <div className="mt-6 space-y-3">
-                      <div className="flex items-center text-sm text-gray-500">
-                        <svg
-                          className="shrink-0 mr-3 h-4 w-4 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                          />
-                        </svg>
-                        <span className="truncate">{client.email}</span>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div
+                        className="truncate text-sm font-bold text-gray-900"
+                        title={client.name}
+                      >
+                        {client.name}
                       </div>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <svg
-                          className="flex-0 mr-3 h-4 w-4 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                          />
-                        </svg>
-                        <span className="truncate">{client.phone}</span>
+                      <div
+                        className="mt-1 inline-flex max-w-full items-center gap-1 truncate rounded-full bg-emerald-50 px-2 py-0.5 text-[0.7rem] font-semibold text-emerald-600"
+                        title={client.company}
+                      >
+                        {client.company || "Independent"}
                       </div>
                     </div>
                   </div>
 
-                  {/* Card Footer Actions */}
-                  {(canAddEdit || canDelete) && (
-                    <div className="bg-gray-50 px-6 py-3 border-t border-gray-100 flex justify-end gap-3">
-                      {canAddEdit && (
-                        <button
-                          onClick={(e) => handleEdit(e, client)}
-                          className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-blue-50"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                          Edit
-                        </button>
-                      )}
-                      {canDelete && (
-                        <button
-                          onClick={(e) =>
-                            handleDelete(e, client._id, client.name)
-                          }
-                          className="text-sm font-medium text-gray-600 hover:text-red-600 transition-colors flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-red-50"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
-                          Delete
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      )}
+                  <div className="mb-4 h-px bg-linear-to-r from-emerald-50 via-gray-100 to-emerald-50"></div>
 
-      {/* Forms and Modals */}
+                  <div className="space-y-2.5">
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-50 text-emerald-600">
+                        <svg
+                          width="13"
+                          height="13"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                          <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                      </div>
+                      <span className="truncate">{client.email}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-50 text-emerald-600">
+                        <svg
+                          width="13"
+                          height="13"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 7.5 7.5l1.96-1.96a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+                        </svg>
+                      </div>
+                      <span className="truncate">{client.phone}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {(canAddEdit || canDelete) && (
+                  <div className="flex justify-end gap-1.5 border-t border-gray-50 bg-gray-50/70 px-5 py-3">
+                    {canAddEdit && (
+                      <button
+                        onClick={(e) => handleEdit(e, client)}
+                        className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-600"
+                      >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                        Edit
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={(e) =>
+                          handleDelete(e, client._id, client.name)
+                        }
+                        className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                      >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6l-1 14H6L5 6" />
+                          <path d="M10 11v6M14 11v6" />
+                          <path d="M9 6V4h6v2" />
+                        </svg>
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* ── List View ──────────────────────────────── */
+          <div className="space-y-2">
+            {filteredClients.map((client) => (
+              <div
+                key={client._id}
+                onClick={() => handleViewDetails(client)}
+                className="group flex cursor-pointer items-center gap-4 rounded-xl border border-gray-100 bg-white p-4 transition-all hover:translate-x-0.5 hover:border-emerald-200 hover:shadow-md hover:shadow-emerald-500/5"
+              >
+                {client.image ? (
+                  <img
+                    src={`http://localhost:5000/uploads/clients/${client.image}`}
+                    alt={client.name}
+                    className="h-10 w-10 shrink-0 rounded-lg border border-emerald-50 object-cover"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-br ${getAvatarGradient(client.name)} text-base font-bold text-white shadow-sm`}
+                  >
+                    {client.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-bold text-gray-900">
+                    {client.name}
+                  </div>
+                  <div className="text-xs font-semibold text-emerald-600">
+                    {client.company || "Independent"}
+                  </div>
+                </div>
+
+                <div className="hidden items-center gap-6 md:flex">
+                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#9ca3af"
+                      strokeWidth="2"
+                    >
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                      <polyline points="22,6 12,13 2,6" />
+                    </svg>
+                    {client.email}
+                  </div>
+                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#9ca3af"
+                      strokeWidth="2"
+                    >
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 7.5 7.5l1.96-1.96a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+                    </svg>
+                    {client.phone}
+                  </div>
+                </div>
+
+                {(canAddEdit || canDelete) && (
+                  <div
+                    className="flex items-center gap-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {canAddEdit && (
+                      <button
+                        onClick={(e) => handleEdit(e, client)}
+                        className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-600"
+                      >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                        Edit
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={(e) =>
+                          handleDelete(e, client._id, client.name)
+                        }
+                        className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                      >
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6l-1 14H6L5 6" />
+                          <path d="M10 11v6M14 11v6" />
+                          <path d="M9 6V4h6v2" />
+                        </svg>
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#d1d5db"
+                  strokeWidth="2"
+                  className="shrink-0"
+                >
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Modals */}
       {showForm && (
         <ClientForm
           client={selectedClientToEdit}

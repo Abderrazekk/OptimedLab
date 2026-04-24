@@ -1,134 +1,324 @@
-// src/components/suppliers/SupplierDetailsModal.jsx
-import React from 'react';
+import React from "react";
 
 const SupplierDetailsModal = ({ supplier, onClose }) => {
   if (!supplier) return null;
 
-  // Fallback color if none is set
-  const brandColor = supplier.bgColor || '#10b981'; // Default to emerald
+  const hasAddress =
+    supplier.address &&
+    (supplier.address.street ||
+      supplier.address.city ||
+      supplier.address.country);
+
+  const avatarGradients = [
+    "from-emerald-400 to-green-600",
+    "from-green-400 to-teal-600",
+    "from-teal-400 to-emerald-600",
+    "from-green-500 to-emerald-700",
+    "from-emerald-300 to-green-500",
+  ];
+  const avatarGradient =
+    avatarGradients[supplier.name.charCodeAt(0) % avatarGradients.length];
 
   return (
-    <div className="fixed inset-0 z-500 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in-up my-8">
-        
-        {/* Header Background using Supplier's Brand Color */}
-        <div 
-          className="h-32 w-full relative" 
-          style={{ backgroundColor: brandColor }}
-        >
-          {/* Soft overlay gradient for texture */}
-          <div className="absolute inset-0 bg-linear-to-b from-white/10 to-black/20"></div>
-        </div>
-        
-        {/* Close Button */}
-        <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors bg-black/20 hover:bg-black/40 rounded-full p-2 backdrop-blur-sm"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+    <div
+      className="fixed inset-0 z-500 flex items-center justify-center overflow-y-auto bg-emerald-900/45 p-4 backdrop-blur-[6px]"
+      onClick={onClose}
+    >
+      <div
+        className="relative my-8 w-full max-w-145 overflow-hidden rounded-[20px] bg-white shadow-[0_0_0_1px_rgba(5,150,105,0.08),0_24px_64px_rgba(6,78,59,0.2),0_8px_24px_rgba(0,0,0,0.08)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="relative overflow-hidden bg-linear-to-br from-emerald-900 via-emerald-800 to-emerald-700 px-7 pb-14 pt-7">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-55 w-55 rounded-full border border-white/5"></div>
+          <div className="pointer-events-none absolute -bottom-12 left-[30%] h-40 w-40 rounded-full border border-white/3"></div>
 
-        <div className="px-8 pb-8 relative">
-          {/* Avatar / Logo */}
-          <div className="flex justify-center -mt-16 mb-6">
-            <div className="p-1.5 bg-white rounded-2xl shadow-lg relative group">
-              {supplier.image ? (
-                <img 
-                  src={`http://localhost:5000${supplier.image}`} 
-                  alt={supplier.name} 
-                  className="w-28 h-28 object-cover rounded-xl border border-gray-100"
-                  onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/112?text=NA'; }}
-                />
-              ) : (
-                <div 
-                  className="w-28 h-28 rounded-xl flex items-center justify-center text-4xl font-bold border border-gray-100 text-white shadow-inner"
-                  style={{ backgroundColor: brandColor }}
-                >
-                  {supplier.name.charAt(0).toUpperCase()}
-                </div>
-              )}
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300"></span>
+              <span className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-300">
+                Supplier Profile
+              </span>
             </div>
+            <button
+              onClick={onClose}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-white/80 backdrop-blur transition hover:bg-white/20 hover:text-white"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
           </div>
+        </div>
 
-          {/* Core Info */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">{supplier.name}</h2>
+        {/* Avatar + identity pull-up */}
+        <div className="relative z-10 mx-7 -mt-9 flex items-end gap-5">
+          <div className="shrink-0 rounded-2xl bg-white p-0.5 shadow-lg shadow-emerald-900/20">
+            {supplier.image ? (
+              <img
+                src={`http://localhost:5000${supplier.image}`}
+                alt={supplier.name}
+                className="h-20 w-20 rounded-2xl object-cover"
+                onError={(e) => {
+                  e.target.style.display = "none";
+                }}
+              />
+            ) : (
+              <div
+                className={`flex h-20 w-20 items-center justify-center rounded-2xl bg-linear-to-br ${avatarGradient} text-2xl font-bold text-white`}
+              >
+                {supplier.name.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div className="min-w-0 flex-1 pb-1">
+            <h2 className="truncate text-xl font-bold -tracking-[0.02em] text-gray-900">
+              {supplier.name}
+            </h2>
             {supplier.contactPerson && (
-              <p className="text-sm font-semibold text-gray-500 mt-1.5 uppercase tracking-wider">
-                Contact: <span className="text-gray-700">{supplier.contactPerson}</span>
+              <p className="text-sm text-gray-500 mt-0.5">
+                Contact: {supplier.contactPerson}
               </p>
             )}
           </div>
+        </div>
 
-          {/* Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            {/* Contact Section */}
-            <div className="bg-gray-50/50 p-5 rounded-2xl border border-gray-100 shadow-sm">
-              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Contact Information</h3>
-              <div className="space-y-4">
-                <div className="flex items-center text-gray-700">
-                  <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center mr-3 text-blue-500">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+        {/* Body */}
+        <div className="p-6 space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Contact Card */}
+            <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+              <div className="mb-3 flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded bg-emerald-100 text-emerald-600">
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 7.5 7.5l1.96-1.96a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                </span>
+                <span className="text-[0.65rem] font-bold uppercase tracking-widest text-gray-400">
+                  Contact
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                {/* Email */}
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-50 text-sky-600">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                      <polyline points="22,6 12,13 2,6" />
+                    </svg>
                   </div>
-                  <a href={`mailto:${supplier.email}`} className="text-sm font-medium hover:text-blue-600 transition-colors truncate">{supplier.email}</a>
-                </div>
-                <div className="flex items-center text-gray-700">
-                  <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center mr-3 text-emerald-500">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
-                  </div>
-                  <a href={`tel:${supplier.phone}`} className="text-sm font-medium hover:text-emerald-600 transition-colors truncate">{supplier.phone}</a>
-                </div>
-                {supplier.website && (
-                  <div className="flex items-center text-gray-700">
-                    <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center mr-3 text-purple-500">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
+                  <div className="min-w-0">
+                    <div className="text-[0.7rem] font-medium text-gray-400">
+                      Email
                     </div>
-                    <a href={supplier.website.startsWith('http') ? supplier.website : `https://${supplier.website}`} target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:text-purple-600 transition-colors truncate">
-                      {supplier.website.replace(/^https?:\/\//, '')}
+                    <a
+                      href={`mailto:${supplier.email}`}
+                      className="text-sm font-semibold text-emerald-600 truncate hover:text-emerald-700 hover:underline"
+                    >
+                      {supplier.email}
                     </a>
+                  </div>
+                </div>
+
+                {/* Phone */}
+                <div className="flex items-center gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.18 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 7.5 7.5l1.96-1.96a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+                    </svg>
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[0.7rem] font-medium text-gray-400">
+                      Phone
+                    </div>
+                    <a
+                      href={`tel:${supplier.phone}`}
+                      className="text-sm font-semibold text-emerald-600 truncate hover:text-emerald-700 hover:underline"
+                    >
+                      {supplier.phone}
+                    </a>
+                  </div>
+                </div>
+
+                {/* Website (if exists) */}
+                {supplier.website && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[0.7rem] font-medium text-gray-400">
+                        Website
+                      </div>
+                      <a
+                        href={
+                          supplier.website.startsWith("http")
+                            ? supplier.website
+                            : `https://${supplier.website}`
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-semibold text-indigo-600 truncate hover:text-indigo-700 hover:underline"
+                      >
+                        {supplier.website.replace(/^https?:\/\//, "")}
+                      </a>
+                    </div>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Address Section */}
-            <div className="bg-gray-50/50 p-5 rounded-2xl border border-gray-100 shadow-sm">
-              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Location Details</h3>
-              <div className="flex items-start text-gray-700">
-                <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center mr-3 text-red-500 shrink-0 mt-0.5">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+            {/* Location Card */}
+            <div className="rounded-2xl border border-gray-100 bg-gray-50 p-4">
+              <div className="mb-3 flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded bg-emerald-100 text-emerald-600">
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                </span>
+                <span className="text-[0.65rem] font-bold uppercase tracking-widest text-gray-400">
+                  Location
+                </span>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 text-slate-600">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
                 </div>
-                <div className="text-sm font-medium">
-                  {supplier.address && (supplier.address.street || supplier.address.city || supplier.address.country) ? (
-                    <div className="space-y-1 text-gray-600">
-                      <p className="text-gray-900">{supplier.address.street}</p>
-                      <p>{supplier.address.city}{supplier.address.state ? `, ${supplier.address.state}` : ''} {supplier.address.zipCode}</p>
-                      <p className="font-bold text-gray-800 uppercase tracking-wide mt-1">{supplier.address.country}</p>
+                <div>
+                  <div className="text-[0.7rem] font-medium text-gray-400">
+                    Address
+                  </div>
+                  {hasAddress ? (
+                    <div className="text-sm font-medium text-gray-700">
+                      {supplier.address.street && (
+                        <div>{supplier.address.street}</div>
+                      )}
+                      {(supplier.address.city ||
+                        supplier.address.state ||
+                        supplier.address.zipCode) && (
+                        <div>
+                          {[
+                            supplier.address.city,
+                            supplier.address.state,
+                            supplier.address.zipCode,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </div>
+                      )}
+                      {supplier.address.country && (
+                        <span className="mt-1 inline-block rounded bg-emerald-50 px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-[0.08em] text-emerald-600">
+                          {supplier.address.country}
+                        </span>
+                      )}
                     </div>
                   ) : (
-                    <p className="text-gray-400 italic">No address provided</p>
+                    <div className="text-sm italic text-gray-400">
+                      Not provided
+                    </div>
                   )}
                 </div>
               </div>
             </div>
-
-            {/* Notes Section */}
-            {supplier.notes && (
-              <div className="col-span-1 md:col-span-2 bg-yellow-50/50 p-5 rounded-2xl border border-yellow-100 shadow-sm">
-                <h3 className="text-xs font-bold text-yellow-600 uppercase tracking-widest mb-3 flex items-center">
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                  Internal Remarks
-                </h3>
-                <p className="text-sm text-gray-700 whitespace-pre-wrap font-medium leading-relaxed">
-                  {supplier.notes}
-                </p>
-              </div>
-            )}
-            
           </div>
+
+          {/* Notes */}
+          {supplier.notes && (
+            <div className="rounded-2xl border border-amber-200 bg-linear-to-br from-amber-50 to-amber-100 p-4">
+              <div className="mb-3 flex items-center gap-1.5">
+                <span className="flex h-5 w-5 items-center justify-center rounded bg-amber-200/50 text-amber-600">
+                  <svg
+                    width="11"
+                    height="11"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                    <polyline points="10 9 9 9 8 9" />
+                  </svg>
+                </span>
+                <span className="text-[0.65rem] font-bold uppercase tracking-widest text-amber-800">
+                  Internal Notes
+                </span>
+              </div>
+              <p className="whitespace-pre-wrap text-sm font-normal leading-relaxed text-amber-900">
+                {supplier.notes}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex justify-end border-t border-gray-100 bg-gray-50 px-7 pb-7 pt-4">
+          <button
+            onClick={onClose}
+            className="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100"
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>

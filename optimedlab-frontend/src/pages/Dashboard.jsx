@@ -1,4 +1,3 @@
-// src/pages/Dashboard.jsx
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../context/AuthContext";
 import biService from "../services/biService";
@@ -22,7 +21,6 @@ const Dashboard = () => {
   const [error, setError] = useState("");
   const [invoices, setInvoices] = useState([]);
   const [loadingInvoices, setLoadingInvoices] = useState(false);
-
   const [viewMode, setViewMode] = useState("analytics");
 
   useEffect(() => {
@@ -31,7 +29,6 @@ const Dashboard = () => {
   }, [period]);
 
   useEffect(() => {
-    // Fetch invoices for payment alerts if user is commercial or director
     if (
       user &&
       (user.role === "commercial" ||
@@ -67,12 +64,10 @@ const Dashboard = () => {
     }
   };
 
-  // Filter urgent invoices (unpaid and due within 7 days or overdue)
   const urgentInvoices = useMemo(() => {
     const now = new Date();
     const sevenDaysFromNow = new Date();
     sevenDaysFromNow.setDate(now.getDate() + 7);
-
     return invoices
       .filter((inv) => inv.paymentStatus === "unpaid" && inv.dueDate)
       .filter((inv) => {
@@ -80,319 +75,353 @@ const Dashboard = () => {
         return due <= sevenDaysFromNow;
       })
       .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-      .slice(0, 5); // Limit to 5 most urgent
+      .slice(0, 5);
   }, [invoices]);
 
+  // Compute quick stats for top bar (show zeros while loading)
+  const quickStats = {
+    revenue: stats?.totalRevenue || 0,
+    sales: stats?.totalSalesCount || 0,
+    products: stats?.totalProducts || 0,
+    clients: stats?.totalClients || 0,
+  };
+
   return (
-    <div className="py-8 px-4 sm:px-8 container mx-auto max-w-7xl font-sans">
-      {/* PREMIUM HEADER SECTION */}
-      <div className="relative bg-white rounded-3xl p-8 mb-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col md:flex-row justify-between items-center overflow-hidden gap-6">
-        {/* Decorative blur elements for modern glass effect */}
-        <div className="absolute top-0 left-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -ml-20 -mt-20 z-0 pointer-events-none"></div>
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-50 rounded-full blur-3xl -mr-20 -mb-20 z-0 pointer-events-none"></div>
+    <div className="min-h-screen bg-gray-50/80">
+      {/* Header */}
+      <div className="relative overflow-hidden bg-linear-to-br from-emerald-900 via-emerald-800 to-emerald-700 px-8 pb-16 pt-10">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_50%,rgba(16,185,129,0.15)_0%,transparent_60%)]"></div>
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(5,150,105,0.2)_0%,transparent_50%)]"></div>
+        <div className="absolute -right-15 -top-15 h-75 w-75 rounded-full border border-white/5"></div>
 
-        <div className="relative z-10 text-center md:text-left">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-indigo-900 to-indigo-600 tracking-tight">
-            Overview
+        <div className="relative z-10">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300"></span>
+            <span className="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-emerald-300">
+              Business Intelligence
+            </span>
+          </div>
+          <h1 className="text-3xl font-bold -tracking-[0.02em] text-white">
+            Dashboard
           </h1>
-          <p className="text-gray-500 font-medium mt-1">
+          <p className="mt-1 text-sm text-white/50">
             Welcome back,{" "}
-            <span className="text-indigo-600 font-semibold">{user?.name}</span>
+            <span className="font-semibold text-white/90">{user?.name}</span>
           </p>
-        </div>
-
-        {/* MODERN SEGMENTED CONTROL TOGGLE */}
-        <div className="relative z-10 bg-gray-100/80 backdrop-blur-md p-1.5 rounded-2xl inline-flex w-full md:w-auto border border-gray-200/50 shadow-inner">
-          <button
-            onClick={() => setViewMode("analytics")}
-            className={`relative flex-1 md:flex-none px-6 py-3 text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2.5 z-10 ${
-              viewMode === "analytics"
-                ? "text-indigo-700 shadow-md bg-white"
-                : "text-gray-500 hover:text-gray-800 hover:bg-gray-200/50"
-            }`}
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2.5"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-              />
-            </svg>
-            Analytics
-          </button>
-          <button
-            onClick={() => setViewMode("map")}
-            className={`relative flex-1 md:flex-none px-6 py-3 text-sm font-bold rounded-xl transition-all duration-300 flex items-center justify-center gap-2.5 z-10 ${
-              viewMode === "map"
-                ? "text-indigo-700 shadow-md bg-white"
-                : "text-gray-500 hover:text-gray-800 hover:bg-gray-200/50"
-            }`}
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2.5"
-                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-              />
-            </svg>
-            Clients Map
-          </button>
         </div>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-xl mb-6 shadow-sm font-medium">
-          {error}
-        </div>
-      )}
-
-      {/* VIEW RENDERER WITH SOFT FADE ANIMATION */}
-      <div className="transition-all duration-500 ease-in-out">
-        {viewMode === "map" ? (
-          <div className="animate-fade-in-up">
-            <ClientsMap />
+      {/* Stats Bar */}
+      <div className="px-8">
+        <div className="relative z-10 -mt-6 flex overflow-hidden rounded-2xl bg-white shadow-lg shadow-gray-200/70">
+          <div className="flex-1 border-r border-gray-100 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              Revenue
+            </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {formatPrice(quickStats.revenue)}
+            </div>
           </div>
-        ) : (
-          <div className="animate-fade-in-up">
-            {loading ? (
-              <div className="flex justify-center items-center py-32">
-                <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+          <div className="flex-1 border-r border-gray-100 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              Sales
+            </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {quickStats.sales}
+            </div>
+          </div>
+          <div className="flex-1 border-r border-gray-100 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              Products
+            </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {quickStats.products}
+            </div>
+          </div>
+          <div className="flex-1 px-6 py-5">
+            <div className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-gray-400">
+              Clients
+            </div>
+            <div className="text-2xl font-bold -tracking-[0.03em] text-emerald-900">
+              {quickStats.clients}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="px-8 pb-10 pt-6">
+        {/* Controls: View Toggle & Period Selector */}
+        <div className="mb-5 flex flex-wrap items-center gap-3">
+          {/* View mode toggle */}
+          <div className="flex rounded-xl border border-gray-200 bg-white p-0.5">
+            <button
+              onClick={() => setViewMode("analytics")}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                viewMode === "analytics"
+                  ? "bg-emerald-900 text-white shadow-sm"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              Analytics
+            </button>
+            <button
+              onClick={() => setViewMode("map")}
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                viewMode === "map"
+                  ? "bg-emerald-900 text-white shadow-sm"
+                  : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              Clients Map
+            </button>
+          </div>
+
+          {/* Period selector */}
+          <select
+            value={period}
+            onChange={(e) => setPeriod(e.target.value)}
+            className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+          >
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 border-l-4 border-l-red-500 bg-white p-4">
+            <svg
+              className="h-5 w-5 shrink-0 text-red-500"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <div>
+              <div className="text-sm font-semibold text-red-900">
+                Something went wrong
               </div>
-            ) : stats ? (
-              <div className="space-y-8">
-                {/* Custom Period Selector */}
-                <div className="flex justify-end">
-                  <div className="relative inline-block w-48">
-                    <select
-                      value={period}
-                      onChange={(e) => setPeriod(e.target.value)}
-                      className="block w-full appearance-none bg-white border border-gray-200 text-gray-700 font-semibold py-3 px-4 pr-8 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 cursor-pointer transition-shadow"
+              <div className="text-sm text-red-700">{error}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content */}
+        {viewMode === "map" ? (
+          <ClientsMap />
+        ) : loading ? (
+          <div className="flex min-h-80 flex-col items-center justify-center gap-4">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600"></div>
+            <span className="text-sm text-gray-400">Loading dashboard…</span>
+          </div>
+        ) : stats ? (
+          <div className="space-y-8">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <StatsCard
+                title="Total Revenue"
+                value={formatPrice(stats.totalRevenue)}
+                type="revenue"
+              />
+              <StatsCard
+                title="Total Sales"
+                value={stats.totalSalesCount}
+                type="sales"
+              />
+              <StatsCard
+                title="Total Products"
+                value={stats.totalProducts}
+                type="products"
+              />
+              <StatsCard
+                title="Active Clients"
+                value={stats.totalClients}
+                type="clients"
+              />
+            </div>
+
+            {/* Invoice Payment Alerts */}
+            {!loadingInvoices && urgentInvoices.length > 0 && (
+              <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <svg
+                      className="h-5 w-5 text-amber-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      <option value="week">This Week</option>
-                      <option value="month">This Month</option>
-                      <option value="year">This Year</option>
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
-                      <svg
-                        className="fill-current h-4 w-4"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                      </svg>
-                    </div>
-                  </div>
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    Payment Due Alerts
+                  </h2>
+                  <Link
+                    to="/invoices"
+                    className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
+                  >
+                    View all invoices →
+                  </Link>
                 </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <StatsCard
-                    title="Total Revenue"
-                    value={formatPrice(stats.totalRevenue)}
-                    type="revenue"
-                  />
-                  <StatsCard
-                    title="Total Sales"
-                    value={stats.totalSalesCount}
-                    type="sales"
-                  />
-                  <StatsCard
-                    title="Total Products"
-                    value={stats.totalProducts}
-                    type="products"
-                  />
-                  <StatsCard
-                    title="Active Clients"
-                    value={stats.totalClients}
-                    type="clients"
-                  />
-                </div>
-
-                {/* Invoice Payment Alerts (New Section) */}
-                {!loadingInvoices && urgentInvoices.length > 0 && (
-                  <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                        <svg
-                          className="w-5 h-5 text-amber-500"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                        Payment Due Alerts
-                      </h2>
-                      <Link
-                        to="/invoices"
-                        className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {urgentInvoices.map((inv) => {
+                    const daysLeft = getDaysRemaining(inv.dueDate);
+                    const overdue = isOverdue(inv.dueDate);
+                    return (
+                      <div
+                        key={inv._id}
+                        className={`flex flex-col rounded-xl border p-4 ${
+                          overdue
+                            ? "border-red-200 bg-red-50"
+                            : "border-amber-200 bg-amber-50"
+                        }`}
                       >
-                        View all invoices →
-                      </Link>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {urgentInvoices.map((inv) => {
-                        const daysLeft = getDaysRemaining(inv.dueDate);
-                        const overdue = isOverdue(inv.dueDate);
-                        return (
-                          <div
-                            key={inv._id}
-                            className={`p-4 rounded-xl border ${
-                              overdue
-                                ? "border-red-200 bg-red-50"
-                                : "border-amber-200 bg-amber-50"
-                            } flex flex-col`}
-                          >
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <p className="font-semibold text-gray-900">
-                                  {inv.invoiceNumber}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                  {inv.client?.name}
-                                </p>
-                              </div>
-                              <span
-                                className={`text-xs font-bold px-2 py-1 rounded-full ${
-                                  overdue
-                                    ? "bg-red-200 text-red-800"
-                                    : "bg-amber-200 text-amber-800"
-                                }`}
-                              >
-                                {overdue ? "OVERDUE" : `${daysLeft} days left`}
-                              </span>
-                            </div>
-                            <div className="mt-2 flex items-center justify-between">
-                              <span className="text-sm text-gray-500">
-                                Due: {formatDate(inv.dueDate)}
-                              </span>
-                              <span className="font-bold text-gray-900">
-                                {formatPrice(inv.total)}
-                              </span>
-                            </div>
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <p className="font-semibold text-gray-900">
+                              {inv.invoiceNumber}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {inv.client?.name}
+                            </p>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Main Charts */}
-                <div className="bg-white p-6 md:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-gray-800">
-                      Revenue Trend
-                    </h2>
-                    <span className="px-3 py-1 bg-green-50 text-green-600 text-xs font-bold rounded-full uppercase tracking-wider">
-                      Active
-                    </span>
-                  </div>
-                  <SalesChart data={stats.salesByDate} />
-                </div>
-
-                <div className="bg-white p-6 md:p-8 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-bold text-gray-800">
-                      Stock Movements
-                    </h2>
-                  </div>
-                  <StockMovementChart />
-                </div>
-
-                {/* Two Column Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
-                    <TopProducts products={stats.topProducts} />
-                  </div>
-                  <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
-                    <TopClients clients={stats.topClients} />
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 p-6">
-                  <AlertsWidget />
-                </div>
-
-                {/* Executive Section */}
-                {user?.role === "director" && stats.averageInvoiceValue && (
-                  <div className="bg-linear-to-br from-gray-900 to-indigo-900 p-8 rounded-3xl shadow-xl border border-gray-800 relative overflow-hidden text-white">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-20 -mt-20"></div>
-
-                    <h3 className="font-bold text-xl mb-6 flex items-center gap-3">
-                      <svg
-                        className="w-6 h-6 text-yellow-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M13 10V3L4 14h7v7l9-11h-7z"
-                        />
-                      </svg>
-                      Executive Insights
-                    </h3>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-                      <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
-                        <p className="text-sm text-gray-300 font-medium mb-2 uppercase tracking-wider">
-                          Avg. Invoice Value
-                        </p>
-                        <p className="text-3xl font-bold text-white tracking-tight">
-                          {formatPrice(stats.averageInvoiceValue)}
-                        </p>
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                              overdue
+                                ? "bg-red-200 text-red-800"
+                                : "bg-amber-200 text-amber-800"
+                            }`}
+                          >
+                            {overdue ? "OVERDUE" : `${daysLeft} days left`}
+                          </span>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between">
+                          <span className="text-sm text-gray-500">
+                            Due: {formatDate(inv.dueDate)}
+                          </span>
+                          <span className="font-bold text-gray-900">
+                            {formatPrice(inv.total)}
+                          </span>
+                        </div>
                       </div>
-                      <div className="bg-red-500/20 backdrop-blur-md p-6 rounded-2xl border border-red-500/20 hover:bg-red-500/30 transition-colors">
-                        <p className="text-sm text-red-200 font-medium mb-2 uppercase tracking-wider">
-                          Unpaid Invoices
-                        </p>
-                        <p className="text-3xl font-bold text-red-400 tracking-tight">
-                          {formatPrice(stats.unpaidInvoices)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="text-center py-20 bg-white rounded-3xl shadow-sm border border-gray-100 border-dashed">
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-300 mb-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                  />
-                </svg>
-                <p className="text-gray-500 font-medium">
-                  No analytical data available for this period.
-                </p>
+                    );
+                  })}
+                </div>
               </div>
             )}
+
+            {/* Revenue Trend */}
+            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-800">
+                  Revenue Trend
+                </h2>
+                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-700">
+                  Active
+                </span>
+              </div>
+              <SalesChart data={stats.salesByDate} />
+            </div>
+
+            {/* Stock Movements */}
+            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-gray-800">
+                  Stock Movements
+                </h2>
+              </div>
+              <StockMovementChart />
+            </div>
+
+            {/* Top Products / Top Clients */}
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+              <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+                <TopProducts products={stats.topProducts} />
+              </div>
+              <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+                <TopClients clients={stats.topClients} />
+              </div>
+            </div>
+
+            {/* Stock Alerts Widget */}
+            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+              <AlertsWidget />
+            </div>
+
+            {/* Executive Insights (Director only) */}
+            {user?.role === "director" && stats.averageInvoiceValue && (
+              <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-emerald-900 to-emerald-800 p-8 shadow-xl">
+                <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/5 blur-3xl"></div>
+                <h3 className="mb-6 flex items-center gap-3 text-xl font-bold text-white">
+                  <svg
+                    className="h-6 w-6 text-amber-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                  Executive Insights
+                </h3>
+                <div className="relative z-10 grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div className="rounded-xl border border-white/10 bg-white/10 p-6 backdrop-blur-md transition hover:bg-white/20">
+                    <p className="mb-2 text-sm font-medium uppercase tracking-wider text-gray-300">
+                      Avg. Invoice Value
+                    </p>
+                    <p className="text-3xl font-bold tracking-tight text-white">
+                      {formatPrice(stats.averageInvoiceValue)}
+                    </p>
+                  </div>
+                  <div className="rounded-xl border border-red-500/20 bg-red-500/20 p-6 backdrop-blur-md transition hover:bg-red-500/30">
+                    <p className="mb-2 text-sm font-medium uppercase tracking-wider text-red-200">
+                      Unpaid Invoices
+                    </p>
+                    <p className="text-3xl font-bold tracking-tight text-red-400">
+                      {formatPrice(stats.unpaidInvoices)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex min-h-90 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-100 bg-white p-12 text-center">
+            <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-xl bg-linear-to-br from-emerald-100 to-emerald-200 text-emerald-600">
+              <svg
+                className="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.5"
+                  d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+                />
+              </svg>
+            </div>
+            <div className="text-lg font-bold text-gray-900">
+              No data available
+            </div>
+            <p className="mt-1 max-w-xs text-sm text-gray-400">
+              No analytical data for this period.
+            </p>
           </div>
         )}
       </div>

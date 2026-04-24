@@ -3,16 +3,25 @@ const {
   getVisits,
   createVisit,
   getFormData,
+  updateVisit, // <-- IMPORT
+  deleteVisit, // <-- IMPORT
 } = require("../controllers/visitController");
 const { protect } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.use(protect); // All authenticated users can access
+router.use(protect);
 
-// IMPORTANT: /form-data must come BEFORE / to prevent it being treated as an ID
+// /api/visits/form-data (must be before /:id)
 router.route("/form-data").get(getFormData);
 
+// /api/visits/:id
+router
+  .route("/:id")
+  .put(updateVisit) // <-- ADD
+  .delete(deleteVisit); // <-- ADD
+
+// /api/visits
 router.route("/").get(getVisits).post(createVisit);
 
 module.exports = router;

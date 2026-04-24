@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+// src/components/chatbot/ChatWindow.jsx
 import { useState, useRef, useEffect } from "react";
 import MessageBubble from "./MessageBubble";
 import { sendMessage } from "../../services/chatbotService";
@@ -15,7 +17,7 @@ const ChatWindow = ({ onClose }) => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, loading]); // Added loading so it scrolls down when the typing indicator appears
+  }, [messages, loading]);
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
@@ -28,7 +30,6 @@ const ChatWindow = ({ onClose }) => {
     try {
       const reply = await sendMessage(userMessage);
       setMessages((prev) => [...prev, { text: reply, isUser: false }]);
-    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       setMessages((prev) => [
         ...prev,
@@ -50,68 +51,71 @@ const ChatWindow = ({ onClose }) => {
   };
 
   return (
-    // If you aren't using the parent wrapper for positioning, keep the fixed positioning here.
-    // Notice the h-[500px] instead of h-125 (which isn't a standard Tailwind class)
-    <div className="w-85 sm:w-95 h-125 bg-slate-50 rounded-2xl shadow-2xl shadow-slate-900/20 flex flex-col overflow-hidden border border-slate-200/60 z-50">
-      {/* Header */}
-      <div className="bg-linear-to-r from-emerald-600 to-teal-500 px-5 py-4 flex justify-between items-center shadow-sm z-10">
-        <div className="flex items-center space-x-3">
-          {/* Avatar / Icon */}
-          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-5 h-5 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-              />
-            </svg>
-          </div>
-          <div>
-            <h3 className="font-semibold text-white text-sm">
-              Assistant OptimedLab
-            </h3>
-            <div className="flex items-center space-x-1.5 mt-0.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
-              <span className="text-emerald-100 text-xs">En ligne</span>
+    // Fixed size for the chat window, consistent rounded-2xl, border, shadow
+    <div className="w-88 sm:w-[24rem] h-128 flex flex-col overflow-hidden rounded-2xl border border-gray-200/60 bg-white shadow-2xl shadow-gray-900/10">
+      {/* Header – matching the dark emerald gradient used in other components */}
+      <div className="relative overflow-hidden bg-linear-to-br from-emerald-900 via-emerald-800 to-emerald-700 px-5 py-4">
+        {/* Decorative circle (optional) */}
+        <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full border border-white/10"></div>
+
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {/* Avatar */}
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white">
+                Assistant OptimedLab
+              </h3>
+              <div className="mt-0.5 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-300"></span>
+                <span className="text-xs text-emerald-200">En ligne</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <button
-          onClick={onClose}
-          className="text-white/80 hover:text-white hover:bg-white/10 p-1.5 rounded-full transition-colors focus:outline-none"
-          aria-label="Close chat"
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/15 bg-white/10 text-white/80 backdrop-blur transition hover:bg-white/20 hover:text-white"
+            aria-label="Fermer le chat"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 p-5 overflow-y-auto custom-scrollbar flex flex-col gap-3">
+      <div className="flex-1 overflow-y-auto bg-gray-50/50 px-4 py-5 flex flex-col gap-3">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center px-4 space-y-3 opacity-70">
-            <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mb-2">
+          <div className="flex flex-col items-center justify-center h-full text-center px-4 space-y-3 opacity-80">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200">
               <svg
-                className="w-8 h-8 text-slate-400"
+                className="h-8 w-8 text-gray-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -124,10 +128,10 @@ const ChatWindow = ({ onClose }) => {
                 />
               </svg>
             </div>
-            <p className="text-slate-600 font-medium">
+            <p className="font-medium text-gray-600">
               Comment puis-je vous aider ?
             </p>
-            <p className="text-slate-500 text-xs">
+            <p className="text-xs text-gray-500">
               Posez-moi des questions sur vos devis, factures ou stocks.
             </p>
           </div>
@@ -138,27 +142,28 @@ const ChatWindow = ({ onClose }) => {
         ))}
 
         {loading && (
-          <div className="flex justify-start mt-2">
-            <div className="bg-white border border-slate-100 shadow-sm px-4 py-3 rounded-2xl rounded-tl-none">
+          <div className="flex justify-start">
+            <div className="rounded-2xl rounded-tl-none border border-gray-100 bg-white px-4 py-3 shadow-sm">
               <div className="flex space-x-1.5 items-center h-4">
-                <div className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" />
+                <div className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400" />
                 <div
-                  className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
+                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400"
                   style={{ animationDelay: "150ms" }}
                 />
                 <div
-                  className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
+                  className="h-1.5 w-1.5 animate-bounce rounded-full bg-gray-400"
                   style={{ animationDelay: "300ms" }}
                 />
               </div>
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} className="h-1" />
+
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Area */}
-      <div className="p-4 bg-white border-t border-slate-100">
+      <div className="border-t border-gray-100 bg-white px-4 py-3">
         <div className="relative flex items-center">
           <input
             type="text"
@@ -166,20 +171,20 @@ const ChatWindow = ({ onClose }) => {
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Écrivez votre message..."
-            className="w-full bg-slate-100 border border-transparent text-slate-700 placeholder-slate-400 rounded-full pl-5 pr-12 py-3 text-sm transition-all focus:outline-none focus:bg-white focus:border-emerald-300 focus:ring-4 focus:ring-emerald-50"
+            className="w-full rounded-xl border border-gray-200 bg-gray-50 py-2.5 pl-4 pr-12 text-sm text-gray-700 placeholder-gray-400 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100"
             disabled={loading}
           />
           <button
             onClick={handleSend}
             disabled={loading || !input.trim()}
-            className={`absolute right-1.5 p-2 rounded-full flex items-center justify-center transition-all ${
+            className={`absolute right-1.5 rounded-xl p-2 transition-all ${
               input.trim() && !loading
-                ? "bg-emerald-500 text-white hover:bg-emerald-600 hover:shadow-md"
-                : "bg-transparent text-slate-400"
+                ? "bg-emerald-600 text-white shadow-md hover:bg-emerald-700"
+                : "bg-gray-200 text-gray-400"
             }`}
           >
             <svg
-              className={`w-5 h-5 ${input.trim() && !loading ? "translate-x-0.5" : ""} transition-transform`}
+              className="h-5 w-5"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
