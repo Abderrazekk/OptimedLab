@@ -54,7 +54,6 @@ const createUser = async (req, res) => {
     });
 
     // Notify all admins
-    const User = require("../models/User");
     const admins = await User.find({
       role: "admin",
       isBanned: false,

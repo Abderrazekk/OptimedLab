@@ -31,6 +31,11 @@ const QuoteSchema = new mongoose.Schema(
       required: true,
     },
     items: [QuoteItemSchema],
+    remise: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     totalHT: {
       type: Number,
       required: true,

@@ -36,6 +36,11 @@ const InvoiceSchema = new mongoose.Schema(
       required: true,
     },
     items: [InvoiceItemSchema],
+    remise: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     totalHT: {
       type: Number,
       required: true,

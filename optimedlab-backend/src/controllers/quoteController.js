@@ -48,7 +48,8 @@ const getQuoteById = async (req, res) => {
 // @access  Private (commercial)
 const createQuote = async (req, res) => {
   try {
-    const { client, items } = req.body;
+    // 👇 ADDED remise to destructured body 👇
+    const { client, items, remise = 0 } = req.body;
 
     // Validate required fields
     if (!client || !items || !Array.isArray(items) || items.length === 0) {
@@ -109,10 +110,17 @@ const createQuote = async (req, res) => {
       totalHT += price * Number(item.quantity);
     }
 
-    // Calculate Financial Breakdown
-    const tvaAmount = totalHT * TVA_RATE;
-    const timbreAmount = totalHT > 0 ? TIMBRE_FISCAL : 0;
-    const totalTTC = totalHT > 0 ? totalHT + tvaAmount + timbreAmount : 0;
+    // 👇 ADDED: Calculate Financial Breakdown with Remise 👇
+    const numericRemise = Number(remise) || 0;
+    const totalHTAfterRemise = totalHT - numericRemise;
+
+    // TVA is calculated on the amount AFTER discount
+    const tvaAmount = totalHTAfterRemise * TVA_RATE;
+    const timbreAmount = totalHTAfterRemise > 0 ? TIMBRE_FISCAL : 0;
+    const totalTTC =
+      totalHTAfterRemise > 0
+        ? totalHTAfterRemise + tvaAmount + timbreAmount
+        : 0;
 
     // Generate quote number
     const quoteNumber = await generateQuoteNumber(Quote);
@@ -122,6 +130,7 @@ const createQuote = async (req, res) => {
       quoteNumber,
       client,
       items: validatedItems,
+      remise: numericRemise, // Added remise here
       totalHT,
       tvaAmount,
       timbreAmount,
@@ -180,13 +189,13 @@ const updateQuote = async (req, res) => {
         .json({ success: false, message: "Only draft quotes can be edited" });
     }
 
-    const { client, items } = req.body;
+    // 👇 ADDED remise to destructured body 👇
+    const { client, items, remise } = req.body;
+    let totalHT = quote.totalHT; // Start with existing
 
     // Recalculate totals if items changed
     if (items) {
-      let totalHT = 0;
-      const TVA_RATE = 0.19;
-      const TIMBRE_FISCAL = 1.0;
+      totalHT = 0;
       const validatedItems = [];
 
       for (const item of items) {
@@ -205,16 +214,29 @@ const updateQuote = async (req, res) => {
         });
         totalHT += price * item.quantity;
       }
-
       quote.items = validatedItems;
-      quote.totalHT = totalHT;
-      quote.tvaAmount = totalHT * TVA_RATE;
-      quote.timbreAmount = totalHT > 0 ? TIMBRE_FISCAL : 0;
-      quote.totalTTC =
-        totalHT > 0 ? totalHT + quote.tvaAmount + quote.timbreAmount : 0;
     }
 
     if (client) quote.client = client;
+
+    // 👇 ADDED: Apply new remise if provided, otherwise keep existing 👇
+    if (remise !== undefined) {
+      quote.remise = Number(remise) || 0;
+    }
+
+    // 👇 UPDATED: Recalculate financial breakdown taking remise into account 👇
+    const TVA_RATE = 0.19;
+    const TIMBRE_FISCAL = 1.0;
+
+    const totalHTAfterRemise = totalHT - (quote.remise || 0);
+
+    quote.totalHT = totalHT; // Store original totalHT
+    quote.tvaAmount = totalHTAfterRemise * TVA_RATE;
+    quote.timbreAmount = totalHTAfterRemise > 0 ? TIMBRE_FISCAL : 0;
+    quote.totalTTC =
+      totalHTAfterRemise > 0
+        ? totalHTAfterRemise + quote.tvaAmount + quote.timbreAmount
+        : 0;
 
     await quote.save();
 

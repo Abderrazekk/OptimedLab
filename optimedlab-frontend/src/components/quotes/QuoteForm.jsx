@@ -7,6 +7,7 @@ import { formatPrice } from "../../utils/formatPrice";
 const QuoteForm = ({ quote, onSubmit, onClose }) => {
   const [formData, setFormData] = useState({
     client: "",
+    remise: 0, // Added remise field
     items: [{ product: "", quantity: 1, price: 0 }],
   });
   const [clients, setClients] = useState([]);
@@ -24,6 +25,7 @@ const QuoteForm = ({ quote, onSubmit, onClose }) => {
     if (quote) {
       setFormData({
         client: quote.client?._id || "",
+        remise: quote.remise || 0, // Load existing remise if editing
         items: quote.items.map((item) => ({
           product: item.product?._id || item.product,
           quantity: item.quantity || 1,
@@ -80,7 +82,7 @@ const QuoteForm = ({ quote, onSubmit, onClose }) => {
     setFormData({ ...formData, items: newItems });
   };
 
-  // 👇 NEW: Financial Breakdown logic 👇
+  // 💰 UPDATED: Financial Breakdown logic with Remise 💰
   const getFinancialBreakdown = () => {
     const totalHT = formData.items.reduce((total, item) => {
       const qty = parseFloat(item.quantity) || 0;
@@ -88,11 +90,17 @@ const QuoteForm = ({ quote, onSubmit, onClose }) => {
       return total + qty * price;
     }, 0);
 
-    const tvaAmount = totalHT * 0.19; // 19%
-    const timbreAmount = 1.0;
-    const totalTTC = totalHT > 0 ? totalHT + tvaAmount + timbreAmount : 0; // Only apply stamp if there are items
+    const remise = parseFloat(formData.remise) || 0;
+    const totalHTAfterRemise = totalHT - remise;
 
-    return { totalHT, tvaAmount, timbreAmount, totalTTC };
+    const tvaAmount = totalHTAfterRemise * 0.19; // 19%
+    const timbreAmount = 1.0;
+    const totalTTC =
+      totalHTAfterRemise > 0
+        ? totalHTAfterRemise + tvaAmount + timbreAmount
+        : 0;
+
+    return { totalHT, remise, tvaAmount, timbreAmount, totalTTC };
   };
 
   const handleSubmit = (e) => {
@@ -100,7 +108,7 @@ const QuoteForm = ({ quote, onSubmit, onClose }) => {
     const breakdown = getFinancialBreakdown();
     const finalData = {
       ...formData,
-      ...breakdown, // Sends totalHT, tvaAmount, timbreAmount, totalTTC to backend
+      ...breakdown,
     };
     onSubmit(finalData);
   };
@@ -294,14 +302,29 @@ const QuoteForm = ({ quote, onSubmit, onClose }) => {
             </div>
           </div>
 
-          {/* 👇 NEW: Financial Breakdown UI 👇 */}
+          {/* 💰 UPDATED: Financial Breakdown UI with Remise Input 💰 */}
           <div className="mb-6 p-4 bg-gray-50 rounded-lg border w-full flex justify-end">
             <div className="w-full sm:w-1/2 text-right space-y-2">
               <div className="flex justify-between text-gray-600">
                 <span>Total HT:</span>
                 <span>{formatPrice(getFinancialBreakdown().totalHT)}</span>
               </div>
-              <div className="flex justify-between text-gray-600">
+
+              <div className="flex justify-between items-center text-gray-600 border-b pb-2">
+                <span>Remise (TND):</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  className="w-24 px-2 py-1 border border-gray-300 rounded text-right focus:ring-blue-500 focus:border-blue-500 bg-white"
+                  value={formData.remise}
+                  onChange={(e) =>
+                    setFormData({ ...formData, remise: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="flex justify-between text-gray-600 pt-2">
                 <span>TVA (19%):</span>
                 <span>{formatPrice(getFinancialBreakdown().tvaAmount)}</span>
               </div>

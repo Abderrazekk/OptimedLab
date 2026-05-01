@@ -108,6 +108,7 @@ const createInvoiceFromQuote = async (req, res) => {
         quantity: item.quantity,
         price: item.price,
       })),
+      remise: quote.remise || 0, // 👇 ADDED: Transfer the remise from the quote to the invoice
       totalHT: quote.totalHT,
       tvaAmount: quote.tvaAmount,
       timbreAmount: quote.timbreAmount || 1.0,
