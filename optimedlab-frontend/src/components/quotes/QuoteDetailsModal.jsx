@@ -15,19 +15,8 @@ const QuoteDetailsModal = ({ quote, onClose }) => {
 
   const formatDate = (date) => new Date(date).toLocaleDateString("fr-FR");
 
-  // 👇 BULLETPROOF TOTAL CALCULATOR 👇
-  const calculateTotal = () => {
-    if (quote.totalAmount && quote.totalAmount > 0) return quote.totalAmount;
-    if (!quote.items || quote.items.length === 0) return 0;
-
-    return quote.items.reduce((sum, item) => {
-      const price = item.price || item.product?.price || 0;
-      return sum + item.quantity * price;
-    }, 0);
-  };
-
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center py-10">
       <div className="relative mx-auto p-6 border w-full max-w-4xl shadow-lg rounded-md bg-white">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-2xl font-bold text-gray-900">
@@ -134,8 +123,26 @@ const QuoteDetailsModal = ({ quote, onClose }) => {
           </table>
         </div>
 
-        <div className="flex justify-end text-xl font-bold text-gray-900">
-          Total: {formatPrice(calculateTotal())}
+        {/* 👇 NEW: Modal Summary UI using DB values 👇 */}
+        <div className="flex justify-end mt-4">
+          <div className="w-64 space-y-2 text-right">
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>Total HT:</span>
+              <span>{formatPrice(quote.totalHT)}</span>
+            </div>
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>TVA (19%):</span>
+              <span>{formatPrice(quote.tvaAmount)}</span>
+            </div>
+            <div className="flex justify-between text-sm text-gray-600 border-b pb-2">
+              <span>Timbre Fiscal:</span>
+              <span>{formatPrice(quote.timbreAmount || 1.0)}</span>
+            </div>
+            <div className="flex justify-between text-lg font-bold text-gray-900 pt-1">
+              <span>Total TTC:</span>
+              <span>{formatPrice(quote.totalTTC)}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

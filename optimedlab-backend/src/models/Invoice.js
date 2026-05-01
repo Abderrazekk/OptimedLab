@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 
 const InvoiceItemSchema = new mongoose.Schema({
@@ -35,7 +36,21 @@ const InvoiceSchema = new mongoose.Schema(
       required: true,
     },
     items: [InvoiceItemSchema],
-    total: {
+    totalHT: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    tvaAmount: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    timbreAmount: {
+      type: Number,
+      default: 1.0, // Fixed Timbre value in TND
+    },
+    totalTTC: {
       type: Number,
       required: true,
       min: 0,

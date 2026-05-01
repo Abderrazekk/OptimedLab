@@ -65,9 +65,12 @@ const createQuote = async (req, res) => {
         .json({ success: false, message: "Client not found" });
     }
 
-    // Validate products and calculate total
-    let total = 0;
+    // Validate products and calculate totalHT
+    let totalHT = 0;
+    const TVA_RATE = 0.19; // 19% TVA
+    const TIMBRE_FISCAL = 1.0; // 1 TND
     const validatedItems = [];
+
     for (const item of items) {
       if (!item.product || !item.quantity || item.quantity <= 0) {
         return res.status(400).json({
@@ -103,8 +106,13 @@ const createQuote = async (req, res) => {
         quantity: Number(item.quantity),
         price: price,
       });
-      total += price * Number(item.quantity);
+      totalHT += price * Number(item.quantity);
     }
+
+    // Calculate Financial Breakdown
+    const tvaAmount = totalHT * TVA_RATE;
+    const timbreAmount = totalHT > 0 ? TIMBRE_FISCAL : 0;
+    const totalTTC = totalHT > 0 ? totalHT + tvaAmount + timbreAmount : 0;
 
     // Generate quote number
     const quoteNumber = await generateQuoteNumber(Quote);
@@ -114,7 +122,10 @@ const createQuote = async (req, res) => {
       quoteNumber,
       client,
       items: validatedItems,
-      total,
+      totalHT,
+      tvaAmount,
+      timbreAmount,
+      totalTTC,
       createdBy: req.user.id,
       status: "draft",
     });
@@ -145,7 +156,7 @@ const createQuote = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("❌ CREATE QUOTE ERROR:", error); // This will print full stack trace
+    console.error("❌ CREATE QUOTE ERROR:", error);
     res
       .status(500)
       .json({ success: false, message: error.message || "Server error" });
@@ -171,11 +182,13 @@ const updateQuote = async (req, res) => {
 
     const { client, items } = req.body;
 
-    // Recalculate total if items changed
-    let total = quote.total;
+    // Recalculate totals if items changed
     if (items) {
-      total = 0;
+      let totalHT = 0;
+      const TVA_RATE = 0.19;
+      const TIMBRE_FISCAL = 1.0;
       const validatedItems = [];
+
       for (const item of items) {
         const product = await Product.findById(item.product);
         if (!product) {
@@ -190,13 +203,18 @@ const updateQuote = async (req, res) => {
           quantity: item.quantity,
           price: price,
         });
-        total += price * item.quantity;
+        totalHT += price * item.quantity;
       }
+
       quote.items = validatedItems;
+      quote.totalHT = totalHT;
+      quote.tvaAmount = totalHT * TVA_RATE;
+      quote.timbreAmount = totalHT > 0 ? TIMBRE_FISCAL : 0;
+      quote.totalTTC =
+        totalHT > 0 ? totalHT + quote.tvaAmount + quote.timbreAmount : 0;
     }
 
     if (client) quote.client = client;
-    quote.total = total;
 
     await quote.save();
 

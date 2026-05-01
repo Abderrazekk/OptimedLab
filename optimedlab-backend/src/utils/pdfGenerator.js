@@ -6,7 +6,9 @@ const path = require("path");
 
 const formatCurrency = (amount) => {
   // Changed from "€" to "TND" with three decimals
-  return "TND " + amount.toFixed(3);
+  if (amount === null || amount === undefined || isNaN(amount))
+    return "TND 0.000";
+  return "TND " + Number(amount).toFixed(3);
 };
 
 const generateHr = (doc, y) => {
@@ -124,7 +126,6 @@ const generateQuotePDF = (quote, client, companyInfo = {}) => {
 
       // Table Rows with Zebra Striping
       quote.items.forEach((item, i) => {
-        // Zebra striping for readability
         if (i % 2 !== 0) {
           doc.rect(50, y - 5, 500, 20).fill("#f9fafb");
         }
@@ -145,23 +146,49 @@ const generateQuotePDF = (quote, client, companyInfo = {}) => {
       generateHr(doc, y + 5);
 
       // 4. Totals Summary (Bottom Right)
-      const summaryTop = y + 20;
+      const summaryTop = y + 10;
+      const labelX = 350;
+      const valueX = 450;
 
-      doc
-        .font("Helvetica-Bold")
-        .fillColor("#111827")
-        .text("TOTAL DEVIS:", 350, summaryTop)
-        .text(formatCurrency(quote.total), 450, summaryTop, {
-          align: "right",
-          width: 100,
-        });
+      doc.font("Helvetica").fillColor("#374151");
+
+      // Total HT
+      doc.text("Total HT :", labelX, summaryTop);
+      doc.text(formatCurrency(quote.totalHT), valueX, summaryTop, {
+        align: "right",
+        width: 100,
+      });
+
+      // TVA (19%)
+      doc.text("TVA (19%) :", labelX, summaryTop + 20);
+      doc.text(formatCurrency(quote.tvaAmount), valueX, summaryTop + 20, {
+        align: "right",
+        width: 100,
+      });
+
+      // Timbre Fiscal
+      doc.text("Timbre Fiscal :", labelX, summaryTop + 40);
+      doc.text(
+        formatCurrency(quote.timbreAmount || 1.0),
+        valueX,
+        summaryTop + 40,
+        { align: "right", width: 100 },
+      );
+
+      // Total TTC (Bold & Accent Color)
+      doc.font("Helvetica-Bold").fillColor("#111827");
+      doc.text("TOTAL TTC :", labelX, summaryTop + 65);
+      doc.text(formatCurrency(quote.totalTTC), valueX, summaryTop + 65, {
+        align: "right",
+        width: 100,
+      });
 
       // Bottom border for totals
       doc
-        .strokeColor("#047857") // Accent color
+        .strokeColor("#047857") // Accent green color
         .lineWidth(2)
-        .moveTo(350, summaryTop + 15)
-        .lineTo(550, summaryTop + 15)
+        .moveTo(labelX, summaryTop + 80)
+        .lineTo(550, summaryTop + 80)
         .stroke();
 
       // 5. Signature Section (New)
@@ -282,7 +309,6 @@ const generateInvoicePDF = (invoice, client, companyInfo = {}) => {
       if (client.phone) parts.push(`Phone : ${client.phone}`);
 
       if (parts.length > 0) {
-        // Join with four spaces for clear separation
         doc.text(parts.join("    "), 50, clientY);
         clientY += 15;
       }
@@ -329,27 +355,50 @@ const generateInvoicePDF = (invoice, client, companyInfo = {}) => {
 
       generateHr(doc, y + 5);
 
-      // 4. Totals & Status
-      const summaryTop = y + 20;
+      // 4. Totals & Status (Updated for HT / TVA / Timbre / TTC)
+      const summaryTop = y + 10;
+      const labelX = 350;
+      const valueX = 450;
 
-      doc
-        .font("Helvetica-Bold")
-        .fillColor("#111827")
-        .text("TOTAL FACTURE:", 350, summaryTop)
-        .text(formatCurrency(invoice.total), 450, summaryTop, {
-          align: "right",
-          width: 100,
-        });
+      doc.font("Helvetica").fillColor("#374151");
 
-      // Double underline for total
+      // Total HT
+      doc.text("Total HT :", labelX, summaryTop);
+      doc.text(formatCurrency(invoice.totalHT), valueX, summaryTop, {
+        align: "right",
+        width: 100,
+      });
+
+      // TVA (19%)
+      doc.text("TVA (19%) :", labelX, summaryTop + 20);
+      doc.text(formatCurrency(invoice.tvaAmount), valueX, summaryTop + 20, {
+        align: "right",
+        width: 100,
+      });
+
+      // Timbre Fiscal
+      doc.text("Timbre Fiscal :", labelX, summaryTop + 40);
+      doc.text(
+        formatCurrency(invoice.timbreAmount || 1.0),
+        valueX,
+        summaryTop + 40,
+        { align: "right", width: 100 },
+      );
+
+      // Total TTC (Bold & Accent Color)
+      doc.font("Helvetica-Bold").fillColor("#111827");
+      doc.text("TOTAL TTC :", labelX, summaryTop + 65);
+      doc.text(formatCurrency(invoice.totalTTC), valueX, summaryTop + 65, {
+        align: "right",
+        width: 100,
+      });
+
+      // Bottom border for totals
       doc
         .strokeColor("#047857")
-        .lineWidth(1.5)
-        .moveTo(350, summaryTop + 15)
-        .lineTo(550, summaryTop + 15)
-        .stroke()
-        .moveTo(350, summaryTop + 18)
-        .lineTo(550, summaryTop + 18)
+        .lineWidth(2)
+        .moveTo(labelX, summaryTop + 80)
+        .lineTo(550, summaryTop + 80)
         .stroke();
 
       // Payment Status Badge (Excel condition formatting style)

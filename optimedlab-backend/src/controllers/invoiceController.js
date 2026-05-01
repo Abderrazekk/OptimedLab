@@ -98,7 +98,7 @@ const createInvoiceFromQuote = async (req, res) => {
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + 30);
 
-    // Create invoice
+    // Create invoice pulling the new financial fields directly from the quote
     const invoice = await Invoice.create({
       invoiceNumber,
       quote: quote._id,
@@ -108,7 +108,10 @@ const createInvoiceFromQuote = async (req, res) => {
         quantity: item.quantity,
         price: item.price,
       })),
-      total: quote.total,
+      totalHT: quote.totalHT,
+      tvaAmount: quote.tvaAmount,
+      timbreAmount: quote.timbreAmount || 1.0,
+      totalTTC: quote.totalTTC,
       createdBy: req.user.id,
       paymentStatus: "unpaid",
       dueDate,

@@ -80,20 +80,27 @@ const QuoteForm = ({ quote, onSubmit, onClose }) => {
     setFormData({ ...formData, items: newItems });
   };
 
-  const calculateTotal = () => {
-    return formData.items.reduce((total, item) => {
+  // 👇 NEW: Financial Breakdown logic 👇
+  const getFinancialBreakdown = () => {
+    const totalHT = formData.items.reduce((total, item) => {
       const qty = parseFloat(item.quantity) || 0;
       const price = parseFloat(item.price) || 0;
       return total + qty * price;
     }, 0);
+
+    const tvaAmount = totalHT * 0.19; // 19%
+    const timbreAmount = 1.0;
+    const totalTTC = totalHT > 0 ? totalHT + tvaAmount + timbreAmount : 0; // Only apply stamp if there are items
+
+    return { totalHT, tvaAmount, timbreAmount, totalTTC };
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // 👇 CRITICAL FIX: Add totalAmount to the payload before submitting 👇
+    const breakdown = getFinancialBreakdown();
     const finalData = {
       ...formData,
-      totalAmount: calculateTotal(),
+      ...breakdown, // Sends totalHT, tvaAmount, timbreAmount, totalTTC to backend
     };
     onSubmit(finalData);
   };
@@ -108,7 +115,7 @@ const QuoteForm = ({ quote, onSubmit, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center py-10">
       <div className="relative mx-auto p-5 border w-full max-w-3xl shadow-lg rounded-md bg-white">
         <div className="flex justify-between items-center mb-4 border-b pb-3">
           <h3 className="text-xl font-bold text-gray-900">
@@ -287,10 +294,32 @@ const QuoteForm = ({ quote, onSubmit, onClose }) => {
             </div>
           </div>
 
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg border text-right">
-            <span className="text-xl font-bold text-gray-900">
-              Total Amount: {formatPrice(calculateTotal())}
-            </span>
+          {/* 👇 NEW: Financial Breakdown UI 👇 */}
+          <div className="mb-6 p-4 bg-gray-50 rounded-lg border w-full flex justify-end">
+            <div className="w-full sm:w-1/2 text-right space-y-2">
+              <div className="flex justify-between text-gray-600">
+                <span>Total HT:</span>
+                <span>{formatPrice(getFinancialBreakdown().totalHT)}</span>
+              </div>
+              <div className="flex justify-between text-gray-600">
+                <span>TVA (19%):</span>
+                <span>{formatPrice(getFinancialBreakdown().tvaAmount)}</span>
+              </div>
+              <div className="flex justify-between text-gray-600 border-b pb-2">
+                <span>Timbre Fiscal:</span>
+                <span>
+                  {formatPrice(
+                    getFinancialBreakdown().totalHT > 0
+                      ? getFinancialBreakdown().timbreAmount
+                      : 0,
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between text-xl font-bold text-gray-900 pt-2">
+                <span>Total TTC:</span>
+                <span>{formatPrice(getFinancialBreakdown().totalTTC)}</span>
+              </div>
+            </div>
           </div>
 
           <div className="flex justify-end space-x-3 border-t pt-4">
