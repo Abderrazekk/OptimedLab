@@ -148,11 +148,11 @@ const StockMovementChart = () => {
 
       {/* Chart Area */}
       {loading ? (
-        <div className="flex h-[300px] items-center justify-center">
+        <div className="flex h-75 items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-500"></div>
         </div>
       ) : data.length === 0 || data.every((d) => d.In === 0 && d.Out === 0) ? (
-        <div className="flex h-[300px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-100 bg-gray-50/50 transition-all duration-300 hover:bg-emerald-50/30">
+        <div className="flex h-75 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-100 bg-gray-50/50 transition-all duration-300 hover:bg-emerald-50/30">
           <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100/50 text-emerald-500">
             <svg
               className="h-6 w-6"

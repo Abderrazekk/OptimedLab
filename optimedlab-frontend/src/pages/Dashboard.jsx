@@ -291,7 +291,7 @@ const Dashboard = () => {
                       >
                         {/* Background soft gradient based on status */}
                         <div
-                          className={`absolute inset-0 opacity-[0.07] pointer-events-none ${overdue ? "bg-gradient-to-br from-red-500 to-transparent" : "bg-gradient-to-br from-amber-500 to-transparent"}`}
+                          className={`absolute inset-0 opacity-[0.07] pointer-events-none ${overdue ? "bg-linear-to-br from-red-500 to-transparent" : "bg-linear-to-br from-amber-500 to-transparent"}`}
                         />
 
                         <div className="relative z-10 flex items-start justify-between">
