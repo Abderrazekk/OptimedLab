@@ -78,10 +78,9 @@ const Dashboard = () => {
       .slice(0, 5);
   }, [invoices]);
 
-  // Compute quick stats for top bar (show zeros while loading)
   const quickStats = {
-    revenue: stats?.totalRevenue || 0,
-    sales: stats?.totalSalesCount || 0,
+    revenue: stats?.totalSales || 0,
+    sales: stats?.totalInvoices || 0,
     products: stats?.totalProducts || 0,
     clients: stats?.totalClients || 0,
   };
@@ -151,9 +150,7 @@ const Dashboard = () => {
 
       {/* Content */}
       <div className="px-8 pb-10 pt-6">
-        {/* Controls: View Toggle & Period Selector */}
         <div className="mb-5 flex flex-wrap items-center gap-3">
-          {/* View mode toggle */}
           <div className="flex rounded-xl border border-gray-200 bg-white p-0.5">
             <button
               onClick={() => setViewMode("analytics")}
@@ -177,7 +174,6 @@ const Dashboard = () => {
             </button>
           </div>
 
-          {/* Period selector */}
           <select
             value={period}
             onChange={(e) => setPeriod(e.target.value)}
@@ -189,7 +185,6 @@ const Dashboard = () => {
           </select>
         </div>
 
-        {/* Error */}
         {error && (
           <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 border-l-4 border-l-red-500 bg-white p-4">
             <svg
@@ -212,7 +207,6 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Main Content */}
         {viewMode === "map" ? (
           <ClientsMap />
         ) : loading ? (
@@ -222,40 +216,16 @@ const Dashboard = () => {
           </div>
         ) : stats ? (
           <div className="space-y-8">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              <StatsCard
-                title="Total Revenue"
-                value={formatPrice(stats.totalRevenue)}
-                type="revenue"
-              />
-              <StatsCard
-                title="Total Sales"
-                value={stats.totalSalesCount}
-                type="sales"
-              />
-              <StatsCard
-                title="Total Products"
-                value={stats.totalProducts}
-                type="products"
-              />
-              <StatsCard
-                title="Active Clients"
-                value={stats.totalClients}
-                type="clients"
-              />
-            </div>
-
-            {/* Invoice Payment Alerts */}
-            {!loadingInvoices && urgentInvoices.length > 0 && (
-              <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+            {/* --- OPTIMIZED PAYMENT DUE ALERTS --- */}
+            <div className="flex h-full flex-col rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+              <div className="mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-100 text-rose-600">
                     <svg
-                      className="h-5 w-5 text-amber-500"
+                      className="h-4 w-4"
                       fill="none"
-                      stroke="currentColor"
                       viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
                       <path
                         strokeLinecap="round"
@@ -264,15 +234,48 @@ const Dashboard = () => {
                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
                     </svg>
+                  </div>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500">
                     Payment Due Alerts
-                  </h2>
-                  <Link
-                    to="/invoices"
-                    className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
-                  >
-                    View all invoices →
-                  </Link>
+                  </h3>
                 </div>
+                <Link
+                  to="/invoices"
+                  className="text-xs font-bold text-emerald-600 transition hover:text-emerald-700"
+                >
+                  View all →
+                </Link>
+              </div>
+
+              {loadingInvoices ? (
+                <div className="flex h-32 items-center justify-center">
+                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-500"></div>
+                </div>
+              ) : urgentInvoices.length === 0 ? (
+                <div className="flex flex-1 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-100 bg-emerald-50/30 py-8 transition-all duration-300 hover:bg-emerald-50/50">
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100/50 text-emerald-500">
+                    <svg
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="1.5"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-500">
+                    All clear!
+                  </p>
+                  <p className="mt-1 text-xs text-gray-400">
+                    No overdue or urgent invoices.
+                  </p>
+                </div>
+              ) : (
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {urgentInvoices.map((inv) => {
                     const daysLeft = getDaysRemaining(inv.dueDate);
@@ -280,49 +283,63 @@ const Dashboard = () => {
                     return (
                       <div
                         key={inv._id}
-                        className={`flex flex-col rounded-xl border p-4 ${
+                        className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md ${
                           overdue
-                            ? "border-red-200 bg-red-50"
-                            : "border-amber-200 bg-amber-50"
+                            ? "border-red-100 hover:border-red-300 hover:ring-1 hover:ring-red-200"
+                            : "border-amber-100 hover:border-amber-300 hover:ring-1 hover:ring-amber-200"
                         }`}
                       >
-                        <div className="flex items-start justify-between">
+                        {/* Background soft gradient based on status */}
+                        <div
+                          className={`absolute inset-0 opacity-[0.07] pointer-events-none ${overdue ? "bg-gradient-to-br from-red-500 to-transparent" : "bg-gradient-to-br from-amber-500 to-transparent"}`}
+                        />
+
+                        <div className="relative z-10 flex items-start justify-between">
                           <div>
-                            <p className="font-semibold text-gray-900">
+                            <p className="text-sm font-bold text-gray-900 transition-colors group-hover:text-emerald-700">
                               {inv.invoiceNumber}
                             </p>
-                            <p className="text-sm text-gray-600">
+                            <p className="mt-0.5 text-xs font-medium text-gray-500">
                               {inv.client?.name}
                             </p>
                           </div>
                           <span
-                            className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                            className={`flex items-center rounded-full px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wider shadow-sm ring-1 ring-inset ${
                               overdue
-                                ? "bg-red-200 text-red-800"
-                                : "bg-amber-200 text-amber-800"
+                                ? "bg-red-50 text-red-600 ring-red-500/20"
+                                : "bg-amber-50 text-amber-600 ring-amber-500/20"
                             }`}
                           >
                             {overdue ? "OVERDUE" : `${daysLeft} days left`}
                           </span>
                         </div>
-                        <div className="mt-2 flex items-center justify-between">
-                          <span className="text-sm text-gray-500">
-                            Due: {formatDate(inv.dueDate)}
-                          </span>
-                          <span className="font-bold text-gray-900">
-                            {formatPrice(inv.total)}
-                          </span>
+                        <div className="relative z-10 mt-4 flex items-end justify-between border-t border-gray-50 pt-4">
+                          <div className="flex flex-col">
+                            <span className="text-[0.65rem] font-bold uppercase tracking-wider text-gray-400">
+                              Due Date
+                            </span>
+                            <span className="text-xs font-semibold text-gray-700">
+                              {formatDate(inv.dueDate)}
+                            </span>
+                          </div>
+                          <div className="flex flex-col items-end">
+                            <span className="text-[0.65rem] font-bold uppercase tracking-wider text-emerald-600">
+                              Amount
+                            </span>
+                            <span className="text-sm font-bold text-gray-900">
+                              {formatPrice(inv.total)}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     );
                   })}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
-            {/* Revenue Trend */}
             <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6 flex items-center justify-between">
                 <h2 className="text-xl font-bold text-gray-800">
                   Revenue Trend
                 </h2>
@@ -333,9 +350,8 @@ const Dashboard = () => {
               <SalesChart data={stats.salesByDate} />
             </div>
 
-            {/* Stock Movements */}
             <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6 flex items-center justify-between">
                 <h2 className="text-xl font-bold text-gray-800">
                   Stock Movements
                 </h2>
@@ -343,7 +359,6 @@ const Dashboard = () => {
               <StockMovementChart />
             </div>
 
-            {/* Top Products / Top Clients */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
               <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
                 <TopProducts products={stats.topProducts} />
@@ -353,12 +368,11 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Stock Alerts Widget */}
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+            {/* --- UPDATED STOCK ALERTS WRAPPER --- */}
+            <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
               <AlertsWidget />
             </div>
 
-            {/* Executive Insights (Director only) */}
             {user?.role === "director" && stats.averageInvoiceValue && (
               <div className="relative overflow-hidden rounded-2xl bg-linear-to-br from-emerald-900 to-emerald-800 p-8 shadow-xl">
                 <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/5 blur-3xl"></div>

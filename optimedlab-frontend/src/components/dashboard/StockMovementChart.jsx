@@ -31,7 +31,7 @@ const StockMovementChart = () => {
       if (period === "week") {
         startDate.setDate(startDate.getDate() - 7);
       } else {
-        startDate.setMonth(startDate.getMonth() - 12);
+        startDate.setDate(startDate.getDate() - 30); // Use exactly 30 days for better alignment
       }
 
       const response = await stockService.getMovements({
@@ -39,162 +39,206 @@ const StockMovementChart = () => {
         endDate: endDate.toISOString().split("T")[0],
       });
 
-      const movements = response.data;
+      // 1. FIX: Safely extract the array regardless of how the backend wraps the JSON response
+      let movements = [];
+      if (Array.isArray(response)) {
+        movements = response;
+      } else if (response?.data && Array.isArray(response.data)) {
+        movements = response.data;
+      } else if (response?.data?.data && Array.isArray(response.data.data)) {
+        movements = response.data.data;
+      } else if (response?.movements && Array.isArray(response.movements)) {
+        movements = response.movements;
+      }
 
       const grouped = {};
+
       movements.forEach((m) => {
+        if (!m.createdAt) return; // Skip if no date
+
         const date = new Date(m.createdAt);
         let key;
 
         if (period === "week") {
-          key = date.toISOString().split("T")[0];
+          key = date.toLocaleDateString("en-US", { weekday: "short" });
         } else {
-          key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+          key = date.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          });
         }
 
         if (!grouped[key]) {
-          grouped[key] = { key, in: 0, out: 0 };
+          grouped[key] = { name: key, In: 0, Out: 0 };
         }
 
-        if (m.type === "in") {
-          grouped[key].in += m.quantity;
-        } else {
-          grouped[key].out += m.quantity;
+        // 2. FIX: Make the Type check case-insensitive and support both English & French
+        const moveType = String(m.type || m.movementType || "").toUpperCase();
+        const quantity = Number(m.quantity) || 0;
+
+        if (moveType === "IN" || moveType.includes("ENTR")) {
+          grouped[key].In += quantity;
+        } else if (moveType === "OUT" || moveType.includes("SORT")) {
+          grouped[key].Out += quantity;
         }
       });
 
-      let chartData = Object.values(grouped).sort((a, b) =>
-        a.key.localeCompare(b.key),
-      );
+      // 3. FIX: Ensure perfect chronological order for both Week and Month views
+      let chartData = [];
 
-      chartData = chartData.map((item) => {
-        let displayName;
-        if (period === "week") {
-          const date = new Date(item.key + "T12:00:00");
-          displayName = date.toLocaleDateString("fr-FR", {
-            weekday: "short",
-            day: "2-digit",
-            month: "2-digit",
-          });
-        } else {
-          const [year, month] = item.key.split("-");
-          const date = new Date(year, month - 1, 1);
-          displayName = date.toLocaleDateString("fr-FR", {
-            month: "long",
-            year: "numeric",
-          });
+      if (period === "week") {
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const key = days[d.getDay()];
+          chartData.push(grouped[key] || { name: key, In: 0, Out: 0 });
         }
-        return {
-          name: displayName,
-          in: item.in,
-          out: item.out,
-        };
-      });
+      } else {
+        // Generate the last 30 days chronologically
+        for (let i = 29; i >= 0; i--) {
+          const d = new Date();
+          d.setDate(d.getDate() - i);
+          const key = d.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          });
+          chartData.push(grouped[key] || { name: key, In: 0, Out: 0 });
+        }
+      }
 
       setData(chartData);
     } catch (error) {
-      console.error("Failed to fetch movement data", error);
+      console.error("Failed to fetch movement data:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <div className="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
-          <div className="h-8 w-24 bg-gray-200 rounded-xl animate-pulse"></div>
-        </div>
-        <div className="h-75 bg-gray-100 rounded-xl animate-pulse flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-600"></div>
-            <span className="text-sm text-gray-400">Loading chart data…</span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">
-          Stock Movements
+    <div className="flex h-full flex-col">
+      {/* Header & Controls */}
+      <div className="mb-6 flex items-center justify-between">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500">
+          Movement Activity
         </h3>
-
-        {/* Period Toggle */}
-        <div className="flex rounded-xl border border-gray-200 bg-white p-0.5 w-fit">
+        <div className="flex items-center overflow-hidden rounded-lg border border-gray-200 bg-gray-50/50 p-1">
           <button
             onClick={() => setPeriod("week")}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
               period === "week"
-                ? "bg-emerald-900 text-white shadow-sm"
-                : "text-gray-400 hover:text-gray-600"
+                ? "bg-white text-emerald-700 shadow-sm ring-1 ring-gray-900/5"
+                : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            Week
+            7 Days
           </button>
           <button
             onClick={() => setPeriod("month")}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            className={`rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
               period === "month"
-                ? "bg-emerald-900 text-white shadow-sm"
-                : "text-gray-400 hover:text-gray-600"
+                ? "bg-white text-emerald-700 shadow-sm ring-1 ring-gray-900/5"
+                : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            Month
+            30 Days
           </button>
         </div>
       </div>
 
-      {/* Content */}
-      {data.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-emerald-100 bg-gray-50/50 py-12">
-          <svg
-            className="h-10 w-10 text-gray-300 mb-3"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="1.5"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-            />
-          </svg>
-          <p className="text-sm text-gray-500 font-medium">
-            No movement data available for this period
+      {/* Chart Area */}
+      {loading ? (
+        <div className="flex h-[300px] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-100 border-t-emerald-500"></div>
+        </div>
+      ) : data.length === 0 || data.every((d) => d.In === 0 && d.Out === 0) ? (
+        <div className="flex h-[300px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-emerald-100 bg-gray-50/50 transition-all duration-300 hover:bg-emerald-50/30">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100/50 text-emerald-500">
+            <svg
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
+                d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"
+              />
+            </svg>
+          </div>
+          <p className="text-sm font-semibold text-gray-500">
+            No movements recorded
           </p>
-          <p className="text-xs text-gray-400 mt-1">
-            Try selecting a different date range
+          <p className="mt-1 text-xs text-gray-400">
+            Adjust the date range to see historical data.
           </p>
         </div>
       ) : (
         <ResponsiveContainer width="100%" height={300}>
           <BarChart
             data={data}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            margin={{ top: 10, right: 10, left: -20, bottom: 5 }}
+            barGap={4}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-            <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#9ca3af" }} />
-            <YAxis tick={{ fontSize: 12, fill: "#9ca3af" }} />
+            <CartesianGrid
+              strokeDasharray="4 4"
+              stroke="#f3f4f6"
+              vertical={false}
+            />
+            <XAxis
+              dataKey="name"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: "#9ca3af", fontWeight: 500 }}
+              dy={10}
+            />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12, fill: "#9ca3af", fontWeight: 500 }}
+              dx={-10}
+            />
             <Tooltip
+              cursor={{ fill: "#f9fafb" }}
               contentStyle={{
                 borderRadius: "12px",
-                border: "1px solid #e5e7eb",
-                boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+                border: "none",
+                boxShadow:
+                  "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+                padding: "12px 16px",
+                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                backdropFilter: "blur(4px)",
+              }}
+              labelStyle={{
+                fontSize: "12px",
+                color: "#6b7280",
+                marginBottom: "6px",
+                fontWeight: 600,
               }}
             />
-            <Legend wrapperStyle={{ paddingTop: "10px" }} iconType="circle" />
-            <Bar dataKey="in" fill="#10b981" name="In" radius={[4, 4, 0, 0]} />
+            <Legend
+              iconType="circle"
+              wrapperStyle={{
+                fontSize: "12px",
+                fontWeight: 500,
+                paddingTop: "10px",
+              }}
+            />
             <Bar
-              dataKey="out"
-              fill="#ef4444"
-              name="Out"
+              dataKey="In"
+              name="Stock In"
+              fill="#10b981"
               radius={[4, 4, 0, 0]}
+              maxBarSize={40}
+            />
+            <Bar
+              dataKey="Out"
+              name="Stock Out"
+              fill="#f43f5e"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={40}
             />
           </BarChart>
         </ResponsiveContainer>

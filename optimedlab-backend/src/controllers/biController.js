@@ -3,11 +3,23 @@ const Product = require("../models/Product");
 const Client = require("../models/Client");
 const Quote = require("../models/Quote");
 const PDFDocument = require("pdfkit");
+const fs = require("fs");
+const path = require("path");
+
+// 🖼️ Path to your uploaded logo 🖼️
+const LOGO_PATH = path.join(
+  __dirname,
+  "..",
+  "assets",
+  "optimedlab_logo.png.jpg",
+);
 
 // --- Helper Functions (matching pdfGenerator style) ---
 
 const formatCurrency = (amount) => {
-  return "TND " + amount.toFixed(3);
+  if (amount === null || amount === undefined || isNaN(amount))
+    return "TND 0.000";
+  return "TND " + Number(amount).toFixed(3);
 };
 
 const generateHr = (doc, y) => {
@@ -56,7 +68,7 @@ const getDashboardStats = async (req, res) => {
         startDate.setMonth(now.getMonth() - 1);
     }
 
-    // Total sales (CA) for period
+    // Total sales (CA) for period (UPDATED TO USE totalTTC & totalHT)
     const totalSales = await Invoice.aggregate([
       {
         $match: {
@@ -67,13 +79,14 @@ const getDashboardStats = async (req, res) => {
       {
         $group: {
           _id: null,
-          total: { $sum: "$total" },
+          total: { $sum: "$totalTTC" }, // Changed from total to totalTTC
+          totalHT: { $sum: "$totalHT" }, // Added for deeper BI
           count: { $sum: 1 },
         },
       },
     ]);
 
-    // Sales by day/week for chart
+    // Sales by day/week for chart (UPDATED TO USE totalTTC)
     const salesByDate = await Invoice.aggregate([
       {
         $match: {
@@ -88,14 +101,14 @@ const getDashboardStats = async (req, res) => {
             month: { $month: "$createdAt" },
             day: { $dayOfMonth: "$createdAt" },
           },
-          total: { $sum: "$total" },
+          total: { $sum: "$totalTTC" }, // Changed from total
           count: { $sum: 1 },
         },
       },
       { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } },
     ]);
 
-    // Top selling products
+    // Top selling products (Calculated based on price * qty)
     const topProducts = await Invoice.aggregate([
       { $unwind: "$items" },
       {
@@ -127,12 +140,12 @@ const getDashboardStats = async (req, res) => {
       },
     ]);
 
-    // Top clients
+    // Top clients (UPDATED TO USE totalTTC)
     const topClients = await Invoice.aggregate([
       {
         $group: {
           _id: "$client",
-          totalSpent: { $sum: "$total" },
+          totalSpent: { $sum: "$totalTTC" }, // Changed from total
           invoiceCount: { $sum: 1 },
         },
       },
@@ -164,18 +177,24 @@ const getDashboardStats = async (req, res) => {
     // Pending quotes count
     const pendingQuotes = await Quote.countDocuments({ status: "draft" });
 
-    // Unpaid invoices total
+    // Unpaid invoices total (UPDATED TO USE totalTTC)
     const unpaidInvoices = await Invoice.aggregate([
       { $match: { paymentStatus: { $ne: "paid" } } },
-      { $group: { _id: null, total: { $sum: "$total" } } },
+      { $group: { _id: null, total: { $sum: "$totalTTC" } } }, // Changed from total
     ]);
+
+    // Add calculations for Total Products and Clients
+    const totalProducts = await Product.countDocuments();
+    const totalClients = await Client.countDocuments();
 
     res.json({
       success: true,
       data: {
         period,
-        totalSales: totalSales[0]?.total || 0,
+        totalSales: totalSales[0]?.total || 0, // Maps to TotalTTC
         totalInvoices: totalSales[0]?.count || 0,
+        totalProducts,
+        totalClients,
         salesByDate: salesByDate.map((item) => ({
           date: `${item._id.year}-${item._id.month}-${item._id.day}`,
           total: item.total,
@@ -185,9 +204,8 @@ const getDashboardStats = async (req, res) => {
         stockAlerts,
         pendingQuotes,
         unpaidInvoices: unpaidInvoices[0]?.total || 0,
-        // Role-based additional data (director gets more)
+        // Role-based additional data
         ...(userRole === "director" && {
-          // Additional deep insights for director
           averageInvoiceValue:
             totalSales[0]?.count > 0
               ? (totalSales[0].total / totalSales[0].count).toFixed(2)
@@ -208,7 +226,6 @@ const generateReport = async (req, res) => {
   try {
     const { startDate, endDate, type = "sales" } = req.body;
 
-    // Parse dates
     const start = startDate
       ? new Date(startDate)
       : new Date(new Date().setMonth(new Date().getMonth() - 1));
@@ -218,7 +235,6 @@ const generateReport = async (req, res) => {
     let title = "";
     let columns = [];
 
-    // Fetch data based on type
     switch (type) {
       case "sales":
         title = "RAPPORT DES VENTES";
@@ -243,7 +259,8 @@ const generateReport = async (req, res) => {
               invoiceNumber: 1,
               date: "$createdAt",
               client: "$clientInfo.name",
-              total: 1,
+              totalHT: 1, // Added
+              totalTTC: 1, // Changed from total
             },
           },
           { $sort: { date: -1 } },
@@ -252,7 +269,7 @@ const generateReport = async (req, res) => {
           { text: "N° Facture", x: 50, width: 100, align: "left" },
           { text: "Date", x: 160, width: 80, align: "left" },
           { text: "Client", x: 250, width: 150, align: "left" },
-          { text: "Montant", x: 450, width: 100, align: "right" },
+          { text: "Montant TTC", x: 450, width: 100, align: "right" },
         ];
         break;
 
@@ -304,11 +321,10 @@ const generateReport = async (req, res) => {
 
       default:
         title = "RAPPORT COMPLET";
-        // For a comprehensive report you might combine data; here we just return empty
         break;
     }
 
-    // --- PDF Generation (styled like invoice/quote) ---
+    // --- PDF Generation ---
     const doc = new PDFDocument({ margin: 50, size: "A4" });
     const buffers = [];
     doc.on("data", buffers.push.bind(buffers));
@@ -322,29 +338,32 @@ const generateReport = async (req, res) => {
       res.send(pdfData);
     });
 
-    // 1. Header Section
-    doc
-      .fillColor("#047857")
-      .fontSize(24)
-      .font("Helvetica-Bold")
-      .text("OPTIMEDLAB", 50, 50);
+    // 1. Header Section - 🖼️ UPDATED TO USE IMAGE 🖼️
+    if (fs.existsSync(LOGO_PATH)) {
+      doc.image(LOGO_PATH, 50, 45, { width: 90 });
+    } else {
+      doc
+        .fillColor("#047857")
+        .fontSize(20)
+        .font("Helvetica-Bold")
+        .text("OPTIMEDLAB", 50, 50);
+    }
 
     doc
       .fillColor("#4b5563")
       .fontSize(10)
       .font("Helvetica")
-      .text("Adresse de l'entreprise", 50, 80)
-      .text("Tél: +216 77 456 789", 50, 95)
-      .text("contact@optimedlab.com", 50, 110);
+      .text("Kalaât El Andalous, Ariana", 50, 90)
+      .text("Tunisie", 50, 105)
+      .text("Tél: 92 021 038", 50, 120);
 
-    // Document Title (right aligned)
+    // Document Title
     doc
       .fillColor("#111827")
       .fontSize(20)
       .font("Helvetica-Bold")
       .text(title, 50, 50, { align: "right", width: 500 });
 
-    // Period and generation date (metadata)
     doc
       .fontSize(10)
       .font("Helvetica-Bold")
@@ -356,7 +375,6 @@ const generateReport = async (req, res) => {
         80,
         { width: 130, align: "right" },
       )
-
       .font("Helvetica-Bold")
       .text("Généré le:", 350, 95)
       .font("Helvetica")
@@ -365,13 +383,12 @@ const generateReport = async (req, res) => {
         align: "right",
       });
 
-    generateHr(doc, 135);
+    generateHr(doc, 145);
 
     // 2. Table Section
-    const tableTop = 160;
+    const tableTop = 170;
     const rowHeight = 20;
 
-    // Table Header with background
     doc.rect(50, tableTop - 5, 500, 25).fill("#f3f4f6");
     doc.fillColor("#111827");
     drawTableRow(doc, tableTop, columns, true);
@@ -379,7 +396,6 @@ const generateReport = async (req, res) => {
 
     let y = tableTop + 30;
 
-    // Table Rows with Zebra Striping
     if (data.length === 0) {
       doc
         .fontSize(10)
@@ -389,13 +405,17 @@ const generateReport = async (req, res) => {
       y += rowHeight;
     } else {
       data.forEach((item, i) => {
-        // Zebra striping
+        // Auto Page Break if table gets too long
+        if (y > doc.page.height - 150) {
+          doc.addPage();
+          y = 50;
+        }
+
         if (i % 2 !== 0) {
           doc.rect(50, y - 5, 500, rowHeight).fill("#f9fafb");
         }
         doc.fillColor("#374151");
 
-        // Build row data based on report type
         let rowColumns = [];
         if (type === "sales") {
           rowColumns = [
@@ -412,8 +432,9 @@ const generateReport = async (req, res) => {
               align: "left",
             },
             { text: item.client || "-", x: 250, width: 150, align: "left" },
+            // UPDATED to use totalTTC
             {
-              text: formatCurrency(item.total || 0),
+              text: formatCurrency(item.totalTTC || 0),
               x: 450,
               width: 100,
               align: "right",
@@ -470,8 +491,8 @@ const generateReport = async (req, res) => {
 
     generateHr(doc, y + 5);
 
-    // 3. Footer with generation timestamp
-    const footerY = doc.page.height - 100;
+    // 3. Footer
+    const footerY = doc.page.height - 50;
     doc
       .fontSize(9)
       .fillColor("#9ca3af")

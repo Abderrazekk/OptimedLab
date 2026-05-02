@@ -197,9 +197,16 @@ const updatePaymentStatus = async (req, res) => {
       });
     }
 
-    invoice.paymentStatus = paymentStatus;
-    await invoice.save();
-    res.json({ success: true, data: invoice });
+    // 🔴 FIX: Use findByIdAndUpdate to only update the specific field in MongoDB.
+    // This prevents Mongoose from validating older test invoices that might have been
+    // created before totalHT, tvaAmount, and totalTTC were marked as required fields.
+    const updatedInvoice = await Invoice.findByIdAndUpdate(
+      req.params.id,
+      { paymentStatus: paymentStatus },
+      { new: true, runValidators: false }, // runValidators: false skips checking missing old fields
+    );
+
+    res.json({ success: true, data: updatedInvoice });
 
     if (paymentStatus === "paid") {
       const User = require("../models/User");
@@ -207,13 +214,14 @@ const updatePaymentStatus = async (req, res) => {
         role: { $in: ["admin", "director"] },
         isBanned: false,
       }).select("_id");
+
       for (const u of admins) {
         await createNotification({
           userId: u._id,
           type: "invoice_paid",
           title: "💰 Facture payée",
-          message: `Facture n°${invoice.invoiceNumber} marquée comme payée`,
-          link: `/invoices/${invoice._id}`,
+          message: `Facture n°${updatedInvoice.invoiceNumber} marquée comme payée`,
+          link: `/invoices/${updatedInvoice._id}`,
         });
       }
     }
@@ -221,7 +229,6 @@ const updatePaymentStatus = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
-
 // @desc    Generate PDF for invoice
 // @route   GET /api/invoices/:id/pdf
 // @access  Private (commercial, director)
